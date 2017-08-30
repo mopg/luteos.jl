@@ -30,7 +30,7 @@ function quadratureLine( orderRq::Int )
 
     nq = 1
 
-    weight = Array{Float64}(nq,1)
+    weight = Array{Float64}(nq)
     xc     = Array{Float64}(nq,1)
 
     weight[1] = 2
@@ -40,7 +40,7 @@ function quadratureLine( orderRq::Int )
 
     nq = 2
 
-    weight = Array{Float64}(nq,1)
+    weight = Array{Float64}(nq)
     xc     = Array{Float64}(nq,1)
 
     wght = 1
@@ -49,13 +49,12 @@ function quadratureLine( orderRq::Int )
     weight[2] = wght
     xc[1]     = -x
     xc[2]     =  x
-  }
 
   elseif order == 5
 
     nq = 3
 
-    weight = Array{Float64}(nq,1)
+    weight = Array{Float64}(nq)
     xc     = Array{Float64}(nq,1)
 
     wght = 5./9.
@@ -69,13 +68,12 @@ function quadratureLine( orderRq::Int )
     x    = 0
     weight[2] = wght
     xc[2]  = x
-  }
 
   elseif order == 7
 
     nq = 4
 
-    weight = Array{Float64}(nq,1)
+    weight = Array{Float64}(nq)
     xc     = Array{Float64}(nq,1)
 
     wght = 0.5 - sqrt(5./6.)/6.
@@ -97,15 +95,15 @@ function quadratureLine( orderRq::Int )
 
     nq = 5
 
-    weight = Array{Float64}(nq,1)
+    weight = Array{Float64}(nq)
     xc     = Array{Float64}(nq,1)
 
     wght      = (322 - 13*sqrt(70.))/900.
     x         = sqrt(5 + 2*sqrt(10./7.))/3.
     weight[1] = wght
-    weight[6] = wght
+    weight[5] = wght
     xc[1]     = -x
-    xc[6]     =  x
+    xc[5]     =  x
 
     wght      = (322 + 13*sqrt(70.))/900.
     x         = sqrt(5 - 2*sqrt(10./7.))/3.
@@ -123,35 +121,35 @@ function quadratureLine( orderRq::Int )
 
     nq = 6
 
-    weight = Array{Float64}(nq,1)
+    weight = Array{Float64}(nq)
     xc     = Array{Float64}(nq,1)
 
     xc[1]     = -0.9324695142031520278123016
     xc[2]     = -0.6612093864662645136613996
     xc[3]     = -0.2386191860831969086305017
     xc[4]     =  0.2386191860831969086305017
-    xc[6]     =  0.6612093864662645136613996
+    xc[5]     =  0.6612093864662645136613996
     xc[6]     =  0.9324695142031520278123016
 
     weight[1] = 0.1713244923791703450402961
     weight[2] = 0.3607615730481386075698335
     weight[3] = 0.4679139345726910473898703
     weight[4] = 0.4679139345726910473898703
-    weight[6] = 0.3607615730481386075698335
+    weight[5] = 0.3607615730481386075698335
     weight[6] = 0.1713244923791703450402961
 
   elseif order == 13
 
     nq = 7
 
-    weight = Array{Float64}(nq,1)
+    weight = Array{Float64}(nq)
     xc     = Array{Float64}(nq,1)
 
     xc[1]     = -0.9491079123427585245261897
     xc[2]     = -0.7415311855993944398638648
     xc[3]     = -0.4058451513773971669066064
     xc[4]     =  0.0000000000000000000000000
-    xc[6]     =  0.4058451513773971669066064
+    xc[5]     =  0.4058451513773971669066064
     xc[6]     =  0.7415311855993944398638648
     xc[7]     =  0.9491079123427585245261897
 
@@ -159,10 +157,16 @@ function quadratureLine( orderRq::Int )
     weight[2] = 0.2797053914892766679014678
     weight[3] = 0.3818300505051189449503698
     weight[4] = 0.4179591836734693877551020
-    weight[6] = 0.3818300505051189449503698
+    weight[5] = 0.3818300505051189449503698
     weight[6] = 0.2797053914892766679014678
     weight[7] = 0.1294849661688696932706114
 
   end
+
+  # Scale to [0,1]
+  xc     = 0.5 * ( xc + 1 )
+  weight = 0.5 * weight
+
+  return xc, weight
 
 end

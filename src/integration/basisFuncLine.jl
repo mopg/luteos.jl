@@ -118,4 +118,6 @@ function basisFuncLine( order::Int, s::Array{Float64} )
 
   end
 
+  return phi, dphi
+
 end

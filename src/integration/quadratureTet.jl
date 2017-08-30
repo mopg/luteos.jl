@@ -29,7 +29,7 @@ function quadratureTet( orderRq::Int )
   if order == 1
 
     nq = 1
-    weight = Array{Float64}(nq,1)
+    weight = Array{Float64}(nq)
     xc     = Array{Float64}(nq,1)
     yc     = Array{Float64}(nq,1)
     zc     = Array{Float64}(nq,1)
@@ -42,7 +42,7 @@ function quadratureTet( orderRq::Int )
   elseif order == 2
 
     nq  = 4
-    weight = Array{Float64}(nq,1)
+    weight = Array{Float64}(nq)
     xc     = Array{Float64}(nq,1)
     yc     = Array{Float64}(nq,1)
     zc     = Array{Float64}(nq,1)
@@ -73,7 +73,7 @@ function quadratureTet( orderRq::Int )
   elseif order == 3
 
     nq  = 8
-    weight = Array{Float64}(nq,1)
+    weight = Array{Float64}(nq)
     xc     = Array{Float64}(nq,1)
     yc     = Array{Float64}(nq,1)
     zc     = Array{Float64}(nq,1)
@@ -99,7 +99,7 @@ function quadratureTet( orderRq::Int )
   elseif order == 4
 
     nq = 14
-    weight = Array{Float64}(nq,1)
+    weight = Array{Float64}(nq)
     xc     = Array{Float64}(nq,1)
     yc     = Array{Float64}(nq,1)
     zc     = Array{Float64}(nq,1)
@@ -137,7 +137,7 @@ function quadratureTet( orderRq::Int )
   elseif order == 5
 
     nq = 14
-    weight = Array{Float64}(nq,1)
+    weight = Array{Float64}(nq)
     xc     = Array{Float64}(nq,1)
     yc     = Array{Float64}(nq,1)
     zc     = Array{Float64}(nq,1)
@@ -175,7 +175,7 @@ function quadratureTet( orderRq::Int )
   elseif order == 6
 
     nq = 24
-    weight = Array{Float64}(nq,1)
+    weight = Array{Float64}(nq)
     xc     = Array{Float64}(nq,1)
     yc     = Array{Float64}(nq,1)
     zc     = Array{Float64}(nq,1)
@@ -233,7 +233,7 @@ function quadratureTet( orderRq::Int )
   elseif order == 7
 
     nq = 35
-    weight = Array{Float64}(nq,1)
+    weight = Array{Float64}(nq)
     xc     = Array{Float64}(nq,1)
     yc     = Array{Float64}(nq,1)
     zc     = Array{Float64}(nq,1)
@@ -314,7 +314,7 @@ function quadratureTet( orderRq::Int )
   elseif order == 8
 
     nq = 46
-    weight = Array{Float64}(nq,1)
+    weight = Array{Float64}(nq)
     xc     = Array{Float64}(nq,1)
     yc     = Array{Float64}(nq,1)
     zc     = Array{Float64}(nq,1)
@@ -414,5 +414,9 @@ function quadratureTet( orderRq::Int )
     weight[46] =   2.7286969908865196e-03 * 6.0
 
   end
+
+  pts = hcat( xc, yc, zc )
+
+  return pts, weight
 
 end

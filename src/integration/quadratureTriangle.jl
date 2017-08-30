@@ -1,4 +1,4 @@
-function quadratureTet( orderRq::Int )
+function quadratureTriangle( orderRq::Int )
 
   if orderRq <= 2
     order = 1
@@ -10,21 +10,22 @@ function quadratureTet( orderRq::Int )
     order = 4
   elseif orderRq <= 8
     order = 5
-  elseif orderRq <= 10
-    order = 6
-  elseif orderRq <= 11
-    order = 7
+  # elseif orderRq <= 10
+  #   order = 6
+  # elseif orderRq <= 11
+  #   order = 7
   elseif orderRq <= 12
     order = 8
   elseif orderRq <= 13
     order = 9
   elseif orderRq <= 14
     order = 10
+  end
 
   if order == 1
 
     nq = 1
-    weight = Array{Float64}(nq,1)
+    weight = Array{Float64}(nq)
     xc     = Array{Float64}(nq,1)
     yc     = Array{Float64}(nq,1)
 
@@ -36,7 +37,7 @@ function quadratureTet( orderRq::Int )
 
     nq = 3
 
-    weight = Array{Float64}(nq,1)
+    weight = Array{Float64}(nq)
     xc     = Array{Float64}(nq,1)
     yc     = Array{Float64}(nq,1)
 
@@ -55,7 +56,7 @@ function quadratureTet( orderRq::Int )
   elseif order == 3
 
     nq = 6
-    weight = Array{Float64}(nq,1)
+    weight = Array{Float64}(nq)
     xc     = Array{Float64}(nq,1)
     yc     = Array{Float64}(nq,1)
 
@@ -91,7 +92,7 @@ function quadratureTet( orderRq::Int )
   elseif order == 4
 
     nq = 6
-    weight = Array{Float64}(nq,1)
+    weight = Array{Float64}(nq)
     xc     = Array{Float64}(nq,1)
     yc     = Array{Float64}(nq,1)
 
@@ -127,7 +128,7 @@ function quadratureTet( orderRq::Int )
   elseif order == 5
 
     nq = 7
-    weight = Array{Float64}(nq,1)
+    weight = Array{Float64}(nq)
     xc     = Array{Float64}(nq,1)
     yc     = Array{Float64}(nq,1)
 
@@ -168,12 +169,12 @@ function quadratureTet( orderRq::Int )
   elseif order == 8
 
     nq = 16
-    weight = Array{Float64}(nq,1)
+    weight = Array{Float64}(nq)
     xc     = Array{Float64}(nq,1)
     yc     = Array{Float64}(nq,1)
 
     x         = 1./3.
-    w         = 2.*0.072157803838893584125545555244532    // 2*729*(13764*sqrt(30) - 24517)/(513947840)
+    w         = 2.*0.072157803838893584125545555244532
     xc[1]     = x
     yc[1]     = x
     weight[1] = w
@@ -247,6 +248,12 @@ function quadratureTet( orderRq::Int )
     yc[16]     = y
     weight[16] = w
 
+  else
+    error("Too high p")
   end
+
+  pts = hcat( xc, yc )
+
+  return pts, weight
 
 end

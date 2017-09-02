@@ -1,9 +1,12 @@
 include("../integration/quadratureLine.jl")
 include("../integration/quadratureTriangle.jl")
 include("../integration/quadratureTet.jl")
-include("../integration/basisFuncLine.jl")
-include("../integration/basisFuncTriangle.jl")
-include("../integration/basisFuncTet.jl")
+include("../integration/basisFuncLineLeg.jl")
+include("../integration/basisFuncTriangleLeg.jl")
+include("../integration/basisFuncTetLeg.jl")
+include("../integration/basisFuncLineLag.jl")
+include("../integration/basisFuncTriangleLag.jl")
+include("../integration/basisFuncTetLag.jl")
 
 type Master3D
 
@@ -30,7 +33,7 @@ type Master3D
 
 end
 
-function Master3D( porder::Int64, pgauss::Int64 = 3*porder )
+function Master3D( porder::Int64; pgauss::Int64 = 3*porder, typeb = "lag" )
 
   (go1D, go2D, go3D) = compOrder( pgauss )
 
@@ -38,9 +41,15 @@ function Master3D( porder::Int64, pgauss::Int64 = 3*porder )
   (gpts2D_, gwts2D_) = quadratureTriangle( Val{go2D} )
   (gpts1D_, gwts1D_) = quadratureLine( Val{go1D} )
 
-  (phi_,   dphi_)   = basisFuncTet( Val{porder}, gpts_[:,1], gpts_[:,2],  gpts_[:,3] )
-  (phi2D_, dphi2D_) = basisFuncTriangle( Val{porder}, gpts2D_[:,1], gpts2D_[:,2] )
-  (phi1D_, dphi1D_) = basisFuncLine( Val{porder}, gpts1D_ )
+  if typeb == "lag"
+    (phi_,   dphi_)   = basisFuncTetLag( Val{porder}, gpts_[:,1], gpts_[:,2],  gpts_[:,3] )
+    (phi2D_, dphi2D_) = basisFuncTriangleLag( Val{porder}, gpts2D_[:,1], gpts2D_[:,2] )
+    (phi1D_, dphi1D_) = basisFuncLineLag( Val{porder}, gpts1D_ )
+  elseif typeb == "leg"
+    (phi_,   dphi_)   = basisFuncTetLeg( Val{porder}, gpts_[:,1], gpts_[:,2],  gpts_[:,3] )
+    (phi2D_, dphi2D_) = basisFuncTriangleLeg( Val{porder}, gpts2D_[:,1], gpts2D_[:,2] )
+    (phi1D_, dphi1D_) = basisFuncLineLeg( Val{porder}, gpts1D_ )
+  end
 
   Master3D( porder, pgauss, gpts_, gwts_, gpts2D_, gwts2D_, gpts1D_, gwts1D_,
     phi_, dphi_, phi2D_, dphi2D_, phi1D_, dphi1D_ )

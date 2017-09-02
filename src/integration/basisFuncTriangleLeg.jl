@@ -1,4 +1,4 @@
-function basisFuncTriangle( ::Type{Val{0}}, s::Array{Float64}, t::Array{Float64} )
+function basisFuncTriangleLeg( ::Type{Val{0}}, s::Array{Float64}, t::Array{Float64} )
 
   dim = 2
   nx  = length( s )
@@ -21,7 +21,7 @@ function basisFuncTriangle( ::Type{Val{0}}, s::Array{Float64}, t::Array{Float64}
 
 end
 
-function basisFuncTriangle( ::Type{Val{1}}, s::Array{Float64}, t::Array{Float64} )
+function basisFuncTriangleLeg( ::Type{Val{1}}, s::Array{Float64}, t::Array{Float64} )
 
   dim = 2
   nx  = length( s )
@@ -51,7 +51,7 @@ function basisFuncTriangle( ::Type{Val{1}}, s::Array{Float64}, t::Array{Float64}
 
 end
 
-function basisFuncTriangle( ::Type{Val{2}}, s::Array{Float64}, t::Array{Float64} )
+function basisFuncTriangleLeg( ::Type{Val{2}}, s::Array{Float64}, t::Array{Float64} )
 
   dim = 2
   nx  = length( s )
@@ -90,7 +90,7 @@ function basisFuncTriangle( ::Type{Val{2}}, s::Array{Float64}, t::Array{Float64}
 
 end
 
-function basisFuncTriangle( ::Type{Val{3}}, s::Array{Float64}, t::Array{Float64} )
+function basisFuncTriangleLeg( ::Type{Val{3}}, s::Array{Float64}, t::Array{Float64} )
 
   dim = 2
   nx  = length( s )
@@ -138,7 +138,7 @@ function basisFuncTriangle( ::Type{Val{3}}, s::Array{Float64}, t::Array{Float64}
 
 end
 
-function basisFuncTriangle( ::Type{Val{4}}, s::Array{Float64}, t::Array{Float64} )
+function basisFuncTriangleLeg( ::Type{Val{4}}, s::Array{Float64}, t::Array{Float64} )
 
   dim = 2
   nx  = length( s )
@@ -217,7 +217,7 @@ function basisFuncTriangle( ::Type{Val{4}}, s::Array{Float64}, t::Array{Float64}
 
 end
 
-function basisFuncTriangle( ::Type{Val{5}}, s::Array{Float64}, t::Array{Float64} )
+function basisFuncTriangleLeg( ::Type{Val{5}}, s::Array{Float64}, t::Array{Float64} )
 
   dim = 2
   nx  = length( s )

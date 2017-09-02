@@ -1,8 +1,9 @@
 include("../integration/quadratureTriangle.jl")
 include("../integration/quadratureLine.jl")
-include("../integration/basisFuncLine.jl")
-include("../integration/basisFuncTriangle.jl")
-
+include("../integration/basisFuncLineLeg.jl")
+include("../integration/basisFuncTriangleLeg.jl")
+include("../integration/basisFuncLineLag.jl")
+include("../integration/basisFuncTriangleLag.jl")
 
 type Master2D
 
@@ -11,7 +12,7 @@ type Master2D
 
   gpts::Array{Float64}    # Gauss points  2D
   gwts::Array{Float64}    # Gauss weights 2D
-  
+
   gpts1D::Array{Float64}  # Gauss points  1D
   gwts1D::Array{Float64}  # Gauss weights 1D
 
@@ -23,15 +24,22 @@ type Master2D
 
 end
 
-function Master2D( porder::Int64, pgauss::Int64 = 3*porder )
+function Master2D( porder::Int64; pgauss::Int64 = 3*porder, typeb = "lag" )
 
   (go1D, go2D) = compOrder( pgauss )
 
   (gpts_,   gwts_)   = quadratureTriangle( Val{go2D} )
   (gpts1D_, gwts1D_) = quadratureLine( Val{go1D} )
 
-  (phi_,   dphi_)   = basisFuncTriangle( Val{porder}, gpts_[:,1], gpts_[:,2] )
-  (phi1D_, dphi1D_) = basisFuncLine( Val{porder}, gpts1D_ )
+  if typeb == "lag"
+    (phi_,   dphi_)   = basisFuncTriangleLag( Val{porder}, gpts_[:,1], gpts_[:,2] )
+    (phi1D_, dphi1D_) = basisFuncLineLag( Val{porder}, gpts1D_ )
+  elseif typeb == "leg"
+    (phi_,   dphi_)   = basisFuncTriangleLeg( Val{porder}, gpts_[:,1], gpts_[:,2] )
+    (phi1D_, dphi1D_) = basisFuncLineLeg( Val{porder}, gpts1D_ )
+  else
+    error("Unknown type of basis function")
+  end
 
   Master2D( porder, pgauss, gpts_, gwts_, gpts1D_, gwts1D_,
     phi_, dphi_, phi1D_, dphi1D_ )

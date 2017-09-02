@@ -1,4 +1,4 @@
-function basisFuncTet( ::Type{Val{0}}, s::Array{Float64}, t::Array{Float64}, u::Array{Float64} )
+function basisFuncTetLeg( ::Type{Val{0}}, s::Array{Float64}, t::Array{Float64}, u::Array{Float64} )
 
   dim = 3
   nx  = length( s )
@@ -23,7 +23,7 @@ function basisFuncTet( ::Type{Val{0}}, s::Array{Float64}, t::Array{Float64}, u::
 
 end
 
-function basisFuncTet( ::Type{Val{1}}, s::Array{Float64}, t::Array{Float64}, u::Array{Float64} )
+function basisFuncTetLeg( ::Type{Val{1}}, s::Array{Float64}, t::Array{Float64}, u::Array{Float64} )
 
   dim = 3
   nx  = length( s )
@@ -63,7 +63,7 @@ function basisFuncTet( ::Type{Val{1}}, s::Array{Float64}, t::Array{Float64}, u::
 end
 
 
-function basisFuncTet( ::Type{Val{2}}, s::Array{Float64}, t::Array{Float64}, u::Array{Float64} )
+function basisFuncTetLeg( ::Type{Val{2}}, s::Array{Float64}, t::Array{Float64}, u::Array{Float64} )
 
   dim = 3
   nx  = length( s )
@@ -128,7 +128,7 @@ function basisFuncTet( ::Type{Val{2}}, s::Array{Float64}, t::Array{Float64}, u::
 
 end
 
-function basisFuncTet( ::Type{Val{3}}, s::Array{Float64}, t::Array{Float64}, u::Array{Float64} )
+function basisFuncTetLeg( ::Type{Val{3}}, s::Array{Float64}, t::Array{Float64}, u::Array{Float64} )
 
   dim = 3
   nx  = length( s )

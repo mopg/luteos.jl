@@ -1,4 +1,4 @@
-function basisFuncLine( ::Type{Val{0}}, s::Array{Float64} )
+function basisFuncLineLeg( ::Type{Val{0}}, s::Array{Float64} )
 
   dim = 1
   nx  = length( s )
@@ -18,7 +18,7 @@ function basisFuncLine( ::Type{Val{0}}, s::Array{Float64} )
 
 end
 
-function basisFuncLine( ::Type{Val{1}}, s::Array{Float64} )
+function basisFuncLineLeg( ::Type{Val{1}}, s::Array{Float64} )
 
   dim = 1
   nx  = length( s )
@@ -41,7 +41,7 @@ function basisFuncLine( ::Type{Val{1}}, s::Array{Float64} )
 end
 
 
-function basisFuncLine( ::Type{Val{2}}, s::Array{Float64} )
+function basisFuncLineLeg( ::Type{Val{2}}, s::Array{Float64} )
 
   dim = 1
   nx  = length( s )
@@ -65,7 +65,7 @@ function basisFuncLine( ::Type{Val{2}}, s::Array{Float64} )
 
 end
 
-function basisFuncLine( ::Type{Val{3}}, s::Array{Float64} )
+function basisFuncLineLeg( ::Type{Val{3}}, s::Array{Float64} )
 
   dim = 1
   nx  = length( s )
@@ -91,7 +91,7 @@ function basisFuncLine( ::Type{Val{3}}, s::Array{Float64} )
 
 end
 
-function basisFuncLine( ::Type{Val{4}}, s::Array{Float64} )
+function basisFuncLineLeg( ::Type{Val{4}}, s::Array{Float64} )
 
   dim = 1
   nx  = length( s )
@@ -119,7 +119,7 @@ function basisFuncLine( ::Type{Val{4}}, s::Array{Float64} )
 
 end
 
-function basisFuncLine( ::Type{Val{5}}, s::Array{Float64} )
+function basisFuncLineLeg( ::Type{Val{5}}, s::Array{Float64} )
 
   dim = 1
   nx  = length( s )

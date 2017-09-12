@@ -120,9 +120,6 @@ for pp in 1:nelem # Loop over all elements
       rotdir = false
     end
 
-    println( size(mesh.nodes) )
-    println(nod)
-    println(pp)
     p1d  = master.phi1d'  * mesh.nodes[nod,:,pp]
     dp1d = master.dphi1d' * mesh.nodes[nod,:,pp]
 

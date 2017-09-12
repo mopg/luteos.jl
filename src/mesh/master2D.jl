@@ -121,7 +121,7 @@ function findPerm( p )
     permt[p+1,qq] = qq+1
 
     # faces
-    permt[2:p,qq] = 3 + (1+(qq-1)*(szF-1)):(qq*(szF-1))
+    permt[2:p,qq] = 3 + ( (1+(qq-1)*(szF-2)):(qq*(szF-2)) )
 
   end
 

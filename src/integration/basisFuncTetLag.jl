@@ -33,7 +33,15 @@ function basisFuncTetLag( ::Type{Val{1}}, s::Array{Float64}, t::Array{Float64}, 
   dphi[:,3,3] =  0
   dphi[:,4,3] =  1
 
-  return phi, dphi
+  # transpose
+  phi   = phi'
+
+  dphi2 = fill( 0.0, size(dphi,2), size(dphi,1), 3 )
+  dphi2[:,:,1] = dphi[:,:,1]'
+  dphi2[:,:,2] = dphi[:,:,2]'
+  dphi2[:,:,3] = dphi[:,:,3]'
+
+  return phi, dphi2
 
 end
 
@@ -96,7 +104,15 @@ function basisFuncTetLag( ::Type{Val{2}}, s::Array{Float64}, t::Array{Float64}, 
   dphi[:,9,3] =  s.*-4.0-t.*4.0-u.*8.0+4.0
   dphi[:,10,3] =  s.*-4.0
 
-  return phi, dphi
+  # transpose
+  phi   = phi'
+
+  dphi2 = fill( 0.0, size(dphi,2), size(dphi,1), 3 )
+  dphi2[:,:,1] = dphi[:,:,1]'
+  dphi2[:,:,2] = dphi[:,:,2]'
+  dphi2[:,:,3] = dphi[:,:,3]'
+
+  return phi, dphi2
 
 end
 
@@ -212,6 +228,14 @@ function basisFuncTetLag( ::Type{Val{3}}, s::Array{Float64}, t::Array{Float64}, 
   dphi[:,19,3] =  s.*2.7E1-s.*t.*2.7E1-s.*u.*5.4E1-(s.*s).*2.7E1
   dphi[:,20,3] =  s.*t.*-2.7E1
 
-  return phi, dphi
+  # transpose
+  phi   = phi'
+
+  dphi2 = fill( 0.0, size(dphi,2), size(dphi,1), 3 )
+  dphi2[:,:,1] = dphi[:,:,1]'
+  dphi2[:,:,2] = dphi[:,:,2]'
+  dphi2[:,:,3] = dphi[:,:,3]'
+
+  return phi, dphi2
 
 end

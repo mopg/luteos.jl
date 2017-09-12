@@ -1,15 +1,27 @@
 # __precompile__()
 
-module Luteos
+module luteos
 
-export Solve, Material, Mesh, quadratureTriangle, quadratureTet, quadratureLine, basisFuncTriangle
+export hdgSolveElas, Material, Problem, Master2D, Mesh2D, compJacob!#, quadratureTriangle, quadratureTet, quadratureLine, basisFuncTriangle
 
-include("material.jl")
-include("mesh.jl")
-include("solve.jl")
+include("integration/basisFuncLineLag.jl")
+include("integration/basisFuncLineLeg.jl")
+include("integration/basisFuncTriangleLag.jl")
+include("integration/basisFuncTriangleLeg.jl")
+include("integration/basisFuncTetLag.jl")
+include("integration/basisFuncTetLeg.jl")
 
-include("integration/basisFuncTriangle")
-include("integration/quadratureLine")
-include("integration/quadratureTet")
+include("integration/quadratureLine.jl")
+include("integration/quadratureTriangle.jl")
+include("integration/quadratureTet.jl")
+
+include("general/material.jl")
+include("general/problem.jl")
+
+include("mesh/mesh2D.jl")
+include("mesh/master2D.jl")
+include("mesh/compJacob.jl")
+
+include("solve/hdgSolveElas.jl")
 
 end

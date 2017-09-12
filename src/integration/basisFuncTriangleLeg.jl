@@ -17,7 +17,14 @@ function basisFuncTriangleLeg( ::Type{Val{0}}, s::Array{Float64}, t::Array{Float
   # derivative in y
   dphi[:,1,2] = 0.0
 
-  return phi, dphi
+  # transpose
+  phi   = phi'
+
+  dphi2 = fill( 0.0, size(dphi,2), size(dphi,1), 2 )
+  dphi2[:,:,1] = dphi[:,:,1]'
+  dphi2[:,:,2] = dphi[:,:,2]'
+
+  return phi, dphi2
 
 end
 
@@ -47,7 +54,14 @@ function basisFuncTriangleLeg( ::Type{Val{1}}, s::Array{Float64}, t::Array{Float
   dphi[:,2,1] = -sqrt(6)
   dphi[:,3,1] =  3.*sqrt(2)
 
-  return phi, dphi
+  # transpose
+  phi   = phi'
+
+  dphi2 = fill( 0.0, size(dphi,2), size(dphi,1), 2 )
+  dphi2[:,:,1] = dphi[:,:,1]'
+  dphi2[:,:,2] = dphi[:,:,2]'
+
+  return phi, dphi2
 
 end
 
@@ -86,7 +100,14 @@ function basisFuncTriangleLeg( ::Type{Val{2}}, s::Array{Float64}, t::Array{Float
   dphi[:,5,1] = -4.*sqrt(3).*(3 - 5.*(s + t))
   dphi[:,6,1] = -2.*sqrt(15).*(t - 2.*s)
 
-  return phi, dphi
+  # transpose
+  phi   = phi'
+
+  dphi2 = fill( 0.0, size(dphi,2), size(dphi,1), 2 )
+  dphi2[:,:,1] = dphi[:,:,1]'
+  dphi2[:,:,2] = dphi[:,:,2]'
+
+  return phi, dphi2
 
 end
 
@@ -134,7 +155,14 @@ function basisFuncTriangleLeg( ::Type{Val{3}}, s::Array{Float64}, t::Array{Float
   dphi[:, 9,1] =  30.*(2 - 8.*(s + t) + 7.*(s + t).*(s + t))
   dphi[:,10,2] =  6.*sqrt(5).*(7.*((s - t).*(s - t) - 2.*s.*s) - 4.*(t - 2.*s))
 
-  return phi, dphi
+  # transpose
+  phi   = phi'
+
+  dphi2 = fill( 0.0, size(dphi,2), size(dphi,1), 2 )
+  dphi2[:,:,1] = dphi[:,:,1]'
+  dphi2[:,:,2] = dphi[:,:,2]'
+
+  return phi, dphi2
 
 end
 
@@ -213,7 +241,14 @@ function basisFuncTriangleLeg( ::Type{Val{4}}, s::Array{Float64}, t::Array{Float
   dphi[:,14,2] = -15.*(4.*u.*u.*(7 - 6.*u - 9.*v) - u.*(7 - 4.*v.*(14 + 9.*v)) - 7.*v.*(3 + 4.*v))
   dphi[:,15,2] =  1.5.*sqrt(5).*(3.*u.*u.*(u + 5.*v) - 5.*v.*v.*(3.*u + 7.*v))
 
-  return phi, dphi
+  # transpose
+  phi   = phi'
+
+  dphi2 = fill( 0.0, size(dphi,2), size(dphi,1), 2 )
+  dphi2[:,:,1] = dphi[:,:,1]'
+  dphi2[:,:,2] = dphi[:,:,2]'
+
+  return phi, dphi2
 
 end
 
@@ -313,6 +348,13 @@ function basisFuncTriangleLeg( ::Type{Val{5}}, s::Array{Float64}, t::Array{Float
   dphi[:,20,2] = -3.*sqrt(3).*(11.*(3.*u.*u.*(u.*u - 10.*v.*v) + 35.*v.*v.*v.*v) - 4.*(10 - 11.*u).*(3.*u.*(u.*u + 5.*v.*(u - v)) - 35.*v.*v.*v))/(4.*sqrt(2))
   dphi[:,21,2] = -sqrt(33).*((5.*u.*u.*(3.*u.*u - 14.*v.*v) + 63.*v.*v.*v.*v) - 4.*v.*(5.*u.*(3.*u.*u + 7.*v.*(u - v)) - 63.*v.*v.*v))/(4.*sqrt(2))
 
-  return phi, dphi
+  # transpose
+  phi   = phi'
+
+  dphi2 = fill( 0.0, size(dphi,2), size(dphi,1), 2 )
+  dphi2[:,:,1] = dphi[:,:,1]'
+  dphi2[:,:,2] = dphi[:,:,2]'
+
+  return phi, dphi2
 
 end

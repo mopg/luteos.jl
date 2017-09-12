@@ -14,6 +14,10 @@ function basisFuncLineLeg( ::Type{Val{0}}, s::Array{Float64} )
   # derivative in x
   dphi[:,1,1] = 0.0
 
+  # transpose
+  phi   = phi'
+  dphi  = dphi'
+
   return phi, dphi
 
 end
@@ -35,6 +39,10 @@ function basisFuncLineLeg( ::Type{Val{1}}, s::Array{Float64} )
 
   dphi[:,1,1] =  0
   dphi[:,2,1] =  2.*sqrt(3)
+
+  # transpose
+  phi   = phi'
+  dphi  = dphi'
 
   return phi, dphi
 
@@ -61,6 +69,10 @@ function basisFuncLineLeg( ::Type{Val{2}}, s::Array{Float64} )
   dphi[:,2,1] =  2.*sqrt(3)
   dphi[:,3,1] =  6.*sqrt(5).*(s - t)
 
+  # transpose
+  phi   = phi'
+  dphi  = dphi'
+
   return phi, dphi
 
 end
@@ -86,6 +98,10 @@ function basisFuncLineLeg( ::Type{Val{3}}, s::Array{Float64} )
   dphi[:,2,1] =  2.*sqrt(3)
   dphi[:,3,1] =  6.*sqrt(5).*(s - t)
   dphi[:,4,1] = 12.*sqrt(7).*(1 - 5.*s.*t)
+
+  # transpose
+  phi   = phi'
+  dphi  = dphi'
 
   return phi, dphi
 
@@ -114,6 +130,10 @@ function basisFuncLineLeg( ::Type{Val{4}}, s::Array{Float64} )
   dphi[:,3,1] =  6.*sqrt(5).*(s - t)
   dphi[:,4,1] = 12.*sqrt(7).*(1 - 5.*s.*t)
   dphi[:,5,1] = 60.*(1 - 7.*s.*t).*(s - t)
+
+  # transpose
+  phi   = phi'
+  dphi  = dphi'
 
   return phi, dphi
 
@@ -145,6 +165,10 @@ function basisFuncLineLeg( ::Type{Val{5}}, s::Array{Float64} )
   dphi[:,4,1] = 12.*sqrt(7).*(1 - 5.*s.*t)
   dphi[:,5,1] = 60.*(1 - 7.*s.*t).*(s - t)
   dphi[:,6,1] = 30.*sqrt(11).*(1 - 14.*s.*t.*(1 - 3.*s.*t))
+
+  # transpose
+  phi   = phi'
+  dphi  = dphi'
 
   return phi, dphi
 

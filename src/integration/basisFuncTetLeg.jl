@@ -19,7 +19,15 @@ function basisFuncTetLeg( ::Type{Val{0}}, s::Array{Float64}, t::Array{Float64}, 
   # derivative in z
   dphi[:,1,3] = 0.0
 
-  return phi, dphi
+  # transpose
+  phi   = phi'
+
+  dphi2 = fill( 0.0, size(dphi,2), size(dphi,1), 3 )
+  dphi2[:,:,1] = dphi[:,:,1]'
+  dphi2[:,:,2] = dphi[:,:,2]'
+  dphi2[:,:,3] = dphi[:,:,3]'
+
+  return phi, dphi2
 
 end
 
@@ -58,7 +66,15 @@ function basisFuncTetLeg( ::Type{Val{1}}, s::Array{Float64}, t::Array{Float64}, 
   dphi[:,3,3] = 0
   dphi[:,4,3] = (2).*(sqrt(10))
 
-  return phi, dphi
+  # transpose
+  phi   = phi'
+
+  dphi2 = fill( 0.0, size(dphi,2), size(dphi,1), 3 )
+  dphi2[:,:,1] = dphi[:,:,1]'
+  dphi2[:,:,2] = dphi[:,:,2]'
+  dphi2[:,:,3] = dphi[:,:,3]'
+
+  return phi, dphi2
 
 end
 
@@ -124,7 +140,15 @@ function basisFuncTetLeg( ::Type{Val{2}}, s::Array{Float64}, t::Array{Float64}, 
   dphi[:,9,3] = (2).*((sqrt(21)).*(-1+s+(5).*(t)))
   dphi[:,10,3] = (6).*((sqrt(35)).*(-1+s+t+(2).*(u)))
 
-  return phi, dphi
+  # transpose
+  phi   = phi'
+
+  dphi2 = fill( 0.0, size(dphi,2), size(dphi,1), 3 )
+  dphi2[:,:,1] = dphi[:,:,1]'
+  dphi2[:,:,2] = dphi[:,:,2]'
+  dphi2[:,:,3] = dphi[:,:,3]'
+
+  return phi, dphi2
 
 end
 
@@ -233,6 +257,14 @@ function basisFuncTetLeg( ::Type{Val{3}}, s::Array{Float64}, t::Array{Float64}, 
   dphi[:,19,3] = (12).*((sqrt(15)).*((-1+s+(7).*(t)).*(-1+s+t+(2).*(u))))
   dphi[:,20,3] = (24).*((sqrt(21)).*((-1+s+t).^2+(5).*((-1+s+t).*(u))+(5).*(u2)))
 
-  return phi, dphi
+  # transpose
+  phi   = phi'
+
+  dphi2 = fill( 0.0, size(dphi,2), size(dphi,1), 3 )
+  dphi2[:,:,1] = dphi[:,:,1]'
+  dphi2[:,:,2] = dphi[:,:,2]'
+  dphi2[:,:,3] = dphi[:,:,3]'
+
+  return phi, dphi2
 
 end

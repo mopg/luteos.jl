@@ -1,9 +1,9 @@
-include("../integration/quadratureTriangle.jl")
-include("../integration/quadratureLine.jl")
-include("../integration/basisFuncLineLeg.jl")
-include("../integration/basisFuncTriangleLeg.jl")
-include("../integration/basisFuncLineLag.jl")
-include("../integration/basisFuncTriangleLag.jl")
+# include("../integration/quadratureTriangle.jl")
+# include("../integration/quadratureLine.jl")
+# include("../integration/basisFuncLineLeg.jl")
+# include("../integration/basisFuncTriangleLeg.jl")
+# include("../integration/basisFuncLineLag.jl")
+# include("../integration/basisFuncTriangleLag.jl")
 
 type Master2D
 
@@ -13,14 +13,16 @@ type Master2D
   gpts::Array{Float64}    # Gauss points  2D
   gwts::Array{Float64}    # Gauss weights 2D
 
-  gpts1D::Array{Float64}  # Gauss points  1D
-  gwts1D::Array{Float64}  # Gauss weights 1D
+  gpts1d::Array{Float64}  # Gauss points  1D
+  gwts1d::Array{Float64}  # Gauss weights 1D
 
   phi::Array{Float64}     # Shape functions in 2D
   dphi::Array{Float64}    # Derivatives of shape functions in 2D
 
-  phi1D::Array{Float64}   # Shape functions in 1D
-  dphi1D::Array{Float64}  # Derivatives of shape functions in 1D
+  phi1d::Array{Float64}   # Shape functions in 1D
+  dphi1d::Array{Float64}  # Derivatives of shape functions in 1D
+
+  perm::Array{Int64}      # Node numbers on faces
 
 end
 
@@ -29,20 +31,22 @@ function Master2D( porder::Int64; pgauss::Int64 = 3*porder, typeb = "lag" )
   (go1D, go2D) = compOrder( pgauss )
 
   (gpts_,   gwts_)   = quadratureTriangle( Val{go2D} )
-  (gpts1D_, gwts1D_) = quadratureLine( Val{go1D} )
+  (gpts1d_, gwts1d_) = quadratureLine( Val{go1D} )
 
   if typeb == "lag"
     (phi_,   dphi_)   = basisFuncTriangleLag( Val{porder}, gpts_[:,1], gpts_[:,2] )
-    (phi1D_, dphi1D_) = basisFuncLineLag( Val{porder}, gpts1D_ )
+    (phi1d_, dphi1d_) = basisFuncLineLag( Val{porder}, gpts1d_ )
   elseif typeb == "leg"
     (phi_,   dphi_)   = basisFuncTriangleLeg( Val{porder}, gpts_[:,1], gpts_[:,2] )
-    (phi1D_, dphi1D_) = basisFuncLineLeg( Val{porder}, gpts1D_ )
+    (phi1d_, dphi1d_) = basisFuncLineLeg( Val{porder}, gpts1d_ )
   else
     error("Unknown type of basis function")
   end
 
-  Master2D( porder, pgauss, gpts_, gwts_, gpts1D_, gwts1D_,
-    phi_, dphi_, phi1D_, dphi1D_ )
+  perm_ = findPerm( porder )
+
+  Master2D( porder, pgauss, gpts_, gwts_, gpts1d_, gwts1d_,
+    phi_, dphi_, phi1d_, dphi1d_, perm_ )
 
 end
 
@@ -101,5 +105,33 @@ function compOrder( orderRq )
   end
 
   return order1D, order2D
+
+end
+
+function findPerm( p )
+
+  permt = fill( 0::Int64, p+1, 3 )
+
+  szF = p + 1
+
+  for qq in 1:3
+
+    # corners
+    permt[1,qq]   = qq
+    permt[p+1,qq] = qq+1
+
+    # faces
+    permt[2:p,qq] = 3 + (1+(qq-1)*(szF-1)):(qq*(szF-1))
+
+  end
+
+  # fix corner
+  permt[p+1,end] = 1
+
+  perm = fill( 0::Int64, p+1, 3, 2 )
+  perm[:,:,1] = permt
+  perm[:,:,2] = permt[end:-1:1,:]
+
+  return perm
 
 end

@@ -16,6 +16,10 @@ function basisFuncLineLag( ::Type{Val{1}}, s::Array{Float64} )
   dphi[:,1,1] =  -1.0
   dphi[:,2,1] =   1.0
 
+  # transpose
+  phi   = phi'
+  dphi  = dphi[:,:,1]'
+
   return phi, dphi
 
 end
@@ -40,6 +44,10 @@ function basisFuncLineLag( ::Type{Val{2}}, s::Array{Float64} )
   dphi[:,1,1] =  s.*4.0-3.0
   dphi[:,2,1] =  s.*4.0-1.0
   dphi[:,3,1] =  s.*-8.0+4.0
+
+  # transpose
+  phi   = phi'
+  dphi  = dphi[:,:,1]'
 
   return phi, dphi
 
@@ -66,6 +74,10 @@ function basisFuncLineLag( ::Type{Val{3}}, s::Array{Float64} )
   dphi[:,2,1] =  s.*-9.0+(s.*s).*(2.7E1/2.0)+1.0
   dphi[:,3,1] =  s.*-4.5E1+(s.*s).*(8.1E1/2.0)+9.0
   dphi[:,4,1] =  s.*3.6E1-(s.*s).*(8.1E1/2.0)-9.0/2.0
+
+  # transpose
+  phi   = phi'
+  dphi  = dphi[:,:,1]'
 
   return phi, dphi
 
@@ -94,6 +106,10 @@ function basisFuncLineLag( ::Type{Val{4}}, s::Array{Float64} )
   dphi[:,3,1] =  -(1./3).*(s.*4.16E2-(s.*s).*8.64E2+(s.*s.*s).*5.12E2-4.8E1)
   dphi[:,4,1] =  (1./3).*(s.*4.56E2-(s.*s).*1.152E3+(s.*s.*s).*7.68E2-3.6E1)
   dphi[:,5,1] =  -(1./3).*(s.*2.24E2-(s.*s).*6.72E2+(s.*s.*s).*5.12E2-1.6E1)
+
+  # transpose
+  phi   = phi'
+  dphi  = dphi[:,:,1]'
 
   return phi, dphi
 
@@ -125,6 +141,10 @@ function basisFuncLineLag( ::Type{Val{5}}, s::Array{Float64} )
   dphi[:,4,1] =  -(1./24).*(s.*-1.07E4+(s.*s).*4.425E4-(s.*s.*s).*6.5E4+(s.*s.*s.*s).*3.125E4+6.0E2)
   dphi[:,5,1] =  (1./24).*(s.*-7.8E3+(s.*s).*3.675E4-(s.*s.*s).*6.0E4+(s.*s.*s.*s).*3.125E4+4.0E2)
   dphi[:,6,1] =  -(1./24).*(s.*-3.05E3+(s.*s).*1.5375E4-(s.*s.*s).*2.75E4+(s.*s.*s.*s).*1.5625E4+1.5E2)
+
+  # transpose
+  phi   = phi'
+  dphi  = dphi[:,:,1]'
 
   return phi, dphi
 

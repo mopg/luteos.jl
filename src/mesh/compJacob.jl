@@ -1,12 +1,12 @@
 function compJacob!( mesh::Mesh2D, master::Master2D )
 
-  xxi = master.dphi[:,:,1]' * squeeze( mesh.nodes[:,1,:], 2 )
-  xet = master.dphi[:,:,2]' * squeeze( mesh.nodes[:,1,:], 2 )
-  yxi = master.dphi[:,:,1]' * squeeze( mesh.nodes[:,2,:], 2 )
-  yet = master.dphi[:,:,2]' * squeeze( mesh.nodes[:,2,:], 2 )
+  xxi = master.dphi[:,:,1]' * mesh.nodes[:,1,:]
+  xet = master.dphi[:,:,2]' * mesh.nodes[:,1,:]
+  yxi = master.dphi[:,:,1]' * mesh.nodes[:,2,:]
+  yet = master.dphi[:,:,2]' * mesh.nodes[:,2,:]
 
   jac = xxi.*yet - xet.*yxi
-  jcw = diag( master.gwts ) * jac
+  jcw = diagm( master.gwts ) * jac
 
   xix =  1./jac .* yet
   etx = -1./jac .* yxi

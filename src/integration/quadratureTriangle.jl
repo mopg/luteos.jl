@@ -35,6 +35,8 @@ function quadratureTriangle( ::Type{Val{1}} )
 
   pts = hcat( xc, yc )
 
+  weight = weight/2
+
   return pts, weight
 
 end
@@ -60,6 +62,8 @@ function quadratureTriangle( ::Type{Val{2}} )
   yc[3]     = 1./6.
 
   pts = hcat( xc, yc )
+
+  weight = weight/2
 
   return pts, weight
 
@@ -103,6 +107,8 @@ function quadratureTriangle( ::Type{Val{3}} )
 
   pts = hcat( xc, yc )
 
+  weight = weight/2
+
   return pts, weight
 
 end
@@ -144,6 +150,8 @@ function quadratureTriangle( ::Type{Val{4}} )
   weight[6] = w
 
   pts = hcat( xc, yc )
+
+  weight = weight/2
 
   return pts, weight
 
@@ -191,6 +199,8 @@ function quadratureTriangle( ::Type{Val{5}} )
   weight[7] = w
 
   pts = hcat( xc, yc )
+
+  weight = weight/2
 
   return pts, weight
 
@@ -279,6 +289,8 @@ function quadratureTriangle( ::Type{Val{8}} )
   weight[16] = w
 
   pts = hcat( xc, yc )
+
+  weight = weight/2
 
   return pts, weight
 

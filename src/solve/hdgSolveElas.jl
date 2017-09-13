@@ -10,34 +10,34 @@ unkUhat = szF * dim             # Total of uhat unknowns per face
 Cstiff = material.Cstiff[2] #compCstiff( material, dim )
 
 # Stability parameter
-tau = Cstiff
+τ = Cstiff
 
 ### Initialize quantities
 
 # Equations of motion (Newton's second law)
-A = fill(0.0, nnodes*dim    , nnodes*dim^2  , nelem) # (v_{i,j}, \sigma^h_{ij})_{T^h} - <v_i, \sigma^h_{ij} n_j>_{dT^h}
-B = fill(0.0, nnodes*dim    , nnodes*dim    , nelem) # <v_i, func(u^h_k) >_{dT^h}
-C = fill(0.0, nnodes*dim    , szF*3*dim     , nelem) # <v_i, func(\hat{u}^h_k) >_{dT^h}
+A = fill(0.0, nnodes*dim    , nnodes*dim^2  , nelem) # (v_{i,j}, σ^h_{ij})_{T^h} - <v_i, σ^h_{ij} n_j>_{∂T^h}
+B = fill(0.0, nnodes*dim    , nnodes*dim    , nelem) # <v_i, func(u^h_k) >_{∂T^h}
+C = fill(0.0, nnodes*dim    , szF*3*dim     , nelem) # <v_i, func(\hat{u}^h_k) >_{∂T^h}
 
 F = fill(0.0, nnodes*dim    , 1            , nelem) # (v_{i}, b_{i})_{T^h}
 
 # strain-displacement
-D = fill(0.0, nnodes*dim^2  , nnodes*dim^2  , nelem) # (w_{ij}  , \epsilon^h_{ij})_{T^h}
-H = fill(0.0, nnodes*dim^2  , nnodes*dim    , nelem) # <w_{ij}  , (\hat{u}^h_i*n_j+ \hat{u}^h_j*n_i)>_{dT^h}
+D = fill(0.0, nnodes*dim^2  , nnodes*dim^2  , nelem) # (w_{ij}  , ϵ^h_{ij})_{T^h}
+H = fill(0.0, nnodes*dim^2  , nnodes*dim    , nelem) # <w_{ij}  , (\hat{u}^h_i*n_j+ \hat{u}^h_j*n_i)>_{∂T^h}
 J = fill(0.0, nnodes*dim^2  , szF*3*dim     , nelem) # (w_{ij,j}, u^h_i)_{T^h} + (w_{ij,i}, u^h_j*n_i)_{T^h}
 
 # Hooke's law
-K = fill(0.0, nnodes*dim^2  , nnodes*dim^2  , nelem) # (z_{ij}  , \sigma^h_{ij})_{T^h}
-M = fill(0.0, nnodes*dim^2  , nnodes*dim^2  , nelem) # (z_{ij}  , C_{ijkl}\epsilon^h_{kl})_{T^h}
+K = fill(0.0, nnodes*dim^2  , nnodes*dim^2  , nelem) # (z_{ij}  , σ^h_{ij})_{T^h}
+M = fill(0.0, nnodes*dim^2  , nnodes*dim^2  , nelem) # (z_{ij}  , C_{ijkl}ϵ^h_{kl})_{T^h}
 
 # Flux jumps
-N = fill(0.0, 3*szF*dim     , nnodes*dim^2  , nelem) # <\mu_{i} , \sigma^h_{ij}*n_j>_{dT^h\dOm_D}
-P = fill(0.0, 3*szF*dim     , nnodes*dim    , nelem) # <\mu_{i} , func(u^h_k)>_{dT^h\dOm_D}
-Q = fill(0.0, 3*szF*dim     , szF*3*dim     , nelem) # <\mu_{i} , func(\hat{u}^h_k)>_{dT^h\dOm_D} or <\mu_{i} , \hat{u}^h_{i})_{dOm_D}
+N = fill(0.0, 3*szF*dim     , nnodes*dim^2  , nelem) # <μ_{i} , σ^h_{ij}*n_j>_{∂T^h\∂Ω_D}
+P = fill(0.0, 3*szF*dim     , nnodes*dim    , nelem) # <μ_{i} , func(u^h_k)>_{∂T^h\∂Ω_D}
+Q = fill(0.0, 3*szF*dim     , szF*3*dim     , nelem) # <μ_{i} , func(\hat{u}^h_k)>_{∂T^h\∂Ω_D} or <μ_{i} , \hat{u}^h_{i})_{∂Ω_D}
 
 # Dirichlet BC
 #   BC RHS
-G = fill(0.0, 3*szF*dim     , 1            , nelem) # (\mu_{i} , t_i)_{dT^h\dOm_D}) or (\mu_{i} , \bar{u}_i)_{dOm_D}
+G = fill(0.0, 3*szF*dim     , 1            , nelem) # (μ_{i} , t_i)_{∂T^h\∂Ω_D}) or (μ_{i} , \bar{u}_i)_{∂Ω_D}
 
 # Matrix with unknowns for uhath
 A_UHATH = fill(0.0, 3*szF*dim     , szF*3*dim     , nelem)
@@ -47,54 +47,54 @@ Rfull = fill(0.0, size(mesh.f,1)*unkUhat,1);
 
 rr = 1 # iterator for unknowns in sparsity matrix
 
-dphic = fill(0.0, size(master.dphi))
+∇ϕc = fill(0.0, size(master.∇ϕ))
 
 for pp in 1:nelem # Loop over all elements
 
-  pLoc = master.phi' * mesh.nodes[:,:,pp]
+  pLoc = master.ϕ' * mesh.nodes[:,:,pp]
 
-  dphic[:,:,1] = master.dphi[:,:,1] * diagm( mesh.xix[:,pp,1] ) + master.dphi[:,:,2] * diagm( mesh.xix[:,pp,3] )
-  dphic[:,:,2] = master.dphi[:,:,1] * diagm( mesh.xix[:,pp,2] ) + master.dphi[:,:,2] * diagm( mesh.xix[:,pp,4] )
+  ∇ϕc[:,:,1] = master.∇ϕ[:,:,1] * diagm( mesh.∂ξ∂x[:,pp,1] ) + master.∇ϕ[:,:,2] * diagm( mesh.∂ξ∂x[:,pp,3] )
+  ∇ϕc[:,:,2] = master.∇ϕ[:,:,1] * diagm( mesh.∂ξ∂x[:,pp,2] ) + master.∇ϕ[:,:,2] * diagm( mesh.∂ξ∂x[:,pp,4] )
 
   jcwd = diagm(mesh.jcw[:,pp])
 
   # ------------------------- Volume integrals ------------------------------- #
   ## A (first part)
-  # (v_{i,j}, \sigma^h_{ij})_{T^h}
+  # (v_{i,j}, σ^h_{ij})_{T^h}
   for ii in 1:dim, jj in 1:dim
     ij = (ii-1)*dim + jj
-    A[1+(ii-1)*nnodes:ii*nnodes,1+(ij-1)*nnodes:ij*nnodes,pp] = dphic[:,:,jj] * jcwd * master.phi'
+    A[1+(ii-1)*nnodes:ii*nnodes,1+(ij-1)*nnodes:ij*nnodes,pp] = ∇ϕc[:,:,jj] * jcwd * master.ϕ'
   end
 
   ## D
-  # (w_{ij}  , \epsilon^h_{ij})_{T^h}
+  # (w_{ij}  , ϵ^h_{ij})_{T^h}
   for ii in 1:dim, jj in 1:dim
     ij = (ii-1)*dim + jj
-    D[1+(ij-1)*nnodes:ij*nnodes,1+(ij-1)*nnodes:ij*nnodes,pp] = master.phi * jcwd * master.phi'
+    D[1+(ij-1)*nnodes:ij*nnodes,1+(ij-1)*nnodes:ij*nnodes,pp] = master.ϕ * jcwd * master.ϕ'
   end
 
   ## H
   # (w_{ij,j}, u^h_i)_{T^h} + (w_{ij,i}, u^h_j)_{T^h}
   for ii = 1:dim, jj = 1:dim
     ij = (ii-1)*dim + jj
-    H[1+(ij-1)*nnodes:ij*nnodes,1+(ii-1)*nnodes:ii*nnodes,pp] += 0.5*dphic[:,:,jj] * jcwd * master.phi'
-    H[1+(ij-1)*nnodes:ij*nnodes,1+(jj-1)*nnodes:jj*nnodes,pp] += 0.5*dphic[:,:,ii] * jcwd * master.phi'
+    H[1+(ij-1)*nnodes:ij*nnodes,1+(ii-1)*nnodes:ii*nnodes,pp] += 0.5*∇ϕc[:,:,jj] * jcwd * master.ϕ'
+    H[1+(ij-1)*nnodes:ij*nnodes,1+(jj-1)*nnodes:jj*nnodes,pp] += 0.5*∇ϕc[:,:,ii] * jcwd * master.ϕ'
   end
 
   ## K
-  # (z_{ij}  , \sigma^h_{ij})_{T^h}
+  # (z_{ij}  , σ^h_{ij})_{T^h}
   for ii in 1:dim, jj in 1:dim
     ij = (ii-1)*dim + jj
-    K[1+(ij-1)*nnodes:ij*nnodes,1+(ij-1)*nnodes:ij*nnodes,pp] = master.phi * jcwd * master.phi'
+    K[1+(ij-1)*nnodes:ij*nnodes,1+(ij-1)*nnodes:ij*nnodes,pp] = master.ϕ * jcwd * master.ϕ'
   end
 
   ## M
-  # (z_{ij}  , C_{ijkl}\epsilon^h_{kl})_{T^h}
+  # (z_{ij}  , C_{ijkl}ϵ^h_{kl})_{T^h}
   for ii in 1:dim, jj in 1:dim
     ij = (ii-1)*dim + jj
     for kk in 1:dim, ll in 1:dim
       kl = (kk-1)*dim + ll
-      M[1+(ij-1)*nnodes:ij*nnodes,1+(kl-1)*nnodes:kl*nnodes,pp] -= Cstiff[ii,jj,kk,ll] * master.phi * jcwd * master.phi'
+      M[1+(ij-1)*nnodes:ij*nnodes,1+(kl-1)*nnodes:kl*nnodes,pp] -= Cstiff[ii,jj,kk,ll] * master.ϕ * jcwd * master.ϕ'
     end
   end
 
@@ -102,7 +102,7 @@ for pp in 1:nelem # Loop over all elements
   # (v_{i}, b_{i})_{T^h}
   src = problem.source(pLoc)
   for ii in 1:dim
-      F[1+(ii-1)*nnodes:ii*nnodes,1,pp] = master.phi * jcwd * src[:,ii]
+      F[1+(ii-1)*nnodes:ii*nnodes,1,pp] = master.ϕ * jcwd * src[:,ii]
   end
 
   # -------------------------------------------------------------------------- #
@@ -120,8 +120,8 @@ for pp in 1:nelem # Loop over all elements
       rotdir = false
     end
 
-    p1d  = master.phi1d'  * mesh.nodes[nod,:,pp]
-    dp1d = master.dphi1d' * mesh.nodes[nod,:,pp]
+    p1d  = master.ϕ1d'  * mesh.nodes[nod,:,pp]
+    dp1d = master.∇ϕ1d' * mesh.nodes[nod,:,pp]
 
     jac1d  = sqrt( dp1d[:,1].^2 + dp1d[:,2].^2 )
     jcw1d  = master.gwts1d .* jac1d
@@ -138,32 +138,32 @@ for pp in 1:nelem # Loop over all elements
     faceInd = (1 + (qq-1) * (mesh.porder + 1) ):qq*(mesh.porder+1)
 
     ## A (second part)
-    # -<v_i, \sigma^h_{ij} n_j>_{dT^h}
+    # -<v_i, σ^h_{ij} n_j>_{∂T^h}
     for ii in 1:dim, jj in 1:dim
       ij = (ii-1)*dim + jj
-      A[(ii-1)*nnodes + nod,(ij-1)*nnodes + nod,pp] -= master.phi1d * jcw1dd * ( master.phi1d * diagm(nL[:,jj]) )' # This last part was flipped in MATLAB
+      A[(ii-1)*nnodes + nod,(ij-1)*nnodes + nod,pp] -= master.ϕ1d * jcw1dd * ( master.ϕ1d * diagm(nL[:,jj]) )' # This last part was flipped in MATLAB
     end
 
     ## B
-    # -<v_i, tau_{ijkl} u^h_k * n_l * n_j >_{dT^h}
+    # -<v_i, τ_{ijkl} u^h_k * n_l * n_j >_{∂T^h}
     for ii in 1:dim, jj in 1:dim, kk in 1:dim, ll in 1:dim #l
       B[(ii-1)*nnodes + nod,(kk-1)*nnodes + nod,pp] +=
-        tau[ii,jj,kk,ll] * master.phi1d * jcw1dd * ( master.phi1d * diagm(nL[:,ll].*nL[:,jj]) )' # This last part was flipped in MATLAB
+        τ[ii,jj,kk,ll] * master.ϕ1d * jcw1dd * ( master.ϕ1d * diagm(nL[:,ll].*nL[:,jj]) )' # This last part was flipped in MATLAB
     end
 
     ## C
-    # <v_i, tau_{ijkl} \hat{u}^h_k * n_l * n_j >_{dT^h}
+    # <v_i, τ_{ijkl} \hat{u}^h_k * n_l * n_j >_{∂T^h}
     for ii in 1:dim, jj in 1:dim, kk in 1:dim, ll in 1:dim
       C[(ii-1)*nnodes + nod,(qq-1)*szF + (kk-1)*szF + faceInd,pp] -=
-          tau[ii,jj,kk,ll] * master.phi1d * jcw1dd * ( master.phi1d * diagm(nL[:,ll] .* nL[:,jj]) )' # This last part was flipped in MATLAB
+          τ[ii,jj,kk,ll] * master.ϕ1d * jcw1dd * ( master.ϕ1d * diagm(nL[:,ll] .* nL[:,jj]) )' # This last part was flipped in MATLAB
     end
 
     ## J
-    # <w_{ij}  , (\hat{u}^h_i*n_j+ \hat{u}^h_j*n_i)>_{dT^h}
+    # <w_{ij}  , (\hat{u}^h_i*n_j+ \hat{u}^h_j*n_i)>_{∂T^h}
     for ii in 1:dim, jj in 1:dim
       ij = (ii-1)*dim + jj
-      J[(ij-1)*nnodes + nod,(qq-1)*szF + (ii-1)*szF + faceInd,pp] -= 0.5*master.phi1d * jcw1dd * ( master.phi1d * diagm(nL[:,jj]) )'
-      J[(ij-1)*nnodes + nod,(qq-1)*szF + (jj-1)*szF + faceInd,pp] -= 0.5*master.phi1d * jcw1dd * ( master.phi1d * diagm(nL[:,ii]) )'
+      J[(ij-1)*nnodes + nod,(qq-1)*szF + (ii-1)*szF + faceInd,pp] -= 0.5*master.ϕ1d * jcw1dd * ( master.ϕ1d * diagm(nL[:,jj]) )'
+      J[(ij-1)*nnodes + nod,(qq-1)*szF + (jj-1)*szF + faceInd,pp] -= 0.5*master.ϕ1d * jcw1dd * ( master.ϕ1d * diagm(nL[:,ii]) )'
     end
 
     indF = abs( mesh.t2f[pp,qq] )
@@ -177,58 +177,58 @@ for pp in 1:nelem # Loop over all elements
         # Dirichlet boundary condition
 
         ## Q
-        # (\mu_{i} , \hat{u}^h_{i})_{dOm_D}
+        # (μ_{i} , \hat{u}^h_{i})_{∂Ω_D}
         for ii in 1:dim     #i
-          Q[(ii-1)*szF + (qq-1)*szF + faceInd,(ii-1)*szF + (qq-1)*szF + faceInd,pp] = master.phi1d * jcw1dd * master.phi1d'
+          Q[(ii-1)*szF + (qq-1)*szF + faceInd,(ii-1)*szF + (qq-1)*szF + faceInd,pp] = master.ϕ1d * jcw1dd * master.ϕ1d'
         end
 
         # BC RHS
         ## G
-        # (\mu_{i} , \bar{u}_i)_{dOm_D}
+        # (μ_{i} , \bar{u}_i)_{∂Ω_D}
         bcout = problem.bcfunc[bNo](p1d)
         for ii in 1:dim     #i
-          G[(ii-1)*szF + (qq-1)*szF + faceInd, 1,pp] = master.phi1d * jcw1dd * bcout[:,ii]
+          G[(ii-1)*szF + (qq-1)*szF + faceInd, 1,pp] = master.ϕ1d * jcw1dd * bcout[:,ii]
         end
 
       elseif problem.bctype[bNo] == 2
         # Neumann boundary condition
 
         ## N
-        # <\mu_{i} , \sigma^h_{ij}*n_j>_{dT^h\dOm_D}
+        # <μ_{i} , σ^h_{ij}*n_j>_{∂T^h\∂Ω_D}
         for ii in 1:dim, jj in 1:dim   #j
           ij = (ii-1)*dim + jj
           N[(ii-1)*szF + (qq-1)*szF + faceInd, (ij-1)*nnodes + nod,pp] +=
-              master.phi1d * jcw1dd * (diag(nL[:,jj]) * master.phi1d)'
+              master.ϕ1d * jcw1dd * (diag(nL[:,jj]) * master.ϕ1d)'
         end
 
         ## P
-        # <\mu_{i} , -tau_{ijkl} u^h_k n_l n_j ) >_{dT^h\dOm_D}
+        # <μ_{i} , -τ_{ijkl} u^h_k n_l n_j ) >_{∂T^h\∂Ω_D}
         for ii in 1:dim, jj in 1:dim, kk in 1:dim, ll in 1:dim
           P[(ii-1)*szF + (qq-1)*szF + faceInd,(kk-1)*nnodes + nod,pp] -=
-            tau[ii,jj,kk,ll] * master.phi1d * jcw1dd * ( master.phi1d * diagm(nL[:,ll] .* nL[:,jj]) )'
+            τ[ii,jj,kk,ll] * master.ϕ1d * jcw1dd * ( master.ϕ1d * diagm(nL[:,ll] .* nL[:,jj]) )'
         end
 
         ## Q
-        # <\mu_{i} , tau_{ijkl} \hat{u}^h_k n_l n_j ) >_{dT^h\dOm_D}
+        # <μ_{i} , τ_{ijkl} \hat{u}^h_k n_l n_j ) >_{∂T^h\∂Ω_D}
         for ii in 1:dim, jj in 1:dim, kk in 1:dim, ll in 1:dim
           Q[(ii-1)*szF + (qq-1)*szF + faceInd,(kk-1)*szF + (qq-1)*szF + faceInd,pp] +=
-            tau[ii,jj,kk,ll] * master.phi1d * jcw1dd * ( master.phi1d * diagm(nL[:,ll] .* nL[:,jj]) )'
+            τ[ii,jj,kk,ll] * master.ϕ1d * jcw1dd * ( master.ϕ1d * diagm(nL[:,ll] .* nL[:,jj]) )'
         end
 
         # BC RHS
         ## G
-        # (\mu_{i} , t_i)_{dT^h\dOm_D})
+        # (μ_{i} , t_i)_{∂T^h\∂Ω_D})
         if problem.bcnorm
           # Boundary conditions are defined normal to the surface
           bcout = problem.bcfunc[bNo](p1d)
           for ii in 1:dim     #i
               temp = nL[:,ii] .* bcout[:,1] + tL[:,ii] .* bcout[:,2]
-              G[(ii-1)*szF + (qq-1)*szF + faceInd, 1,pp] = master.phi1d * jcw1dd * temp
+              G[(ii-1)*szF + (qq-1)*szF + faceInd, 1,pp] = master.ϕ1d * jcw1dd * temp
           end
         else
           # Boundary conditions are defined in the general coordinate system
           for ii in 1:dim     #i
-              G[(ii-1)*szF + (qq-1)*szF + faceInd, 1,pp] = master.phi1d * jcw1dd * problem.bcfunc[bNo,ii](p1d)
+              G[(ii-1)*szF + (qq-1)*szF + faceInd, 1,pp] = master.ϕ1d * jcw1dd * problem.bcfunc[bNo,ii](p1d)
           end
         end
 
@@ -241,24 +241,24 @@ for pp in 1:nelem # Loop over all elements
       # In interior
 
       ## N
-      # <\mu_{i} , \sigma^h_{ij}*n_j>_{dT^h\dOm_D}
+      # <μ_{i} , σ^h_{ij}*n_j>_{∂T^h\∂Ω_D}
       for ii in 1:dim, jj in 1:dim
         ij = (ii-1)*dim + jj
-        N[(ii-1)*szF + (qq-1)*szF + faceInd, (ij-1)*nnodes + nod,pp] += master.phi1d * jcw1dd * ( master.phi1d * diagm(nL[:,jj]) )'
+        N[(ii-1)*szF + (qq-1)*szF + faceInd, (ij-1)*nnodes + nod,pp] += master.ϕ1d * jcw1dd * ( master.ϕ1d * diagm(nL[:,jj]) )'
       end
 
       ## P
-      # <\mu_{i} , -tau_{ijkl} u^h_k n_l n_j ) >_{dT^h\dOm_D}
+      # <μ_{i} , -τ_{ijkl} u^h_k n_l n_j ) >_{∂T^h\∂Ω_D}
       for ii in 1:dim, jj in 1:dim, kk in 1:dim, ll in 1:dim
         P[(ii-1)*szF + (qq-1)*szF + faceInd,(kk-1)*nnodes + nod,pp] -=
-          tau[ii,jj,kk,ll] * master.phi1d * jcw1dd * ( master.phi1d * diagm(nL[:,ll] .* nL[:,jj]) )'
+          τ[ii,jj,kk,ll] * master.ϕ1d * jcw1dd * ( master.ϕ1d * diagm(nL[:,ll] .* nL[:,jj]) )'
       end
 
       ## Q
-      # <\mu_{i} , tau_{ijkl} \hat{u}^h_k n_l n_j ) >_{dT^h\dOm_D}
+      # <μ_{i} , τ_{ijkl} \hat{u}^h_k n_l n_j ) >_{∂T^h\∂Ω_D}
       for ii in 1:dim, jj in 1:dim, kk in 1:dim, ll in 1:dim
         Q[(ii-1)*szF + (qq-1)*szF + faceInd,(kk-1)*szF + (qq-1)*szF + faceInd,pp] +=
-          tau[ii,jj,kk,ll] * master.phi1d * jcw1dd * ( master.phi1d * diagm(nL[:,ll] .* nL[:,jj]) )'
+          τ[ii,jj,kk,ll] * master.ϕ1d * jcw1dd * ( master.ϕ1d * diagm(nL[:,ll] .* nL[:,jj]) )'
       end
 
     end # boundary if-statement

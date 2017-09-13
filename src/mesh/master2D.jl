@@ -16,11 +16,11 @@ type Master2D
   gpts1d::Array{Float64}  # Gauss points  1D
   gwts1d::Array{Float64}  # Gauss weights 1D
 
-  phi::Array{Float64}     # Shape functions in 2D
-  dphi::Array{Float64}    # Derivatives of shape functions in 2D
+  ϕ::Array{Float64}     # Shape functions in 2D
+  ∇ϕ::Array{Float64}    # Derivatives of shape functions in 2D
 
-  phi1d::Array{Float64}   # Shape functions in 1D
-  dphi1d::Array{Float64}  # Derivatives of shape functions in 1D
+  ϕ1d::Array{Float64}   # Shape functions in 1D
+  ∇ϕ1d::Array{Float64}  # Derivatives of shape functions in 1D
 
   perm::Array{Int64}      # Node numbers on faces
 
@@ -34,11 +34,11 @@ function Master2D( porder::Int64; pgauss::Int64 = 3*porder, typeb = "lag" )
   (gpts1d_, gwts1d_) = quadratureLine( Val{go1D} )
 
   if typeb == "lag"
-    (phi_,   dphi_)   = basisFuncTriangleLag( Val{porder}, gpts_[:,1], gpts_[:,2] )
-    (phi1d_, dphi1d_) = basisFuncLineLag( Val{porder}, gpts1d_ )
+    (ϕ_,   ∇ϕ_)   = basisFuncTriangleLag( Val{porder}, gpts_[:,1], gpts_[:,2] )
+    (ϕ1d_, ∇ϕ1d_) = basisFuncLineLag( Val{porder}, gpts1d_ )
   elseif typeb == "leg"
-    (phi_,   dphi_)   = basisFuncTriangleLeg( Val{porder}, gpts_[:,1], gpts_[:,2] )
-    (phi1d_, dphi1d_) = basisFuncLineLeg( Val{porder}, gpts1d_ )
+    (ϕ_,   ∇ϕ_)   = basisFuncTriangleLeg( Val{porder}, gpts_[:,1], gpts_[:,2] )
+    (ϕ1d_, ∇ϕ1d_) = basisFuncLineLeg( Val{porder}, gpts1d_ )
   else
     error("Unknown type of basis function")
   end
@@ -46,7 +46,7 @@ function Master2D( porder::Int64; pgauss::Int64 = 3*porder, typeb = "lag" )
   perm_ = findPerm( porder )
 
   Master2D( porder, pgauss, gpts_, gwts_, gpts1d_, gwts1d_,
-    phi_, dphi_, phi1d_, dphi1d_, perm_ )
+    ϕ_, ∇ϕ_, ϕ1d_, ∇ϕ1d_, perm_ )
 
 end
 

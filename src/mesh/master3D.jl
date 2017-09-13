@@ -22,14 +22,14 @@ type Master3D
   gpts1D::Array{Float64}  # Gauss points  1D
   gwts1D::Array{Float64}  # Gauss weights 1D
 
-  phi::Array{Float64}     # Shape functions in 3D
-  dphi::Array{Float64}    # Derivatives of shape functions in 3D
+  ϕ::Array{Float64}     # Shape functions in 3D
+  ∇ϕ::Array{Float64}    # Derivatives of shape functions in 3D
 
-  phi2D::Array{Float64}   # Shape functions in 2D
-  dphi2D::Array{Float64}  # Derivatives of shape functions in 2D
+  ϕ2D::Array{Float64}   # Shape functions in 2D
+  ∇ϕ2D::Array{Float64}  # Derivatives of shape functions in 2D
 
-  phi1D::Array{Float64}   # Shape functions in 1D
-  dphi1D::Array{Float64}  # Derivatives of shape functions in 1D
+  ϕ1D::Array{Float64}   # Shape functions in 1D
+  ∇ϕ1D::Array{Float64}  # Derivatives of shape functions in 1D
 
 end
 
@@ -42,17 +42,17 @@ function Master3D( porder::Int64; pgauss::Int64 = 3*porder, typeb = "lag" )
   (gpts1D_, gwts1D_) = quadratureLine( Val{go1D} )
 
   if typeb == "lag"
-    (phi_,   dphi_)   = basisFuncTetLag( Val{porder}, gpts_[:,1], gpts_[:,2],  gpts_[:,3] )
-    (phi2D_, dphi2D_) = basisFuncTriangleLag( Val{porder}, gpts2D_[:,1], gpts2D_[:,2] )
-    (phi1D_, dphi1D_) = basisFuncLineLag( Val{porder}, gpts1D_ )
+    (ϕ_,   ∇ϕ_)   = basisFuncTetLag( Val{porder}, gpts_[:,1], gpts_[:,2],  gpts_[:,3] )
+    (ϕ2D_, ∇ϕ2D_) = basisFuncTriangleLag( Val{porder}, gpts2D_[:,1], gpts2D_[:,2] )
+    (ϕ1D_, ∇ϕ1D_) = basisFuncLineLag( Val{porder}, gpts1D_ )
   elseif typeb == "leg"
-    (phi_,   dphi_)   = basisFuncTetLeg( Val{porder}, gpts_[:,1], gpts_[:,2],  gpts_[:,3] )
-    (phi2D_, dphi2D_) = basisFuncTriangleLeg( Val{porder}, gpts2D_[:,1], gpts2D_[:,2] )
-    (phi1D_, dphi1D_) = basisFuncLineLeg( Val{porder}, gpts1D_ )
+    (ϕ_,   ∇ϕ_)   = basisFuncTetLeg( Val{porder}, gpts_[:,1], gpts_[:,2],  gpts_[:,3] )
+    (ϕ2D_, ∇ϕ2D_) = basisFuncTriangleLeg( Val{porder}, gpts2D_[:,1], gpts2D_[:,2] )
+    (ϕ1D_, ∇ϕ1D_) = basisFuncLineLeg( Val{porder}, gpts1D_ )
   end
 
   Master3D( porder, pgauss, gpts_, gwts_, gpts2D_, gwts2D_, gpts1D_, gwts1D_,
-    phi_, dphi_, phi2D_, dphi2D_, phi1D_, dphi1D_ )
+    ϕ_, ∇ϕ_, ϕ2D_, ∇ϕ2D_, ϕ1D_, ∇ϕ1D_ )
 
 end
 

@@ -1,25 +1,25 @@
 function compJacob!( mesh::Mesh2D, master::Master2D )
 
-  xxi = master.dphi[:,:,1]' * mesh.nodes[:,1,:]
-  xet = master.dphi[:,:,2]' * mesh.nodes[:,1,:]
-  yxi = master.dphi[:,:,1]' * mesh.nodes[:,2,:]
-  yet = master.dphi[:,:,2]' * mesh.nodes[:,2,:]
+  ∂x∂ξ = master.∇ϕ[:,:,1]' * mesh.nodes[:,1,:]
+  ∂x∂η = master.∇ϕ[:,:,2]' * mesh.nodes[:,1,:]
+  ∂y∂ξ = master.∇ϕ[:,:,1]' * mesh.nodes[:,2,:]
+  ∂y∂η = master.∇ϕ[:,:,2]' * mesh.nodes[:,2,:]
 
-  jac = xxi.*yet - xet.*yxi
+  jac = ∂x∂ξ.*∂y∂η - ∂x∂η.*∂y∂ξ
   jcw = diagm( master.gwts ) * jac
 
-  xix =  1./jac .* yet
-  etx = -1./jac .* yxi
-  xiy = -1./jac .* xet
-  ety =  1./jac .* xxi
+  ∂ξ∂x =  1./jac .* ∂y∂η
+  ∂η∂x = -1./jac .* ∂y∂ξ
+  ∂ξ∂y = -1./jac .* ∂x∂η
+  ∂η∂y =  1./jac .* ∂x∂ξ
 
-  xix_vec = fill(0.0, size(xxi,1), size(xxi,2), 4)
-  xix_vec[:,:,1] = xix
-  xix_vec[:,:,2] = xiy
-  xix_vec[:,:,3] = etx
-  xix_vec[:,:,4] = ety
+  ∂ξ∂x_vec = fill(0.0, size(∂x∂ξ,1), size(∂x∂ξ,2), 4)
+  ∂ξ∂x_vec[:,:,1] = ∂ξ∂x
+  ∂ξ∂x_vec[:,:,2] = ∂ξ∂y
+  ∂ξ∂x_vec[:,:,3] = ∂η∂x
+  ∂ξ∂x_vec[:,:,4] = ∂η∂y
 
-  mesh.jcw = jcw
-  mesh.xix = xix_vec
+  mesh.jcw  = jcw
+  mesh.∂ξ∂x = ∂ξ∂x_vec
 
 end

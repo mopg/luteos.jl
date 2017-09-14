@@ -323,8 +323,8 @@ uhath = Hfull \ Rfull
 ## Compute approximate scalar value and flux
 uhathTri = fill( 0.0, unkUhat*(dim+1), 1,    nelem )
 uh       = fill( 0.0, nnodes,         dim,   nelem )
-sigmah   = fill( 0.0, nnodes,         dim^2, nelem )
-epsilonh = fill( 0.0, nnodes,         dim^2, nelem )
+σh       = fill( 0.0, nnodes,         dim^2, nelem )
+ϵh       = fill( 0.0, nnodes,         dim^2, nelem )
 
 for pp in 1:nelem
     # ----------- Find uhath corresponding to this element ------------------- #
@@ -350,17 +350,17 @@ for pp in 1:nelem
     # ----------- Compute approximate strain field --------------------------- #
     eTemp = - invDH*uTemp - invDJ * uhathTri[:,:,pp]
     for ii in 1:dim^2
-        epsilonh[:,ii,pp] = eTemp[ 1 + (ii-1)*nnodes:nnodes*ii ]
+        ϵh[:,ii,pp] = eTemp[ 1 + (ii-1)*nnodes:nnodes*ii ]
     end
     # ------------------------------------------------------------------------ #
     # ----------- Compute approximate stress field --------------------------- #
     sTemp = - invKM * eTemp
     for ii in 1:dim^2
-        sigmah[ :,ii,pp ] = sTemp[ 1 + (ii-1)*nnodes:nnodes*ii ]
+        σh[ :,ii,pp ] = sTemp[ 1 + (ii-1)*nnodes:nnodes*ii ]
     end
     # ------------------------------------------------------------------------ #
 end
 
-return (uhathTri, uh, epsilonh, sigmah)
+return (uhathTri, uh, ϵh, σh)
 
 end # end function

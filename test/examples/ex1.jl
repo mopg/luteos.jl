@@ -6,7 +6,7 @@ mat = Material(E = 1, ν = 0.33)
 
 P = 2 # Polynomial order of solution
 
-mesh   = Mesh2D( "square", P, N = 8)
+mesh   = Mesh2D( "square", P, N = 3)
 master = Master2D( P, pgauss=5 )
 
 compJacob!( mesh, master )
@@ -22,4 +22,4 @@ end
 
 prob = Problem( "Example 1", func, [1,1,1,1], 1, [funcB, funcB, funcB, funcB] )
 
-hdgSolveElas( master, mesh, mat, prob )
+(uhathTri, uh, epsilonh, sigmah) = hdgSolveElas( master, mesh, mat, prob )

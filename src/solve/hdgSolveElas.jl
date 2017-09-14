@@ -10,7 +10,7 @@ unkUhat = szF * dim             # Total of uhat unknowns per face
 Cstiff = material.Cstiff[2] #compCstiff( material, dim )
 
 # Stability parameter
-τ = Cstiff
+τ = 1e-2 * Cstiff
 
 ### Initialize quantities
 
@@ -43,7 +43,12 @@ G = fill(0.0, 3*szF*dim     , 1            , nelem) # (μ_{i} , t_i)_{∂T^h\∂
 A_UHATH = fill(0.0, 3*szF*dim     , szF*3*dim     , nelem)
 B_UHATH = fill(0.0, 3*szF*dim     , 1            , nelem)
 
-Rfull = fill(0.0, size(mesh.f,1)*unkUhat,1);
+# Set up column and row indices for sparse matrix
+indRow = fill( 0.0, (dim+1)^2 * nelem * unkUhat^2 )
+indCol = fill( 0.0, (dim+1)^2 * nelem * unkUhat^2 )
+indUnk = fill( 0.0, (dim+1)^2 * nelem * unkUhat^2 )
+
+Rfull = fill( 0.0, size(mesh.f,1)*unkUhat ) # RHS vector
 
 rr = 1 # iterator for unknowns in sparsity matrix
 
@@ -128,9 +133,9 @@ for pp in 1:nelem # Loop over all elements
     jcw1dd = diagm( jcw1d )
 
     if rotdir
-      nL =  [ dp1d[:,2] -dp1d[:,1] ] ./ [jac1d jac1d]
-    else
       nL = -[ dp1d[:,2] -dp1d[:,1] ] ./ [jac1d jac1d]
+    else
+      nL =  [ dp1d[:,2] -dp1d[:,1] ] ./ [jac1d jac1d]
     end
 
     tL = [ nL[:,2] -nL[:,1] ]
@@ -159,7 +164,7 @@ for pp in 1:nelem # Loop over all elements
     end
 
     ## J
-    # <w_{ij}  , (\hat{u}^h_i*n_j+ \hat{u}^h_j*n_i)>_{∂T^h}
+    # <w_{ij}  , (\hat{u}^h_i*n_j + \hat{u}^h_j*n_i)>_{∂T^h}
     for ii in 1:dim, jj in 1:dim
       ij = (ii-1)*dim + jj
       J[(ij-1)*nnodes + nod,(qq-1)*szF + (ii-1)*szF + faceInd,pp] -= 0.5*master.ϕ1d * jcw1dd * ( master.ϕ1d * diagm(nL[:,jj]) )'
@@ -282,35 +287,80 @@ for pp in 1:nelem # Loop over all elements
   # -------------------------------------------------------------------------- #
 
   # ------------------------- Fill up complete H and R matrices -------------- #
-  # for qq = 1:3
-  #   indJ = [i for i=1:3]
-  #   deleteat!(indJ,qq)
-  #
-  #   indFall = abs.(mesh.t2f[pp,:])
-  #   deleteat!(indFall,qq)
-  #
-  #   indF = abs(mesh.t2f[pp,qq])
-  #   Rfull[1+(indF-1)*unkUhat:indF*unkUhat] += B_UHATH[1+(qq-1)*unkUhat:qq*unkUhat,1,pp]
-  #
-  #   # TODO: Figure out how to do sparse matrices in Julia!
-  #   indRow[rr:rr-1+unkUhat^2,1] = repmat(1+(indF-1)*unkUhat:indF*unkUhat,1,unkUhat)';
-  #   indCol[rr:rr-1+unkUhat^2,1] = reshape(repmat(1+(indF-1)*unkUhat:indF*unkUhat,unkUhat,1),unkUhat^2,1);
-  #   unkH(rr:rr-1+unkUhat^2,1)   = reshape(A_UHATH(1+(qq-1)*unkUhat:qq*unkUhat,1+(qq-1)*unkUhat:qq*unkUhat,pp),unkUhat^2,1);
-  #
-  #   rr = rr + unkUhat^2;
-  #
-  #   for tt = 1:2
-  #     indRow(rr:rr-1+unkUhat^2,1) = repmat(1+(indF-1)*unkUhat:indF*unkUhat,1,unkUhat)';
-  #     indCol(rr:rr-1+unkUhat^2,1) = reshape(repmat(1+(indFall(tt)-1)*unkUhat:indFall(tt)*unkUhat,unkUhat,1),unkUhat^2,1);
-  #     unkH(rr:rr-1+unkUhat^2,1)   = reshape(A_UHATH(1+(qq-1)*unkUhat:qq*unkUhat,1+(indJ(tt)-1)*unkUhat:indJ(tt)*unkUhat,pp),unkUhat^2,1);
-  #
-  #     rr = rr + unkUhat^2;
-  #   end
-  # end
+  for qq = 1:(dim+1)
+    indJ = [i for i=1:(dim+1)]
+    deleteat!(indJ,qq)
+
+    indFall = abs.(mesh.t2f[pp,:])
+    deleteat!(indFall,qq)
+
+    indF = abs(mesh.t2f[pp,qq])
+    Rfull[1+(indF-1)*unkUhat:indF*unkUhat] += B_UHATH[1+(qq-1)*unkUhat:qq*unkUhat,1,pp]
+
+    indRow[rr:rr-1+unkUhat^2] = repmat(  1+(indF-1)*unkUhat:indF*unkUhat, unkUhat )
+    indCol[rr:rr-1+unkUhat^2] = repmat(  1+(indF-1)*unkUhat:indF*unkUhat, 1, unkUhat )'[:]
+    indUnk[rr:rr-1+unkUhat^2] = A_UHATH[ 1+(qq-1)*unkUhat:qq*unkUhat, 1+(qq-1)*unkUhat:qq*unkUhat, pp ][:]
+
+    rr = rr + unkUhat^2
+
+    for tt = 1:2
+      indRow[rr:rr-1+unkUhat^2] = repmat(  1+(indF-1)*unkUhat:indF*unkUhat, unkUhat )
+      indCol[rr:rr-1+unkUhat^2] = repmat(  1+(indFall[tt]-1)*unkUhat:indFall[tt]*unkUhat, 1, unkUhat )'[:]
+      indUnk[rr:rr-1+unkUhat^2] = A_UHATH[ 1+(qq-1)*unkUhat:qq*unkUhat, 1+(indJ[tt]-1)*unkUhat:indJ[tt]*unkUhat, pp ][:]
+
+      rr = rr + unkUhat^2
+    end
+  end
   # -------------------------------------------------------------------------- #
 end # end element loop
 
 ### Compute approximate trace
-# TODO: FIGURE OUT HOW TO DO SPARSE SOLVES IN JULIA
+Hfull = sparse( indRow, indCol, indUnk, size(mesh.f,1) * unkUhat, size(mesh.f,1) * unkUhat )
+
+uhath = Hfull \ Rfull
+# ---------------------------------------------------------------------------- #
+
+## Compute approximate scalar value and flux
+uhathTri = fill( 0.0, unkUhat*(dim+1), 1,    nelem )
+uh       = fill( 0.0, nnodes,         dim,   nelem )
+sigmah   = fill( 0.0, nnodes,         dim^2, nelem )
+epsilonh = fill( 0.0, nnodes,         dim^2, nelem )
+
+for pp in 1:nelem
+    # ----------- Find uhath corresponding to this element ------------------- #
+    indF = abs.( mesh.t2f[pp,:] )
+    uhathTri[ 1          :  unkUhat, 1, pp ] = uhath[ 1+(indF[1]-1)*unkUhat:indF[1]*unkUhat, 1]
+    uhathTri[ 1+  unkUhat:2*unkUhat, 1, pp ] = uhath[ 1+(indF[2]-1)*unkUhat:indF[2]*unkUhat, 1]
+    uhathTri[ 1+2*unkUhat:3*unkUhat, 1, pp ] = uhath[ 1+(indF[3]-1)*unkUhat:indF[3]*unkUhat, 1]
+    # ------------------------------------------------------------------------ #
+    # ----------- Compute approximate displacement value --------------------- #
+    invKM = K[:,:,pp] \ M[:,:,pp]
+    invDH = D[:,:,pp] \ H[:,:,pp]
+    invDJ = D[:,:,pp] \ J[:,:,pp]
+
+    SYS_U_UHATH_11 = B[:,:,pp] + A[:,:,pp] * invKM * invDH
+    SYS_U_UHATH_12 = C[:,:,pp] + A[:,:,pp] * invKM * invDJ
+
+    uTemp = SYS_U_UHATH_11 \ ( F[:,:,pp] - SYS_U_UHATH_12 * uhathTri[:,:,pp] )
+
+    for ii in 1:dim
+        uh[:,ii,pp] = uTemp[ 1 + (ii-1)*nnodes:nnodes*ii ]
+    end
+    # ------------------------------------------------------------------------ #
+    # ----------- Compute approximate strain field --------------------------- #
+    eTemp = - invDH*uTemp - invDJ * uhathTri[:,:,pp]
+    for ii in 1:dim^2
+        epsilonh[:,ii,pp] = eTemp[ 1 + (ii-1)*nnodes:nnodes*ii ]
+    end
+    # ------------------------------------------------------------------------ #
+    # ----------- Compute approximate stress field --------------------------- #
+    sTemp = - invKM * eTemp
+    for ii in 1:dim^2
+        sigmah[ :,ii,pp ] = sTemp[ 1 + (ii-1)*nnodes:nnodes*ii ]
+    end
+    # ------------------------------------------------------------------------ #
+end
+
+return (uhathTri, uh, epsilonh, sigmah)
 
 end # end function

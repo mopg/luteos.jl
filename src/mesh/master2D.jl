@@ -128,6 +128,10 @@ function findPerm( p )
   # fix corner
   permt[p+1,end] = 1
 
+  # fix order
+  #   first face (according to mesh.t2f) is the one opposite of node 1 (so between node 2 and 3)
+  permt = [ permt[:,2:3] permt[:,1] ]
+
   perm = fill( 0::Int64, p+1, 3, 2 )
   perm[:,:,1] = permt
   perm[:,:,2] = permt[end:-1:1,:]

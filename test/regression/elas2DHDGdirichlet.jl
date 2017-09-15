@@ -83,7 +83,7 @@ end
 
 #   Setup boundary conditions
 function funcB( p::Array{Float64} )
-  return fill(1.0, size(p,1), 2)
+  return fill(0.0, size(p,1), 2)
 end
 bctype = [1,1,1,1] # All Dirichlet
 #   Setup source function
@@ -101,7 +101,7 @@ Err_ϵh2 = fill( 0.0, length(Ps), length(Ns) )
 Err_ϵh4 = fill( 0.0, length(Ps), length(Ns) )
 
 #   Loop over polynomial order and grid size
-for jj in 1:length(Ns), ii in 1:length(Ps)
+for ii in 1:length(Ps), jj in 1:length(Ns)
 
   P = Ps[ii]; N = Ns[jj]
 
@@ -126,37 +126,37 @@ for jj in 1:length(Ns), ii in 1:length(Ps)
     jcwd = diagm(mesh.jcw[:,kk])
 
     # u
-    diff_uh1   = master.ϕ' * ( uh[:,1,kk] - u1func( mesh.nodes[:,:,kk] ) )
-    diff_uh2   = master.ϕ' * ( uh[:,2,kk] - u2func( mesh.nodes[:,:,kk] ) )
-    err_uh[1] += diff_uh1' * jcwd * diff_uh1
-    err_uh[1] += diff_uh2' * jcwd * diff_uh2
+    Δuh1       = master.ϕ' * ( uh[:,1,kk] - u1func( mesh.nodes[:,:,kk] ) )
+    Δuh2       = master.ϕ' * ( uh[:,2,kk] - u2func( mesh.nodes[:,:,kk] ) )
+    err_uh[1] += Δuh1' * jcwd * Δuh1
+    err_uh[2] += Δuh2' * jcwd * Δuh2
 
     # σ
-    diff_σh1   = master.ϕ' * ( σh[:,1,kk] - σ1func( mesh.nodes[:,:,kk] ) )
-    diff_σh2   = master.ϕ' * ( σh[:,2,kk] - σ2func( mesh.nodes[:,:,kk] ) )
-    diff_σh4   = master.ϕ' * ( σh[:,4,kk] - σ4func( mesh.nodes[:,:,kk] ) )
-    err_σh[1] += diff_σh1' * jcwd * diff_σh1
-    err_σh[2] += diff_σh2' * jcwd * diff_σh2
-    err_σh[4] += diff_σh4' * jcwd * diff_σh4
+    Δσh1       = master.ϕ' * ( σh[:,1,kk] - σ1func( mesh.nodes[:,:,kk] ) )
+    Δσh2       = master.ϕ' * ( σh[:,2,kk] - σ2func( mesh.nodes[:,:,kk] ) )
+    Δσh4       = master.ϕ' * ( σh[:,4,kk] - σ4func( mesh.nodes[:,:,kk] ) )
+    err_σh[1] += Δσh1' * jcwd * Δσh1
+    err_σh[2] += Δσh2' * jcwd * Δσh2
+    err_σh[4] += Δσh4' * jcwd * Δσh4
 
     # ϵ
-    diff_ϵh1   = master.ϕ' * ( ϵh[:,1,kk] - ϵ1func( mesh.nodes[:,:,kk] ) )
-    diff_ϵh2   = master.ϕ' * ( ϵh[:,2,kk] - ϵ2func( mesh.nodes[:,:,kk] ) )
-    diff_ϵh4   = master.ϕ' * ( ϵh[:,4,kk] - ϵ4func( mesh.nodes[:,:,kk] ) )
-    err_ϵh[1] += diff_ϵh1' * jcwd * diff_ϵh1
-    err_ϵh[2] += diff_ϵh2' * jcwd * diff_ϵh2
-    err_ϵh[4] += diff_ϵh4' * jcwd * diff_ϵh4
+    Δϵh1       = master.ϕ' * ( ϵh[:,1,kk] - ϵ1func( mesh.nodes[:,:,kk] ) )
+    Δϵh2       = master.ϕ' * ( ϵh[:,2,kk] - ϵ2func( mesh.nodes[:,:,kk] ) )
+    Δϵh4       = master.ϕ' * ( ϵh[:,4,kk] - ϵ4func( mesh.nodes[:,:,kk] ) )
+    err_ϵh[1] += Δϵh1' * jcwd * Δϵh1
+    err_ϵh[2] += Δϵh2' * jcwd * Δϵh2
+    err_ϵh[4] += Δϵh4' * jcwd * Δϵh4
 
   end
 
-  Err_uh1[ii,jj] += err_uh[1]
-  Err_uh2[ii,jj] += err_uh[2]
-  Err_σh1[ii,jj] += err_σh[1]
-  Err_σh2[ii,jj] += err_σh[2]
-  Err_σh4[ii,jj] += err_σh[4]
-  Err_ϵh1[ii,jj] += err_ϵh[1]
-  Err_ϵh2[ii,jj] += err_ϵh[2]
-  Err_ϵh4[ii,jj] += err_ϵh[4]
+  Err_uh1[ii,jj] = sqrt(err_uh[1])
+  Err_uh2[ii,jj] = sqrt(err_uh[2])
+  Err_σh1[ii,jj] = sqrt(err_σh[1])
+  Err_σh2[ii,jj] = sqrt(err_σh[2])
+  Err_σh4[ii,jj] = sqrt(err_σh[4])
+  Err_ϵh1[ii,jj] = sqrt(err_ϵh[1])
+  Err_ϵh2[ii,jj] = sqrt(err_ϵh[2])
+  Err_ϵh4[ii,jj] = sqrt(err_ϵh[4])
 
 end
 
@@ -187,7 +187,7 @@ for jj in 1:size(Ps,1)
   @printf( " %6.4f", conv_uh1[jj] )
 end
 @printf( "\n" )
-@printf( "u₁  ")
+@printf( "u₂  ")
 for jj in 1:size(Ps,1)
   @printf( " %6.4f", conv_uh2[jj] )
 end

@@ -10,7 +10,7 @@ unkUhat = szF * dim             # Total of uhat unknowns per face
 Cstiff = material.Cstiff[2] #compCstiff( material, dim )
 
 # Stability parameter
-τ = 1e-2 * Cstiff
+τ = Cstiff
 
 ### Initialize quantities
 
@@ -232,8 +232,9 @@ for pp in 1:nelem # Loop over all elements
           end
         else
           # Boundary conditions are defined in the general coordinate system
+          bcout = problem.bcfunc[bNo](p1d)
           for ii in 1:dim     #i
-              G[(ii-1)*szF + (qq-1)*szF + faceInd, 1,pp] = master.ϕ1d * jcw1dd * problem.bcfunc[bNo,ii](p1d)
+              G[(ii-1)*szF + (qq-1)*szF + faceInd, 1,pp] = master.ϕ1d * jcw1dd * bcout[:,ii]
           end
         end
 
@@ -284,6 +285,21 @@ for pp in 1:nelem # Loop over all elements
   tempMat = SYS_U_UHATH_11 \ ( [ -SYS_U_UHATH_12 F[:,:,pp] ] )
   A_UHATH[:,:,pp] =  SYS_U_UHATH_21 * tempMat[:,1:end-1] + SYS_U_UHATH_22
   B_UHATH[:,:,pp] = -SYS_U_UHATH_21 * tempMat[:,end]     + G[:,:,pp]
+  # @printf("A_UHATH (pp = %i)\n",pp)
+  # println(A_UHATH[:,:,pp])
+  # println(" ")
+  #
+  # @printf("B_UHATH (pp = %i)\n",pp)
+  # println(B_UHATH[:,:,pp])
+  # println(" ")
+  #
+  # @printf("G (pp = %i)\n",pp)
+  # println(G[:,:,pp])
+  # println(" ")
+  #
+  # if pp == 2
+  #   println(bla)
+  # end
   # -------------------------------------------------------------------------- #
 
   # ------------------------- Fill up complete H and R matrices -------------- #

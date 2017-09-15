@@ -117,20 +117,18 @@ function findPerm( p )
   for qq in 1:3
 
     # corners
-    permt[1,qq]   = qq
-    permt[p+1,qq] = qq+1
+    c1 = qq + 1
+    c2 = qq + 2
+    c1 = c1 - (c1 > 3)*3
+    c2 = c2 - (c2 > 3)*3
+
+    permt[1,qq]   = c1
+    permt[p+1,qq] = c2
 
     # faces
     permt[2:p,qq] = 3 + ( (1+(qq-1)*(szF-2)):(qq*(szF-2)) )
 
   end
-
-  # fix corner
-  permt[p+1,end] = 1
-
-  # fix order
-  #   first face (according to mesh.t2f) is the one opposite of node 1 (so between node 2 and 3)
-  permt = [ permt[:,2:3] permt[:,1] ]
 
   perm = fill( 0::Int64, p+1, 3, 2 )
   perm[:,:,1] = permt

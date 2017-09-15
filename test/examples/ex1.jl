@@ -4,7 +4,7 @@ using luteos
 
 mat = Material(E = 1, ν = 0.33)
 
-P = 1 # Polynomial order of solution
+P = 2 # Polynomial order of solution
 
 mesh   = Mesh2D( "square", P, N = 5)
 master = Master2D( P )

@@ -7,8 +7,8 @@
 
 type Master2D
 
-  porder::Int64         # Polynomial order of mesh
-  pgauss::Int64         # Polynomial order to be integrated exactly
+  porder::Int64           # Polynomial order of mesh
+  pgauss::Int64           # Polynomial order to be integrated exactly
 
   gpts::Array{Float64}    # Gauss points  2D
   gwts::Array{Float64}    # Gauss weights 2D
@@ -16,11 +16,11 @@ type Master2D
   gpts1d::Array{Float64}  # Gauss points  1D
   gwts1d::Array{Float64}  # Gauss weights 1D
 
-  ϕ::Array{Float64}     # Shape functions in 2D
-  ∇ϕ::Array{Float64}    # Derivatives of shape functions in 2D
+  ϕ::Array{Float64}       # Shape functions in 2D
+  ∇ϕ::Array{Float64}      # Derivatives of shape functions in 2D
 
-  ϕ1d::Array{Float64}   # Shape functions in 1D
-  ∇ϕ1d::Array{Float64}  # Derivatives of shape functions in 1D
+  ϕ1d::Array{Float64}     # Shape functions in 1D
+  ∇ϕ1d::Array{Float64}    # Derivatives of shape functions in 1D
 
   perm::Array{Int64}      # Node numbers on faces
 
@@ -122,17 +122,18 @@ function findPerm( p )
     c1 = c1 - (c1 > 3)*3
     c2 = c2 - (c2 > 3)*3
 
-    permt[1,qq]   = c1
-    permt[p+1,qq] = c2
+    permt[1,qq] = c1
+    permt[2,qq] = c2
 
     # faces
-    permt[2:p,qq] = 3 + ( (1+(qq-1)*(szF-2)):(qq*(szF-2)) )
+    permt[3:p+1,qq] = 3 + ( (1+(qq-1)*(szF-2)):(qq*(szF-2)) )
 
   end
 
   perm = fill( 0::Int64, p+1, 3, 2 )
-  perm[:,:,1] = permt
-  perm[:,:,2] = permt[end:-1:1,:]
+  perm[:,:,1]   = permt
+  perm[1:2,:,2] = permt[[2,1],:]
+  perm[3:(p+1),:,2] = permt[(p+1):-1:3,:]
 
   return perm
 

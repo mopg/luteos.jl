@@ -113,9 +113,7 @@ for ii in 1:length(Ps), jj in 1:length(Ns)
   prob = Problem( @sprintf("Reg %i %i", P, N), source, bctype, 0, [funcB, funcB, funcB, funcB] )
 
   (uhathTri, uh, ϵh, σh) = hdgSolveElas( master, mesh, mat, prob )
-
-  @printf( "%i %i %i\n", P, N, size( uh, 1 )*size( uh, 3 ) )
-
+  
   #   Initialize arrays
   err_uh = fill( 0.0, dim )
   err_σh = fill( 0.0, dim^2 )
@@ -175,6 +173,7 @@ conv_ϵh4 = (log.( Err_ϵh4[:,end-2]) - log.( Err_ϵh4[:,end] ) ) / (log.( h[end
 
 # Output to terminal
 @printf("   Convergence rates for 2D Dirichlet problem\n\n")
+@printf("   ------------------------------------------\n\n")
 @printf( "P   ")
 for jj in 1:size(Ps,1)
   @printf( " %6i", Ps[jj] )

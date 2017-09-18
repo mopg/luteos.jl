@@ -140,27 +140,27 @@ for pp in 1:nelem # Loop over all elements
 
     tL = [ nL[:,2] -nL[:,1] ]
 
-    faceInd = (1 + (qq-1) * (mesh.porder + 1) ):qq*(mesh.porder+1)
+    faceInd = (qq-1) * (mesh.porder + 1) + ( 1:(mesh.porder+1) )
 
     ## A (second part)
     # -<v_i, σ^h_{ij} n_j>_{∂T^h}
     for ii in 1:dim, jj in 1:dim
       ij = (ii-1)*dim + jj
-      A[(ii-1)*nnodes + nod,(ij-1)*nnodes + nod,pp] -= master.ϕ1d * jcw1dd * ( master.ϕ1d * diagm(nL[:,jj]) )' # This last part was flipped in MATLAB
+      A[(ii-1)*nnodes + nod,(ij-1)*nnodes + nod,pp] -= master.ϕ1d * jcw1dd * ( master.ϕ1d * diagm(nL[:,jj]) )'
     end
 
     ## B
     # -<v_i, τ_{ijkl} u^h_k * n_l * n_j >_{∂T^h}
     for ii in 1:dim, jj in 1:dim, kk in 1:dim, ll in 1:dim #l
       B[(ii-1)*nnodes + nod,(kk-1)*nnodes + nod,pp] +=
-        τ[ii,jj,kk,ll] * master.ϕ1d * jcw1dd * ( master.ϕ1d * diagm(nL[:,ll].*nL[:,jj]) )' # This last part was flipped in MATLAB
+        τ[ii,jj,kk,ll] * master.ϕ1d * jcw1dd * ( master.ϕ1d * diagm(nL[:,ll].*nL[:,jj]) )'
     end
 
     ## C
     # <v_i, τ_{ijkl} \hat{u}^h_k * n_l * n_j >_{∂T^h}
     for ii in 1:dim, jj in 1:dim, kk in 1:dim, ll in 1:dim
       C[(ii-1)*nnodes + nod,(qq-1)*szF + (kk-1)*szF + faceInd,pp] -=
-          τ[ii,jj,kk,ll] * master.ϕ1d * jcw1dd * ( master.ϕ1d * diagm(nL[:,ll] .* nL[:,jj]) )' # This last part was flipped in MATLAB
+          τ[ii,jj,kk,ll] * master.ϕ1d * jcw1dd * ( master.ϕ1d * diagm(nL[:,ll] .* nL[:,jj]) )'
     end
 
     ## J
@@ -285,21 +285,6 @@ for pp in 1:nelem # Loop over all elements
   tempMat = SYS_U_UHATH_11 \ ( [ -SYS_U_UHATH_12 F[:,:,pp] ] )
   A_UHATH[:,:,pp] =  SYS_U_UHATH_21 * tempMat[:,1:end-1] + SYS_U_UHATH_22
   B_UHATH[:,:,pp] = -SYS_U_UHATH_21 * tempMat[:,end]     + G[:,:,pp]
-  # @printf("A_UHATH (pp = %i)\n",pp)
-  # println(A_UHATH[:,:,pp])
-  # println(" ")
-  #
-  # @printf("B_UHATH (pp = %i)\n",pp)
-  # println(B_UHATH[:,:,pp])
-  # println(" ")
-  #
-  # @printf("G (pp = %i)\n",pp)
-  # println(G[:,:,pp])
-  # println(" ")
-  #
-  # if pp == 2
-  #   println(bla)
-  # end
   # -------------------------------------------------------------------------- #
 
   # ------------------------- Fill up complete H and R matrices -------------- #
@@ -377,6 +362,6 @@ for pp in 1:nelem
     # ------------------------------------------------------------------------ #
 end
 
-return (uhathTri, uh, ϵh, σh)
+return (uhath, uh, ϵh, σh)
 
 end # end function

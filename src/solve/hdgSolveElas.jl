@@ -203,7 +203,7 @@ for pp in 1:nelem # Loop over all elements
         for ii in 1:dim, jj in 1:dim   #j
           ij = (ii-1)*dim + jj
           N[(ii-1)*szF + (qq-1)*szF + faceInd, (ij-1)*nnodes + nod,pp] +=
-              master.ϕ1d * jcw1dd * (diag(nL[:,jj]) * master.ϕ1d)'
+              master.ϕ1d * jcw1dd * ( master.ϕ1d * diagm(nL[:,jj]) )'
         end
 
         ## P
@@ -227,20 +227,18 @@ for pp in 1:nelem # Loop over all elements
           # Boundary conditions are defined normal to the surface
           bcout = problem.bcfunc[bNo](p1d)
           for ii in 1:dim     #i
-              temp = nL[:,ii] .* bcout[:,1] + tL[:,ii] .* bcout[:,2]
-              G[(ii-1)*szF + (qq-1)*szF + faceInd, 1,pp] = master.ϕ1d * jcw1dd * temp
+            temp = nL[:,ii] .* bcout[:,1] + tL[:,ii] .* bcout[:,2]
+            G[(ii-1)*szF + (qq-1)*szF + faceInd, 1,pp] = master.ϕ1d * jcw1dd * temp
           end
         else
           # Boundary conditions are defined in the general coordinate system
           bcout = problem.bcfunc[bNo](p1d)
           for ii in 1:dim     #i
-              G[(ii-1)*szF + (qq-1)*szF + faceInd, 1,pp] = master.ϕ1d * jcw1dd * bcout[:,ii]
+            G[(ii-1)*szF + (qq-1)*szF + faceInd, 1,pp] = master.ϕ1d * jcw1dd * bcout[:,ii]
           end
         end
-
       else
           error("BC type not recognized. 1 = Dirichlet, 2 = Neumann")
-
       end
 
     else
@@ -250,7 +248,8 @@ for pp in 1:nelem # Loop over all elements
       # <μ_{i} , σ^h_{ij}*n_j>_{∂T^h\∂Ω_D}
       for ii in 1:dim, jj in 1:dim
         ij = (ii-1)*dim + jj
-        N[(ii-1)*szF + (qq-1)*szF + faceInd, (ij-1)*nnodes + nod,pp] += master.ϕ1d * jcw1dd * ( master.ϕ1d * diagm(nL[:,jj]) )'
+        N[(ii-1)*szF + (qq-1)*szF + faceInd, (ij-1)*nnodes + nod,pp] +=
+          master.ϕ1d * jcw1dd * ( master.ϕ1d * diagm(nL[:,jj]) )'
       end
 
       ## P

@@ -2,7 +2,7 @@
 
 module luteos
 
-export hdgSolveElas, Material, Problem, Master2D, Mesh2D, compJacob!#, quadratureTriangle, quadratureTet, quadratureLine, basisFuncTriangle
+export hdgSolveElas, Material, Problem, Master2D, Mesh2D, compJacob!, writeTecplot
 
 include("integration/basisFuncLineLag.jl")
 include("integration/basisFuncLineLeg.jl")
@@ -21,6 +21,8 @@ include("general/problem.jl")
 include("mesh/mesh2D.jl")
 include("mesh/master2D.jl")
 include("mesh/compJacob.jl")
+
+include("io/writeTecplot.jl")
 
 include("solve/hdgSolveElas.jl")
 

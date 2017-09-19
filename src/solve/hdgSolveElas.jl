@@ -361,6 +361,6 @@ for pp in 1:nelem
     # ------------------------------------------------------------------------ #
 end
 
-return (uhath, uh, ϵh, σh)
+return (uhath, uh, σh, ϵh )
 
 end # end function

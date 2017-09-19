@@ -112,8 +112,8 @@ for ii in 1:length(Ps), jj in 1:length(Ns)
 
   prob = Problem( @sprintf("Reg %i %i", P, N), source, bctype, 0, [funcB, funcB, funcB, funcB] )
 
-  (uhathTri, uh, ϵh, σh) = hdgSolveElas( master, mesh, mat, prob )
-  
+  (uhathTri, uh, σh, ϵh) = hdgSolveElas( master, mesh, mat, prob )
+
   #   Initialize arrays
   err_uh = fill( 0.0, dim )
   err_σh = fill( 0.0, dim^2 )

@@ -7,6 +7,8 @@
 
 type Master2D
 
+  dim::Int64              # Dimension of the problem
+
   porder::Int64           # Polynomial order of mesh
   pgauss::Int64           # Polynomial order to be integrated exactly
 
@@ -45,7 +47,7 @@ function Master2D( porder::Int64; pgauss::Int64 = 3*porder, typeb = "lag" )
 
   perm_ = findPerm( porder )
 
-  Master2D( porder, pgauss, gpts_, gwts_, gpts1d_, gwts1d_,
+  Master2D( 2, porder, pgauss, gpts_, gwts_, gpts1d_, gwts1d_,
     ϕ_, ∇ϕ_, ϕ1d_, ∇ϕ1d_, perm_ )
 
 end

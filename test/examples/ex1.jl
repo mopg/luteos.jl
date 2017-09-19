@@ -4,10 +4,10 @@ using luteos
 
 mat = Material(E = 1, ν = 0.33)
 
-P = 1 # Polynomial order of solution
+P = 3 # Polynomial order of solution
 
 mesh   = Mesh2D( "square", P, N = 5)
-master = Master2D( P, pgauss = 5 )
+master = Master2D( P )
 
 compJacob!( mesh, master )
 
@@ -20,6 +20,9 @@ function funcB( p::Array{Float64} )
   return fill(0.0, size(p,1), 2)
 end
 
-prob = Problem( "Example 1", funcS, [1,2,1,2], 1, [funcB, funcB, funcB, funcB] )
+prob = Problem( "Example 1", funcS, [1,1,1,1], 1, [funcB, funcB, funcB, funcB] )
 
-(uhath, uh, ϵh, σh) = hdgSolveElas( master, mesh, mat, prob )
+(uhath, uh, σh, ϵh ) = hdgSolveElas( master, mesh, mat, prob )
+
+# write solution
+writeTecplot( "bla.dat", prob, mesh, uh, σh, ϵh )

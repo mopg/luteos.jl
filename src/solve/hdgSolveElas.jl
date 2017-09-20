@@ -140,7 +140,8 @@ for pp in 1:nelem # Loop over all elements
 
     tL = [ nL[:,2] -nL[:,1] ]
 
-    faceInd = (qq-1) * (mesh.porder + 1) + ( 1:(mesh.porder+1) )
+    faceInd = dim * (qq-1) * (mesh.porder + 1) + ( 1:(mesh.porder+1) )
+    # We need to premultiply with "dim" because those are the number of unknowns per face
 
     ## A (second part)
     # -<v_i, σ^h_{ij} n_j>_{∂T^h}
@@ -159,7 +160,7 @@ for pp in 1:nelem # Loop over all elements
     ## C
     # <v_i, τ_{ijkl} \hat{u}^h_k * n_l * n_j >_{∂T^h}
     for ii in 1:dim, jj in 1:dim, kk in 1:dim, ll in 1:dim
-      C[(ii-1)*nnodes + nod,(qq-1)*szF + (kk-1)*szF + faceInd,pp] -=
+      C[(ii-1)*nnodes + nod, (kk-1)*szF + faceInd,pp] -=
           τ[ii,jj,kk,ll] * master.ϕ1d * jcw1dd * ( master.ϕ1d * diagm(nL[:,ll] .* nL[:,jj]) )'
     end
 
@@ -167,8 +168,8 @@ for pp in 1:nelem # Loop over all elements
     # <w_{ij}  , (\hat{u}^h_i*n_j + \hat{u}^h_j*n_i)>_{∂T^h}
     for ii in 1:dim, jj in 1:dim
       ij = (ii-1)*dim + jj
-      J[(ij-1)*nnodes + nod,(qq-1)*szF + (ii-1)*szF + faceInd,pp] -= 0.5*master.ϕ1d * jcw1dd * ( master.ϕ1d * diagm(nL[:,jj]) )'
-      J[(ij-1)*nnodes + nod,(qq-1)*szF + (jj-1)*szF + faceInd,pp] -= 0.5*master.ϕ1d * jcw1dd * ( master.ϕ1d * diagm(nL[:,ii]) )'
+      J[(ij-1)*nnodes + nod, (ii-1)*szF + faceInd,pp] -= 0.5*master.ϕ1d * jcw1dd * ( master.ϕ1d * diagm(nL[:,jj]) )'
+      J[(ij-1)*nnodes + nod, (jj-1)*szF + faceInd,pp] -= 0.5*master.ϕ1d * jcw1dd * ( master.ϕ1d * diagm(nL[:,ii]) )'
     end
 
     indF = abs( mesh.t2f[pp,qq] )
@@ -184,7 +185,7 @@ for pp in 1:nelem # Loop over all elements
         ## Q
         # (μ_{i} , \hat{u}^h_{i})_{∂Ω_D}
         for ii in 1:dim     #i
-          Q[(ii-1)*szF + (qq-1)*szF + faceInd,(ii-1)*szF + (qq-1)*szF + faceInd,pp] = master.ϕ1d * jcw1dd * master.ϕ1d'
+          Q[(ii-1)*szF + faceInd,(ii-1)*szF + faceInd,pp] = master.ϕ1d * jcw1dd * master.ϕ1d'
         end
 
         # BC RHS
@@ -192,7 +193,7 @@ for pp in 1:nelem # Loop over all elements
         # (μ_{i} , \bar{u}_i)_{∂Ω_D}
         bcout = problem.bcfunc[bNo](p1d)
         for ii in 1:dim     #i
-          G[(ii-1)*szF + (qq-1)*szF + faceInd, 1,pp] = master.ϕ1d * jcw1dd * bcout[:,ii]
+          G[(ii-1)*szF + faceInd, 1,pp] = master.ϕ1d * jcw1dd * bcout[:,ii]
         end
 
       elseif problem.bctype[bNo] == 2
@@ -202,21 +203,21 @@ for pp in 1:nelem # Loop over all elements
         # <μ_{i} , σ^h_{ij}*n_j>_{∂T^h\∂Ω_D}
         for ii in 1:dim, jj in 1:dim   #j
           ij = (ii-1)*dim + jj
-          N[(ii-1)*szF + (qq-1)*szF + faceInd, (ij-1)*nnodes + nod,pp] +=
+          N[(ii-1)*szF + faceInd, (ij-1)*nnodes + nod,pp] +=
               master.ϕ1d * jcw1dd * ( master.ϕ1d * diagm(nL[:,jj]) )'
         end
 
         ## P
         # <μ_{i} , -τ_{ijkl} u^h_k n_l n_j ) >_{∂T^h\∂Ω_D}
         for ii in 1:dim, jj in 1:dim, kk in 1:dim, ll in 1:dim
-          P[(ii-1)*szF + (qq-1)*szF + faceInd,(kk-1)*nnodes + nod,pp] -=
+          P[(ii-1)*szF + faceInd,(kk-1)*nnodes + nod,pp] -=
             τ[ii,jj,kk,ll] * master.ϕ1d * jcw1dd * ( master.ϕ1d * diagm(nL[:,ll] .* nL[:,jj]) )'
         end
 
         ## Q
         # <μ_{i} , τ_{ijkl} \hat{u}^h_k n_l n_j ) >_{∂T^h\∂Ω_D}
         for ii in 1:dim, jj in 1:dim, kk in 1:dim, ll in 1:dim
-          Q[(ii-1)*szF + (qq-1)*szF + faceInd,(kk-1)*szF + (qq-1)*szF + faceInd,pp] +=
+          Q[(ii-1)*szF + faceInd,(kk-1)*szF + faceInd,pp] +=
             τ[ii,jj,kk,ll] * master.ϕ1d * jcw1dd * ( master.ϕ1d * diagm(nL[:,ll] .* nL[:,jj]) )'
         end
 
@@ -228,13 +229,13 @@ for pp in 1:nelem # Loop over all elements
           bcout = problem.bcfunc[bNo](p1d)
           for ii in 1:dim     #i
             temp = nL[:,ii] .* bcout[:,1] + tL[:,ii] .* bcout[:,2]
-            G[(ii-1)*szF + (qq-1)*szF + faceInd, 1,pp] = master.ϕ1d * jcw1dd * temp
+            G[(ii-1)*szF + faceInd, 1,pp] = master.ϕ1d * jcw1dd * temp
           end
         else
           # Boundary conditions are defined in the general coordinate system
           bcout = problem.bcfunc[bNo](p1d)
           for ii in 1:dim     #i
-            G[(ii-1)*szF + (qq-1)*szF + faceInd, 1,pp] = master.ϕ1d * jcw1dd * bcout[:,ii]
+            G[(ii-1)*szF + faceInd, 1,pp] = master.ϕ1d * jcw1dd * bcout[:,ii]
           end
         end
       else
@@ -248,21 +249,21 @@ for pp in 1:nelem # Loop over all elements
       # <μ_{i} , σ^h_{ij}*n_j>_{∂T^h\∂Ω_D}
       for ii in 1:dim, jj in 1:dim
         ij = (ii-1)*dim + jj
-        N[(ii-1)*szF + (qq-1)*szF + faceInd, (ij-1)*nnodes + nod,pp] +=
+        N[(ii-1)*szF + faceInd, (ij-1)*nnodes + nod,pp] +=
           master.ϕ1d * jcw1dd * ( master.ϕ1d * diagm(nL[:,jj]) )'
       end
 
       ## P
       # <μ_{i} , -τ_{ijkl} u^h_k n_l n_j ) >_{∂T^h\∂Ω_D}
       for ii in 1:dim, jj in 1:dim, kk in 1:dim, ll in 1:dim
-        P[(ii-1)*szF + (qq-1)*szF + faceInd,(kk-1)*nnodes + nod,pp] -=
+        P[(ii-1)*szF + faceInd,(kk-1)*nnodes + nod,pp] -=
           τ[ii,jj,kk,ll] * master.ϕ1d * jcw1dd * ( master.ϕ1d * diagm(nL[:,ll] .* nL[:,jj]) )'
       end
 
       ## Q
       # <μ_{i} , τ_{ijkl} \hat{u}^h_k n_l n_j ) >_{∂T^h\∂Ω_D}
       for ii in 1:dim, jj in 1:dim, kk in 1:dim, ll in 1:dim
-        Q[(ii-1)*szF + (qq-1)*szF + faceInd,(kk-1)*szF + (qq-1)*szF + faceInd,pp] +=
+        Q[(ii-1)*szF + faceInd,(kk-1)*szF + faceInd,pp] +=
           τ[ii,jj,kk,ll] * master.ϕ1d * jcw1dd * ( master.ϕ1d * diagm(nL[:,ll] .* nL[:,jj]) )'
       end
 

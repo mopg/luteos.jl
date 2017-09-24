@@ -31,9 +31,15 @@ type Master3D
   ϕ1D::Array{Float64}   # Shape functions in 1D
   ∇ϕ1D::Array{Float64}  # Derivatives of shape functions in 1D
 
+  perm::Array{Int64}    # Node numbers on faces
+
 end
 
 function Master3D( porder::Int64; pgauss::Int64 = 3*porder, typeb = "lag" )
+
+  if porder > 3
+    error(" P > 3 not supported for 3D ")
+  end
 
   (go1D, go2D, go3D) = compOrder( pgauss )
 
@@ -51,8 +57,10 @@ function Master3D( porder::Int64; pgauss::Int64 = 3*porder, typeb = "lag" )
     (ϕ1D_, ∇ϕ1D_) = basisFuncLineLeg( Val{porder}, gpts1D_ )
   end
 
+  perm_ = findPerm( porder )
+
   Master3D( porder, pgauss, gpts_, gwts_, gpts2D_, gwts2D_, gpts1D_, gwts1D_,
-    ϕ_, ∇ϕ_, ϕ2D_, ∇ϕ2D_, ϕ1D_, ∇ϕ1D_ )
+    ϕ_, ∇ϕ_, ϕ2D_, ∇ϕ2D_, ϕ1D_, ∇ϕ1D_, perm_ )
 
 end
 
@@ -139,5 +147,102 @@ function compOrder( orderRq )
   end
 
   return order1D, order2D, order3D
+
+end
+
+function findPerm( p )
+
+  # 1:  1 2 3
+  # 2:  1 3 2
+  # 3:  2 1 3
+  # 4:  2 3 1
+  # 5:  3 1 2
+  # 6:  3 2 1
+
+  orderind = [1 2 3;
+              1 3 2;
+              2 1 3;
+              2 3 1;
+              3 1 2;
+              3 2 1]
+  orderflip = [1, -1, -1, 1, 1, -1]
+
+  n2d = Int( round( 0.5*(p+1)*(p+2) ) )
+
+  indfaces = fill( 0::Int64, 4, n2d )
+
+  perm = fill( 0::Int64, n2d, 4, 6 )
+
+  if p == 1
+
+    # 2 3 4 - 1 4 3  - 1 2 4 - 1 3 2 : First ind is the vertices of face which does not included current vertices
+
+    indfaces = [2 3 4;
+                1 4 3;
+                1 2 4;
+                1 3 2]
+
+    for jj in 1:4, ii in 1:6
+      perm[:,jj,ii] = indfaces[ jj, orderind[ii,:] ]
+    end
+
+  elseif p == 2
+
+    indfaces = [2  3  4  5  6  7
+                1  2  4  6  9 10
+                1  3  4  5  8  9
+                1  2  3  7  8 10]
+
+    for jj in 1:4
+      ifac = indfaces[jj,:]
+      for ii in 1:6
+        # corners
+        ifac[1:3] = indfaces[ jj,     orderind[ii,:] ]
+        # edges
+        ifac[4:6] = indfaces[ jj, 3 + orderind[ii,:] ]
+
+        perm[:,jj,ii] = ifac
+      end
+    end
+
+  elseif p == 3
+
+    indfaces = [2  3  4  5  6  7  8  9 10 17
+                1  2  4  7  8 13 14 15 16 19
+                1  3  4  5  6 11 12 13 14 18
+                1  2  3  9 10 11 12 15 16 20]
+    for jj in 1:4
+      ifac = indfaces[jj,:]
+      for ii in [1,4,5]
+        ## not flipped direction
+        # corners
+        ifac[1:3] = indfaces[ jj, orderind[ii,:] ]
+        # edges
+        oind = [ orderind[ii,:]; orderind[ii,:] ]
+        oind[2,:] += 1
+        oind = oind[:]
+        ifac[4:9] = indfaces[ jj, oind ]
+        # middle point unchanged
+
+        perm[:,jj,ii] = ifac
+      end
+      for ii in [2,3,6]
+        # flipped direction
+        ifac[1:3] = indfaces[ jj, orderind[ii,:] ]
+        # edges
+        oind = [ orderind[ii,:]; orderind[ii,:] ]
+        oind[1,:] += 1
+        oind = oind[:]
+        ifac[4:9] = indfaces[ jj, oind ]
+        # middle point unchanged
+
+        perm[:,jj,ii] = ifac
+      end
+
+    end
+
+  end
+
+  return perm
 
 end

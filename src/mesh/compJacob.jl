@@ -56,7 +56,7 @@ function compJacob!( mesh::Mesh3D, master::Master3D )
   ∂ξ₃∂x₂ =  1./jac .* ( ∂x₁∂ξ₂ .* ∂x₃∂ξ₁ - ∂x₁∂ξ₁ .* ∂x₃∂ξ₂ )
   ∂ξ₃∂x₃ =  1./jac .* ( ∂x₁∂ξ₁ .* ∂x₂∂ξ₂ - ∂x₁∂ξ₂ .* ∂x₂∂ξ₁ )
 
-  ∂ξ∂x_vec = fill(0.0, size(∂x∂ξ,1), size(∂x∂ξ,2), 9)
+  ∂ξ∂x_vec = fill(0.0, size(∂x₁∂ξ₁,1), size(∂x₁∂ξ₁,2), 9)
   ∂ξ∂x_vec[:,:,1] = ∂ξ₁∂x₁
   ∂ξ∂x_vec[:,:,2] = ∂ξ₁∂x₂
   ∂ξ∂x_vec[:,:,3] = ∂ξ₁∂x₃

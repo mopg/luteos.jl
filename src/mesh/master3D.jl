@@ -189,9 +189,9 @@ function findPerm( p )
   elseif p == 2
 
     indfaces = [2  3  4  5  6  7
-                1  2  4  6  9 10
-                1  3  4  5  8  9
-                1  2  3  7  8 10]
+                3  1  4  9  5  8
+                1  2  4  6  9  10
+                2  1  3  8  7  10]
 
     for jj in 1:4
       ifac = indfaces[jj,:]
@@ -207,21 +207,23 @@ function findPerm( p )
 
   elseif p == 3
 
-    indfaces = [2  3  4  5  6  7  8  9 10 17
-                1  2  4  7  8 13 14 15 16 19
-                1  3  4  5  6 11 12 13 14 18
-                1  2  3  9 10 11 12 15 16 20]
+    indfaces = [2  3  4   5  6  7  8  9 10 17
+                3  1  4  13 14  6  5 11 12 18
+                1  2  4   8  7 14 13 15 16 19
+                2  1  3  12 11 10  9 16 15 20]
     for jj in 1:4
       ifac = indfaces[jj,:]
-      for ii in [1,4,5]
+      perm[:,jj,1] = ifac
+      for ii in [4,5]
         ## not flipped direction
         # corners
         ifac[1:3] = indfaces[ jj, orderind[ii,:] ]
         # edges
-        oind = [ orderind[ii,:]; orderind[ii,:] ]
-        oind[2,:] += 1
+        oind = [ orderind[ii,:]'; orderind[ii,:]' ]
+        oind = 2*oind
+        oind[1,:] -= 1
         oind = oind[:]
-        ifac[4:9] = indfaces[ jj, oind ]
+        ifac[4:9] = indfaces[ jj, 3 + oind ]
         # middle point unchanged
 
         perm[:,jj,ii] = ifac
@@ -230,10 +232,11 @@ function findPerm( p )
         # flipped direction
         ifac[1:3] = indfaces[ jj, orderind[ii,:] ]
         # edges
-        oind = [ orderind[ii,:]; orderind[ii,:] ]
-        oind[1,:] += 1
+        oind = [ orderind[ii,:]'; orderind[ii,:]' ]
+        oind = 2*oind
+        oind[2,:] -= 1
         oind = oind[:]
-        ifac[4:9] = indfaces[ jj, oind ]
+        ifac[4:9] = indfaces[ jj, 3 + oind ]
         # middle point unchanged
 
         perm[:,jj,ii] = ifac

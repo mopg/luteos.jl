@@ -1,11 +1,4 @@
-# include("../integration/quadratureTriangle.jl")
-# include("../integration/quadratureLine.jl")
-# include("../integration/basisFuncLineLeg.jl")
-# include("../integration/basisFuncTriangleLeg.jl")
-# include("../integration/basisFuncLineLag.jl")
-# include("../integration/basisFuncTriangleLag.jl")
-
-type Master2D
+type Master2D <: Master
 
   dim::Int64              # Dimension of the problem
 

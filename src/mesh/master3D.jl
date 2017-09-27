@@ -1,14 +1,4 @@
-include("../integration/quadratureLine.jl")
-include("../integration/quadratureTriangle.jl")
-include("../integration/quadratureTet.jl")
-include("../integration/basisFuncLineLeg.jl")
-include("../integration/basisFuncTriangleLeg.jl")
-include("../integration/basisFuncTetLeg.jl")
-include("../integration/basisFuncLineLag.jl")
-include("../integration/basisFuncTriangleLag.jl")
-include("../integration/basisFuncTetLag.jl")
-
-type Master3D
+type Master3D <: Master
 
   porder::Int64         # Polynomial order of mesh
   pgauss::Int64         # Polynomial order to be integrated exactly
@@ -41,7 +31,7 @@ function Master3D( porder::Int64; pgauss::Int64 = 3*porder, typeb = "lag" )
     error(" P > 3 not supported for 3D ")
   end
 
-  (go1D, go2D, go3D) = compOrder( pgauss )
+  (go1D, go2D, go3D) = compOrder3D( pgauss )
 
   (gpts_,   gwts_)   = quadratureTet( Val{go3D} )
   (gpts2D_, gwts2D_) = quadratureTriangle( Val{go2D} )
@@ -57,14 +47,14 @@ function Master3D( porder::Int64; pgauss::Int64 = 3*porder, typeb = "lag" )
     (ϕ1D_, ∇ϕ1D_) = basisFuncLineLeg( Val{porder}, gpts1D_ )
   end
 
-  perm_ = findPerm( porder )
+  perm_ = findPerm3D( porder )
 
   Master3D( porder, pgauss, gpts_, gwts_, gpts2D_, gwts2D_, gpts1D_, gwts1D_,
     ϕ_, ∇ϕ_, ϕ2D_, ∇ϕ2D_, ϕ1D_, ∇ϕ1D_, perm_ )
 
 end
 
-function compOrder( orderRq )
+function compOrder3D( orderRq )
 
   # 1D
 
@@ -150,7 +140,7 @@ function compOrder( orderRq )
 
 end
 
-function findPerm( p )
+function findPerm3D( p )
 
   # 1:  1 2 3
   # 2:  1 3 2

@@ -1,6 +1,6 @@
-function hdgSolveElas( master::Master2D, mesh::Mesh2D, material::Material, problem::Problem)
+function hdgSolveElas( master::Master, mesh::Mesh, material::Material, problem::Problem)
 
-dim     = 2 # Should grab this from Master
+dim     = mesh.dim
 nelem   = size( mesh.nodes, 3 ) # Mumber of elements in mesh
 nnodes  = size( mesh.nodes, 1 ) # Number of nodes in one element
 szF     = (mesh.porder+1)       # Number of nodes per face

@@ -1,33 +1,18 @@
-
-
-  # if orderRq <= 1
-  #   order = 1
-  # elseif orderRq <= 3
-  #   order = 3
-  # elseif orderRq <= 5
-  #   order = 5
-  # elseif orderRq <= 7
-  #   order = 7
-  # elseif orderRq <= 9
-  #   order = 9
-  # elseif orderRq <= 11
-  #   order = 11
-  # elseif orderRq <= 13
-  #   order = 13
-  # elseif orderRq <= 15
-  #   order = 15
-  # elseif orderRq <= 17
-  #   order = 17
-  # elseif orderRq <= 19
-  #   order = 19
-  # elseif orderRq <= 21
-  #   order = 21
-  # elseif orderRq <= 23
-  #   order = 23
-  # end
+# ---------------------------------------------------------------------------- #
+#
+#   quadratureLine.jl
+#
+#   Get Legendre quadrature points for Line
+#
+#   λυτέος
+#   Fall 2017
+#
+#   Max Opgenoord
+#
+# ---------------------------------------------------------------------------- #
 
 function quadratureLine( ::Type{Val{1}} )
-  
+
   nq = 1
 
   weight = Array{Float64}(nq)

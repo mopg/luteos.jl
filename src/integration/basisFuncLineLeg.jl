@@ -1,3 +1,16 @@
+# ---------------------------------------------------------------------------- #
+#
+#   basisFuncLineLag.jl
+#
+#   Get Legendre basis functions for Line
+#
+#   λυτέος
+#   Fall 2017
+#
+#   Max Opgenoord
+#
+# ---------------------------------------------------------------------------- #
+
 function basisFuncLineLeg( ::Type{Val{0}}, s::Array{Float64} )
 
   dim = 1

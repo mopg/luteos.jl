@@ -1,3 +1,17 @@
+# ---------------------------------------------------------------------------- #
+#
+#   master3D.jl
+#
+#   Type for 3D master element
+#   Inherits from the abstract "master" type
+#
+#   λυτέος
+#   Fall 2017
+#
+#   Max Opgenoord
+#
+# ---------------------------------------------------------------------------- #
+
 type Master3D <: Master
 
   porder::Int64         # Polynomial order of mesh

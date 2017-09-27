@@ -1,3 +1,17 @@
+# ---------------------------------------------------------------------------- #
+#
+#   master2D.jl
+#
+#   Type for 2D master element
+#   Inherits from the abstract "master" type
+#
+#   λυτέος
+#   Fall 2017
+#
+#   Max Opgenoord
+#
+# ---------------------------------------------------------------------------- #
+
 type Master2D <: Master
 
   dim::Int64              # Dimension of the problem

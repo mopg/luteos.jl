@@ -1,3 +1,16 @@
+# ---------------------------------------------------------------------------- #
+#
+#   problem.jl
+#
+#   Type for problem definition
+#
+#   λυτέος
+#   Fall 2017
+#
+#   Max Opgenoord
+#
+# ---------------------------------------------------------------------------- #
+
 type Problem
 
   name::String     # Name of problem
@@ -9,9 +22,3 @@ type Problem
   bcfunc::Array{Function} # Boundary function for each boundary face
 
 end
-
-# function Problem( name = " " )
-#
-#
-#
-# end

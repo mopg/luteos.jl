@@ -1,30 +1,15 @@
-
-
-  # if orderRq <= 2
-  #   order = 1
-  # elseif orderRq <= 3
-  #   order = 2
-  # elseif orderRq <= 5
-  #   order = 3
-  # elseif orderRq <= 6
-  #   order = 4
-  # elseif orderRq <= 7
-  #   order = 5
-  # elseif orderRq <= 8
-  #   order = 6
-  # elseif orderRq <= 9
-  #   order = 7
-  # elseif orderRq <= 10
-  #   order = 8
-  # elseif orderRq <= 11
-  #   order = 9
-  # elseif orderRq <= 12
-  #   order = 10
-  # elseif orderRq <= 13
-  #   order = 11
-  # elseif orderRq <= 14
-  #   order = 12
-  # end
+# ---------------------------------------------------------------------------- #
+#
+#   quadratureTet.jl
+#
+#   Get Legendre quadrature points for Tetrahedron
+#
+#   λυτέος
+#   Fall 2017
+#
+#   Max Opgenoord
+#
+# ---------------------------------------------------------------------------- #
 
 function quadratureTet( ::Type{Val{1}} )
 

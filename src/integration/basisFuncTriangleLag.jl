@@ -1,3 +1,16 @@
+# ---------------------------------------------------------------------------- #
+#
+#   basisFuncTriangleLag.jl
+#
+#   Get Lagrangian basis functions for Triangle
+#
+#   λυτέος
+#   Fall 2017
+#
+#   Max Opgenoord
+#
+# ---------------------------------------------------------------------------- #
+
 function basisFuncTriangleLag( ::Type{Val{1}}, s::Array{Float64}, t::Array{Float64} )
 
   dim = 2

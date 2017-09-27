@@ -1,3 +1,16 @@
+# ---------------------------------------------------------------------------- #
+#
+#   basisFuncTetLag.jl
+#
+#   Get Lagrangian basis functions for Tetrahedron
+#
+#   λυτέος
+#   Fall 2017
+#
+#   Max Opgenoord
+#
+# ---------------------------------------------------------------------------- #
+
 function basisFuncTetLag( ::Type{Val{1}}, s::Array{Float64}, t::Array{Float64}, u::Array{Float64} )
 
   dim = 3

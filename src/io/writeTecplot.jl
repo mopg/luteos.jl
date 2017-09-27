@@ -1,3 +1,16 @@
+# ---------------------------------------------------------------------------- #
+#
+#   writeTecplot.jl
+#
+#   Several functions to write Tecplot output
+#
+#   λυτέος
+#   Fall 2017
+#
+#   Max Opgenoord
+#
+# ---------------------------------------------------------------------------- #
+
 function writeTecplot( flname::String, prob::Problem, mesh::Mesh2D, uh::Array{Float64,3},
   σh::Array{Float64,3}, ϵh::Array{Float64,3}; σmises = Array{Float64,3}(0,0,0) )
 

@@ -1,3 +1,16 @@
+# ---------------------------------------------------------------------------- #
+#
+#   hdgSolveElas.jl
+#
+#   Solve linear elasticity equations (n-dimensional)
+#
+#   λυτέος
+#   Fall 2017
+#
+#   Max Opgenoord
+#
+# ---------------------------------------------------------------------------- #
+
 function hdgSolveElas( master::Master, mesh::Mesh, material::Material, problem::Problem)
 
 dim     = mesh.dim

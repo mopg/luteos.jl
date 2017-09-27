@@ -1,3 +1,16 @@
+# ---------------------------------------------------------------------------- #
+#
+#   basisFuncLineLag.jl
+#
+#   Get Lagrangian basis functions for Line
+#
+#   λυτέος
+#   Fall 2017
+#
+#   Max Opgenoord
+#
+# ---------------------------------------------------------------------------- #
+
 function basisFuncLineLag( ::Type{Val{1}}, s::Array{Float64} )
 
   dim = 1

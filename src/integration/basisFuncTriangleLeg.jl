@@ -1,3 +1,16 @@
+# ---------------------------------------------------------------------------- #
+#
+#   basisFuncTriangleLeg.jl
+#
+#   Get Legendre basis functions for Triangle
+#
+#   λυτέος
+#   Fall 2017
+#
+#   Max Opgenoord
+#
+# ---------------------------------------------------------------------------- #
+
 function basisFuncTriangleLeg( ::Type{Val{0}}, s::Array{Float64}, t::Array{Float64} )
 
   dim = 2

@@ -1,3 +1,16 @@
+# ---------------------------------------------------------------------------- #
+#
+#   compJacob.jl
+#
+#   Several functions to compute jacobians of an element for both 2D and 3D
+#
+#   λυτέος
+#   Fall 2017
+#
+#   Max Opgenoord
+#
+# ---------------------------------------------------------------------------- #
+
 function compJacob!( mesh::Mesh2D, master::Master2D )
 
   ∂x∂ξ = master.∇ϕ[:,:,1]' * mesh.nodes[:,1,:]

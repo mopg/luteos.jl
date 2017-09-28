@@ -4,9 +4,9 @@ using luteos
 
 mat = Material(E = 1, ν = 0.33)
 
-P = 1 # Polynomial order of solution
+P = 3 # Polynomial order of solution
 
-mesh   = Mesh3D( "cube", P, N = 3)
+mesh   = Mesh3D( "cube", P, N = 2)
 master = Master3D( P )
 
 compJacob!( mesh, master )
@@ -25,4 +25,4 @@ prob = Problem( "Example 1", funcS, [1,1,1,1,1,1], 0, [funcB, funcB, funcB, func
 (uhath, uh, σh, ϵh ) = hdgSolveElas( master, mesh, mat, prob )
 
 # write solution
-# writeTecplot( "bla.dat", prob, mesh, uh, σh, ϵh )
+writeTecplot( "bla.dat", prob, mesh, uh, σh, ϵh )

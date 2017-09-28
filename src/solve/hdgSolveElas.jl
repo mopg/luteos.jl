@@ -16,14 +16,13 @@ function hdgSolveElas( master::Master, mesh::Mesh, material::Material, problem::
 dim     = mesh.dim
 nelem   = size( mesh.nodes, 3 ) # Mumber of elements in mesh
 nnodes  = size( mesh.nodes, 1 ) # Number of nodes in one element
-szF     = (mesh.porder+1)       # Number of nodes per face
-unkUhat = szF * dim             # Total of uhat unknowns per face
-nfaces  = dim + 1               # Number of faces per element
 nodfac  = mesh.porder + 1
 if dim > 2
   nodfac *= 0.5 * ( mesh.porder + 2 )
 end
 nodfac = Int64(nodfac)
+unkUhat = nodfac * dim          # Total of uhat unknowns per face
+nfaces  = dim + 1               # Number of faces per element
 
 # Compute the stiffness tensor
 Cstiff = material.Cstiff[dim]
@@ -34,33 +33,33 @@ Cstiff = material.Cstiff[dim]
 ### Initialize quantities
 
 # Equations of motion (Newton's second law)
-A = fill(0.0, nnodes*dim    , nnodes*dim^2  , nelem) # (v_{i,j}, σ^h_{ij})_{T^h} - <v_i, σ^h_{ij} n_j>_{∂T^h}
-B = fill(0.0, nnodes*dim    , nnodes*dim    , nelem) # <v_i, func(u^h_k) >_{∂T^h}
-C = fill(0.0, nnodes*dim    , szF*nfaces*dim, nelem) # <v_i, func(\hat{u}^h_k) >_{∂T^h}
+A = fill(0.0, nnodes*dim    , nnodes*dim^2     , nelem)    # (v_{i,j}, σ^h_{ij})_{T^h} - <v_i, σ^h_{ij} n_j>_{∂T^h}
+B = fill(0.0, nnodes*dim    , nnodes*dim       , nelem)    # <v_i, func(u^h_k) >_{∂T^h}
+C = fill(0.0, nnodes*dim    , nodfac*nfaces*dim, nelem)    # <v_i, func(\hat{u}^h_k) >_{∂T^h}
 
-F = fill(0.0, nnodes*dim    , 1            , nelem)  # (v_{i}, b_{i})_{T^h}
+F = fill(0.0, nnodes*dim    , 1                , nelem)    # (v_{i}, b_{i})_{T^h}
 
 # strain-displacement
-D = fill(0.0, nnodes*dim^2  , nnodes*dim^2  , nelem) # (w_{ij}  , ϵ^h_{ij})_{T^h}
-H = fill(0.0, nnodes*dim^2  , nnodes*dim    , nelem) # <w_{ij}  , (\hat{u}^h_i*n_j+ \hat{u}^h_j*n_i)>_{∂T^h}
-J = fill(0.0, nnodes*dim^2  , szF*nfaces*dim, nelem) # (w_{ij,j}, u^h_i)_{T^h} + (w_{ij,i}, u^h_j*n_i)_{T^h}
+D = fill(0.0, nnodes*dim^2  , nnodes*dim^2     , nelem)    # (w_{ij}  , ϵ^h_{ij})_{T^h}
+H = fill(0.0, nnodes*dim^2  , nnodes*dim       , nelem)    # <w_{ij}  , (\hat{u}^h_i*n_j+ \hat{u}^h_j*n_i)>_{∂T^h}
+J = fill(0.0, nnodes*dim^2  , nodfac*nfaces*dim, nelem)    # (w_{ij,j}, u^h_i)_{T^h} + (w_{ij,i}, u^h_j*n_i)_{T^h}
 
 # Hooke's law
-K = fill(0.0, nnodes*dim^2  , nnodes*dim^2  , nelem) # (z_{ij}  , σ^h_{ij})_{T^h}
-M = fill(0.0, nnodes*dim^2  , nnodes*dim^2  , nelem) # (z_{ij}  , C_{ijkl}ϵ^h_{kl})_{T^h}
+K = fill(0.0, nnodes*dim^2  , nnodes*dim^2     , nelem)    # (z_{ij}  , σ^h_{ij})_{T^h}
+M = fill(0.0, nnodes*dim^2  , nnodes*dim^2     , nelem)    # (z_{ij}  , C_{ijkl}ϵ^h_{kl})_{T^h}
 
 # Flux jumps
-N = fill(0.0, nfaces*szF*dim, nnodes*dim^2  , nelem) # <μ_{i} , σ^h_{ij}*n_j>_{∂T^h\∂Ω_D}
-P = fill(0.0, nfaces*szF*dim, nnodes*dim    , nelem) # <μ_{i} , func(u^h_k)>_{∂T^h\∂Ω_D}
-Q = fill(0.0, nfaces*szF*dim, szF*nfaces*dim, nelem) # <μ_{i} , func(\hat{u}^h_k)>_{∂T^h\∂Ω_D} or <μ_{i} , \hat{u}^h_{i})_{∂Ω_D}
+N = fill(0.0, nfaces*nodfac*dim, nnodes*dim^2     , nelem) # <μ_{i} , σ^h_{ij}*n_j>_{∂T^h\∂Ω_D}
+P = fill(0.0, nfaces*nodfac*dim, nnodes*dim       , nelem) # <μ_{i} , func(u^h_k)>_{∂T^h\∂Ω_D}
+Q = fill(0.0, nfaces*nodfac*dim, nodfac*nfaces*dim, nelem) # <μ_{i} , func(\hat{u}^h_k)>_{∂T^h\∂Ω_D} or <μ_{i} , \hat{u}^h_{i})_{∂Ω_D}
 
 # Dirichlet BC
 #   BC RHS
-G = fill(0.0, nfaces*szF*dim, 1             , nelem) # (μ_{i} , t_i)_{∂T^h\∂Ω_D}) or (μ_{i} , \bar{u}_i)_{∂Ω_D}
+G = fill(0.0, nfaces*nodfac*dim, 1                , nelem) # (μ_{i} , t_i)_{∂T^h\∂Ω_D}) or (μ_{i} , \bar{u}_i)_{∂Ω_D}
 
 # Matrix with unknowns for uhath
-A_UHATH = fill(0.0, nfaces*szF*dim, szF*nfaces*dim, nelem)
-B_UHATH = fill(0.0, nfaces*szF*dim, 1             , nelem)
+A_UHATH = fill(0.0, nfaces*nodfac*dim, nodfac*nfaces*dim, nelem)
+B_UHATH = fill(0.0, nfaces*nodfac*dim, 1                , nelem)
 
 # Set up column and row indices for sparse matrix
 indRow = fill( 0.0, (dim+1)^2 * nelem * unkUhat^2 )
@@ -158,7 +157,7 @@ for pp in 1:nelem # Loop over all elements
     ## C
     # <v_i, τ_{ijkl} \hat{u}^h_k * n_l * n_j >_{∂T^h}
     for ii in 1:dim, jj in 1:dim, kk in 1:dim, ll in 1:dim
-      C[(ii-1)*nnodes + nod, (kk-1)*szF + faceInd,pp] -=
+      C[(ii-1)*nnodes + nod, (kk-1)*nodfac + faceInd,pp] -=
           τ[ii,jj,kk,ll] * ϕdm * jcwddm * ( ϕdm * diagm(normal[:,ll] .* normal[:,jj]) )'
     end
 
@@ -166,8 +165,8 @@ for pp in 1:nelem # Loop over all elements
     # <w_{ij}  , (\hat{u}^h_i*n_j + \hat{u}^h_j*n_i)>_{∂T^h}
     for ii in 1:dim, jj in 1:dim
       ij = (ii-1)*dim + jj
-      J[(ij-1)*nnodes + nod, (ii-1)*szF + faceInd,pp] -= 0.5 * ϕdm * jcwddm * ( ϕdm * diagm(normal[:,jj]) )'
-      J[(ij-1)*nnodes + nod, (jj-1)*szF + faceInd,pp] -= 0.5 * ϕdm * jcwddm * ( ϕdm * diagm(normal[:,ii]) )'
+      J[(ij-1)*nnodes + nod, (ii-1)*nodfac + faceInd,pp] -= 0.5 * ϕdm * jcwddm * ( ϕdm * diagm(normal[:,jj]) )'
+      J[(ij-1)*nnodes + nod, (jj-1)*nodfac + faceInd,pp] -= 0.5 * ϕdm * jcwddm * ( ϕdm * diagm(normal[:,ii]) )'
     end
 
     indF = abs( mesh.t2f[pp,qq] )
@@ -183,7 +182,7 @@ for pp in 1:nelem # Loop over all elements
         ## Q
         # (μ_{i} , \hat{u}^h_{i})_{∂Ω_D}
         for ii in 1:dim     #i
-          Q[(ii-1)*szF + faceInd,(ii-1)*szF + faceInd,pp] = ϕdm * jcwddm * ϕdm'
+          Q[(ii-1)*nodfac + faceInd,(ii-1)*nodfac + faceInd,pp] = ϕdm * jcwddm * ϕdm'
         end
 
         # BC RHS
@@ -191,7 +190,7 @@ for pp in 1:nelem # Loop over all elements
         # (μ_{i} , \bar{u}_i)_{∂Ω_D}
         bcout = problem.bcfunc[bNo](pdm)
         for ii in 1:dim     #i
-          G[(ii-1)*szF + faceInd, 1,pp] = ϕdm * jcwddm * bcout[:,ii]
+          G[(ii-1)*nodfac + faceInd, 1,pp] = ϕdm * jcwddm * bcout[:,ii]
         end
 
       elseif problem.bctype[bNo] == 2
@@ -201,21 +200,21 @@ for pp in 1:nelem # Loop over all elements
         # <μ_{i} , σ^h_{ij}*n_j>_{∂T^h\∂Ω_D}
         for ii in 1:dim, jj in 1:dim   #j
           ij = (ii-1)*dim + jj
-          N[(ii-1)*szF + faceInd, (ij-1)*nnodes + nod,pp] +=
+          N[(ii-1)*nodfac + faceInd, (ij-1)*nnodes + nod,pp] +=
               ϕdm * jcwddm * ( ϕdm * diagm(normal[:,jj]) )'
         end
 
         ## P
         # <μ_{i} , -τ_{ijkl} u^h_k n_l n_j ) >_{∂T^h\∂Ω_D}
         for ii in 1:dim, jj in 1:dim, kk in 1:dim, ll in 1:dim
-          P[(ii-1)*szF + faceInd,(kk-1)*nnodes + nod,pp] -=
+          P[(ii-1)*nodfac + faceInd,(kk-1)*nnodes + nod,pp] -=
             τ[ii,jj,kk,ll] * ϕdm * jcwddm * ( ϕdm * diagm(normal[:,ll] .* normal[:,jj]) )'
         end
 
         ## Q
         # <μ_{i} , τ_{ijkl} \hat{u}^h_k n_l n_j ) >_{∂T^h\∂Ω_D}
         for ii in 1:dim, jj in 1:dim, kk in 1:dim, ll in 1:dim
-          Q[(ii-1)*szF + faceInd,(kk-1)*szF + faceInd,pp] +=
+          Q[(ii-1)*nodfac + faceInd,(kk-1)*nodfac + faceInd,pp] +=
             τ[ii,jj,kk,ll] * ϕdm * jcwddm * ( ϕdm * diagm(normal[:,ll] .* normal[:,jj]) )'
         end
 
@@ -227,13 +226,13 @@ for pp in 1:nelem # Loop over all elements
           bcout = problem.bcfunc[bNo](pdm)
           for ii in 1:dim     #i
             temp = normal[:,ii] .* bcout[:,1]# + tL[:,ii] .* bcout[:,2] # NOTE: No tangential component, because hard to define in 3D
-            G[(ii-1)*szF + faceInd, 1,pp] = ϕdm * jcwddm * temp
+            G[(ii-1)*nodfac + faceInd, 1,pp] = ϕdm * jcwddm * temp
           end
         else
           # Boundary conditions are defined in the general coordinate system
           bcout = problem.bcfunc[bNo](pdm)
           for ii in 1:dim     #i
-            G[(ii-1)*szF + faceInd, 1,pp] = ϕdm * jcwddm * bcout[:,ii]
+            G[(ii-1)*nodfac + faceInd, 1,pp] = ϕdm * jcwddm * bcout[:,ii]
           end
         end
       else
@@ -247,21 +246,21 @@ for pp in 1:nelem # Loop over all elements
       # <μ_{i} , σ^h_{ij}*n_j>_{∂T^h\∂Ω_D}
       for ii in 1:dim, jj in 1:dim
         ij = (ii-1)*dim + jj
-        N[(ii-1)*szF + faceInd, (ij-1)*nnodes + nod,pp] +=
+        N[(ii-1)*nodfac + faceInd, (ij-1)*nnodes + nod,pp] +=
           ϕdm * jcwddm * ( ϕdm * diagm(normal[:,jj]) )'
       end
 
       ## P
       # <μ_{i} , -τ_{ijkl} u^h_k n_l n_j ) >_{∂T^h\∂Ω_D}
       for ii in 1:dim, jj in 1:dim, kk in 1:dim, ll in 1:dim
-        P[(ii-1)*szF + faceInd,(kk-1)*nnodes + nod,pp] -=
+        P[(ii-1)*nodfac + faceInd,(kk-1)*nnodes + nod,pp] -=
           τ[ii,jj,kk,ll] * ϕdm * jcwddm * ( ϕdm * diagm(normal[:,ll] .* normal[:,jj]) )'
       end
 
       ## Q
       # <μ_{i} , τ_{ijkl} \hat{u}^h_k n_l n_j ) >_{∂T^h\∂Ω_D}
       for ii in 1:dim, jj in 1:dim, kk in 1:dim, ll in 1:dim
-        Q[(ii-1)*szF + faceInd,(kk-1)*szF + faceInd,pp] +=
+        Q[(ii-1)*nodfac + faceInd,(kk-1)*nodfac + faceInd,pp] +=
           τ[ii,jj,kk,ll] * ϕdm * jcwddm * ( ϕdm * diagm(normal[:,ll] .* normal[:,jj]) )'
       end
 

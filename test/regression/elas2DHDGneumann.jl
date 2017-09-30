@@ -63,17 +63,17 @@ function ExactSol( Cstiff )
   ϵ4func_org = lambdify( ϵ[4] )
 
   # make sure you can call it with matrices
-  u1func = x -> u1func_org(x[:,1], x[:,2])
-  u2func = x -> u2func_org(x[:,1], x[:,2])
+  u1func = x -> u1func_org.(x[:,1], x[:,2])
+  u2func = x -> u2func_org.(x[:,1], x[:,2])
 
-  F1func = x -> F1func_org(x[:,1], x[:,2])
-  F2func = x -> F2func_org(x[:,1], x[:,2])
-  σ1func = x -> σ1func_org(x[:,1], x[:,2])
-  σ2func = x -> σ2func_org(x[:,1], x[:,2])
-  σ4func = x -> σ4func_org(x[:,1], x[:,2])
-  ϵ1func = x -> ϵ1func_org(x[:,1], x[:,2])
-  ϵ2func = x -> ϵ2func_org(x[:,1], x[:,2])
-  ϵ4func = x -> ϵ4func_org(x[:,1], x[:,2])
+  F1func = x -> F1func_org.(x[:,1], x[:,2])
+  F2func = x -> F2func_org.(x[:,1], x[:,2])
+  σ1func = x -> σ1func_org.(x[:,1], x[:,2])
+  σ2func = x -> σ2func_org.(x[:,1], x[:,2])
+  σ4func = x -> σ4func_org.(x[:,1], x[:,2])
+  ϵ1func = x -> ϵ1func_org.(x[:,1], x[:,2])
+  ϵ2func = x -> ϵ2func_org.(x[:,1], x[:,2])
+  ϵ4func = x -> ϵ4func_org.(x[:,1], x[:,2])
 
   return( u1func, u2func, F1func, F2func, σ1func, σ2func, σ4func, ϵ1func, ϵ2func, ϵ4func )
 

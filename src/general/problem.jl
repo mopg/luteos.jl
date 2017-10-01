@@ -11,6 +11,13 @@
 #
 # ---------------------------------------------------------------------------- #
 
+"""
+    Problem
+
+Problem type:
+Used as placeholder for information about the problem,
+e.g name, source function, and boundary conditions.
+"""
 type Problem
 
   name::String     # Name of problem

@@ -11,6 +11,12 @@
 #
 # ---------------------------------------------------------------------------- #
 
+"""
+    Material
+
+Material type:
+Holds material properties and computes stiffness matrices.
+"""
 type Material
 
   name::String   # Name of problem
@@ -27,6 +33,11 @@ type Material
 
 end
 
+"""
+    Material( name::String )
+
+Constructor for one of the default materials: PLA, Titanium, Al6061.
+"""
 function Material( name::String )
 
   if name == "PLA"
@@ -62,6 +73,11 @@ function Material( name::String )
 
 end
 
+"""
+    Material( )
+
+Empty constructor for `Material`.
+"""
 function Material(; name="Unobtainium", E = 68.9e9, ν = 0.33, ρ = 2.7e3, σt = 276e6, σc = 386e6  )
 
   λ = E * ν / ( (1 + ν) * (1 - 2*ν) )
@@ -77,6 +93,11 @@ function Material(; name="Unobtainium", E = 68.9e9, ν = 0.33, ρ = 2.7e3, σt =
 
 end
 
+"""
+    compCstiff( λ::Float64, μ::Float64, dim::Int64 )
+
+Computes stiffness matrix for dimension `dim`.
+"""
 function compCstiff( λ::Float64, μ::Float64, dim::Int64 )
 
   Cs = Array{Float64}(dim, dim, dim, dim)
@@ -90,6 +111,11 @@ function compCstiff( λ::Float64, μ::Float64, dim::Int64 )
 
 end
 
+"""
+    kdelt( ii::Int64, jj::Int64 )
+
+Returns Kronecker δ.
+"""
 function kdelt( ii::Int64, jj::Int64 )
   # Return kronecker δ
   return Int64( ii == jj )

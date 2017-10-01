@@ -12,6 +12,12 @@
 #
 # ---------------------------------------------------------------------------- #
 
+"""
+    Master3D
+
+Master3D type:
+Holds basis functions and quadrature points for tetrahedron master element.
+"""
 type Master3D <: Master
 
   porder::Int64         # Polynomial order of mesh
@@ -39,6 +45,11 @@ type Master3D <: Master
 
 end
 
+"""
+    Master3D( porder::Int64; pgauss::Int64 = 3*porder, typeb = "lag" )
+
+Constructor for Tetrahedron master element for order `porder`.
+"""
 function Master3D( porder::Int64; pgauss::Int64 = 3*porder, typeb = "lag" )
 
   if porder > 3
@@ -68,7 +79,12 @@ function Master3D( porder::Int64; pgauss::Int64 = 3*porder, typeb = "lag" )
 
 end
 
-function compOrder3D( orderRq )
+"""
+    compOrder3D( orderRq::Int64 )
+
+Computes the polynomial order to be integrated exactly.
+"""
+function compOrder3D( orderRq::Int64 )
 
   # 1D
 
@@ -154,7 +170,12 @@ function compOrder3D( orderRq )
 
 end
 
-function findPerm3D( p )
+"""
+    findPerm3D( p::Int64 )
+
+Finds which nodes belong to which faces for tetrahedron.
+"""
+function findPerm3D( p::Int64 )
 
   # 1:  1 2 3
   # 2:  1 3 2

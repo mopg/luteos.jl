@@ -12,6 +12,13 @@
 #
 # ---------------------------------------------------------------------------- #
 
+"""
+    Master
+
+Master abstract type:
+Overarching abstract type for master element types. Currently triangle and
+tetrahedron implemented.
+"""
 abstract type Master
 
 end

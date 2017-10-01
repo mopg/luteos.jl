@@ -12,6 +12,12 @@
 #
 # ---------------------------------------------------------------------------- #
 
+"""
+    Master2D
+
+Master2D type:
+Holds basis functions and quadrature points for triangle master element.
+"""
 type Master2D <: Master
 
   dim::Int64              # Dimension of the problem
@@ -35,6 +41,11 @@ type Master2D <: Master
 
 end
 
+"""
+    Master2D( porder::Int64; pgauss::Int64 = 3*porder, typeb = "lag" )
+
+Constructor for Triangle master element for order `porder`.
+"""
 function Master2D( porder::Int64; pgauss::Int64 = 3*porder, typeb = "lag" )
 
   (go1D, go2D) = compOrder( pgauss )
@@ -59,7 +70,12 @@ function Master2D( porder::Int64; pgauss::Int64 = 3*porder, typeb = "lag" )
 
 end
 
-function compOrder( orderRq )
+"""
+    compOrder( orderRq::Int64 )
+
+Computes the polynomial order to be integrated exactly.
+"""
+function compOrder( orderRq::Int64 )
 
   # 1D
 
@@ -117,7 +133,12 @@ function compOrder( orderRq )
 
 end
 
-function findPerm( p )
+"""
+    findPerm( p::Int64 )
+
+Finds which nodes belong to which faces for triangle.
+"""
+function findPerm( p::Int64 )
 
   permt = fill( 0::Int64, p+1, 3 )
 

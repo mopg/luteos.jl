@@ -11,6 +11,13 @@
 #
 # ---------------------------------------------------------------------------- #
 
+"""
+    writeTecplot( flname::String, prob::Problem, mesh::Mesh2D,
+                  uh::Array{Float64,3}, σh::Array{Float64,3},
+                  ϵh::Array{Float64,3}; σmises = Array{Float64,3}(0,0,0) )
+
+Outputs tecplot data file to `flname` for 2D meshes.
+"""
 function writeTecplot( flname::String, prob::Problem, mesh::Mesh2D, uh::Array{Float64,3},
   σh::Array{Float64,3}, ϵh::Array{Float64,3}; σmises = Array{Float64,3}(0,0,0) )
 
@@ -82,6 +89,13 @@ function writeTecplot( flname::String, prob::Problem, mesh::Mesh2D, uh::Array{Fl
 
 end
 
+"""
+    writeTecplot( flname::String, prob::Problem, mesh::Mesh3D,
+                  uh::Array{Float64,3}, σh::Array{Float64,3},
+                  ϵh::Array{Float64,3}; σmises = Array{Float64,3}(0,0,0) )
+
+Outputs tecplot data file to `flname` for 3D meshes.
+"""
 function writeTecplot( flname::String, prob::Problem, mesh::Mesh3D, uh::Array{Float64,3},
   σh::Array{Float64,3}, ϵh::Array{Float64,3}; σmises = Array{Float64,3}(0,0,0) )
 
@@ -152,3 +166,5 @@ function writeTecplot( flname::String, prob::Problem, mesh::Mesh3D, uh::Array{Fl
   close(fid)
 
 end
+
+# TODO: Need to add surface output

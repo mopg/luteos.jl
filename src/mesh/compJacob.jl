@@ -11,6 +11,11 @@
 #
 # ---------------------------------------------------------------------------- #
 
+"""
+    compJacob!( mesh::Mesh2D, master::Master2D )
+
+Computes Jacobians for 2D meshes and saves them in `mesh`.
+"""
 function compJacob!( mesh::Mesh2D, master::Master2D )
 
   ∂x∂ξ = master.∇ϕ[:,:,1]' * mesh.nodes[:,1,:]
@@ -39,6 +44,11 @@ function compJacob!( mesh::Mesh2D, master::Master2D )
 
 end
 
+"""
+    compJacobFace( mesh::Mesh3D, master::Master3D, el::Int64, face::Int64 )
+
+Returns Jacobian on on the `face` in element `el` for a 3D mesh.
+"""
 function compJacobFace( mesh::Mesh3D, master::Master3D, el::Int64, face::Int64 )
 
   nod  = master.perm[ :, face, abs.(mesh.t2f[el,face+4]) ]
@@ -70,6 +80,11 @@ function compJacobFace( mesh::Mesh3D, master::Master3D, el::Int64, face::Int64 )
 
 end
 
+"""
+    compJacobFace( mesh::Mesh2D, master::Master2D, el::Int64, face::Int64 )
+
+Returns Jacobian on on the `face` in element `el` for a 2D mesh.
+"""
 function compJacobFace( mesh::Mesh2D, master::Master2D, el::Int64, face::Int64 )
 
   if mesh.t2f[el,face] < 0
@@ -102,6 +117,12 @@ function compJacobFace( mesh::Mesh2D, master::Master2D, el::Int64, face::Int64 )
 
 end
 
+"""
+    compJacob( ::Type{Val{2}}, ∇ϕ::Array{Float64,3}, gwts::Vector{Float64},
+               nodes::Matrix{Float64} )
+
+Returns Jacobian of a 2D mesh.
+"""
 function compJacob( ::Type{Val{2}}, ∇ϕ::Array{Float64,3}, gwts::Vector{Float64}, nodes::Matrix{Float64} )
 
   ∂x∂ξ = ∇ϕ[:,:,1]' * nodes[:,1]
@@ -129,6 +150,11 @@ function compJacob( ::Type{Val{2}}, ∇ϕ::Array{Float64,3}, gwts::Vector{Float6
 
 end
 
+"""
+    compJacob!( mesh::Mesh3D, master::Master3D )
+
+Computes Jacobians for 3D meshes and saves them in `mesh`.
+"""
 function compJacob!( mesh::Mesh3D, master::Master3D )
 
   # http://www.csun.edu/~lcaretto/me692/Coordinate%20transformations.pdf
@@ -177,6 +203,12 @@ function compJacob!( mesh::Mesh3D, master::Master3D )
 
 end
 
+"""
+    compJacob( ::Type{Val{3}}, ∇ϕ::Array{Float64,3}, gwts::Vector{Float64},
+               nodes::Matrix{Float64} )
+
+Returns Jacobian of a 3D mesh.
+"""
 function compJacob( ::Type{Val{3}}, ∇ϕ::Array{Float64,3}, gwts::Vector{Float64}, nodes::Matrix{Float64} )
 
   # http://www.csun.edu/~lcaretto/me692/Coordinate%20transformations.pdf

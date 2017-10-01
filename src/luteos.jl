@@ -13,6 +13,17 @@
 
 # __precompile__()
 
+"""
+    luteos
+
+Julia library for high-order FEM problems.
+`luteos` is the Latin transliteration of the ancient greek word λυτέος, which
+means "one must solve".
+
+Max Opgenoord
+
+Fall 2017
+"""
 module luteos
 
 export hdgSolveElas, Material, Problem, Master2D, Master3D, Mesh2D, Mesh3D, compJacob!, writeTecplot

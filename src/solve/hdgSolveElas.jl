@@ -11,6 +11,12 @@
 #
 # ---------------------------------------------------------------------------- #
 
+"""
+    hdgSolveElas( master::Master, mesh::Mesh, material::Material,
+                  problem::Problem)
+
+Solves the linear elasticity equations for n-dimensional problems.
+"""
 function hdgSolveElas( master::Master, mesh::Mesh, material::Material, problem::Problem)
 
 dim     = mesh.dim

@@ -11,6 +11,12 @@
 #
 # ---------------------------------------------------------------------------- #
 
+"""
+    Printer
+
+Printer type:
+Holds name of 3D printer, manufacturing constraints, etc.
+"""
 type Printer
 
   name::String     # Name of printer
@@ -19,8 +25,8 @@ type Printer
 
 end
 
-function Problem( )
+function Printer( )
 
-
+    Printer("Printer 1")
 
 end

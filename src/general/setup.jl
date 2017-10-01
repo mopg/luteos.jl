@@ -11,6 +11,11 @@
 #
 # ---------------------------------------------------------------------------- #
 
+"""
+    setup( )
+
+Completely useless pretty script.
+"""
 function setup( )
 
   println("   ")
@@ -22,9 +27,9 @@ function setup( )
   println("      ▲▼   ▼▲  ■   ■      ■      ◢ ◤    ▼▲   ▲▼  ▼▲ ")
   println("     ▲▼     ▼▲ ◥ ■ ◤      ◥ ◤    ◥ ■ ◤   ▼▲▼▲▼    ▼▲▼▲ ")
   println("                                                    ▲▼ ")
-  println("  ------------------------------------------------------")
+  println("  -------------------------------------------------------")
   println("   ")
-  println("                   FEM Library ")
+  println("                         FEM Library ")
   println("   ")
 
 end

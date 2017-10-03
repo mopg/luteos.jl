@@ -82,8 +82,7 @@ for pp in 1:nelem # Loop over all elements
 
   pLoc = master.ϕ' * mesh.nodes[:,:,pp]
 
-  ∇ϕc[:,:,1] = master.∇ϕ[:,:,1] * diagm( mesh.∂ξ∂x[:,pp,1] ) + master.∇ϕ[:,:,2] * diagm( mesh.∂ξ∂x[:,pp,3] )
-  ∇ϕc[:,:,2] = master.∇ϕ[:,:,1] * diagm( mesh.∂ξ∂x[:,pp,2] ) + master.∇ϕ[:,:,2] * diagm( mesh.∂ξ∂x[:,pp,4] )
+  ∇ϕc = getderbfel( master, mesh.∂ξ∂x[:,pp,:] )
 
   jcwd = diagm(mesh.jcw[:,pp])
 
@@ -242,7 +241,7 @@ for pp in 1:nelem # Loop over all elements
           end
         end
       else
-          error("BC type not recognized. 1 = Dirichlet, 2 = Neumann")
+          error("hdgSolveElas:: BC type not recognized. 1 = Dirichlet, 2 = Neumann")
       end
 
     else
@@ -365,6 +364,6 @@ for pp in 1:nelem
     # ------------------------------------------------------------------------ #
 end
 
-return (uhath, uh, σh, ϵh )
+return (uhath, uh, σh, ϵh, uhathTri )
 
 end # end function

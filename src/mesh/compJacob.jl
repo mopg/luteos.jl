@@ -45,38 +45,19 @@ function compJacob!( mesh::Mesh2D, master::Master2D )
 end
 
 """
-    compJacobFace( mesh::Mesh3D, master::Master3D, el::Int64, face::Int64 )
+    getderbfel( master::Master2D, ∂ξ∂x::Matrix{Float64} )
 
-Returns Jacobian on on the `face` in element `el` for a 3D mesh.
+Returns ∇ϕ in the global coordinate system for 2D meshes.
 """
-function compJacobFace( mesh::Mesh3D, master::Master3D, el::Int64, face::Int64 )
 
-  nod  = master.perm[ :, face, abs.(mesh.t2f[el,face+4]) ]
+function getderbfel( master::Master2D, ∂ξ∂x::Matrix{Float64} )
 
-  p2d  = master.ϕ2D'  * mesh.nodes[nod,:,el]
+  ∇ϕc = fill(0.0, size(master.∇ϕ))
 
-  ∂x₁∂ξ₁ = master.∇ϕ2D[:,:,1]' * mesh.nodes[nod,1,el]
-  ∂x₁∂ξ₂ = master.∇ϕ2D[:,:,2]' * mesh.nodes[nod,1,el]
-  ∂x₂∂ξ₁ = master.∇ϕ2D[:,:,1]' * mesh.nodes[nod,2,el]
-  ∂x₂∂ξ₂ = master.∇ϕ2D[:,:,2]' * mesh.nodes[nod,2,el]
-  ∂x₃∂ξ₁ = master.∇ϕ2D[:,:,1]' * mesh.nodes[nod,3,el]
-  ∂x₃∂ξ₂ = master.∇ϕ2D[:,:,2]' * mesh.nodes[nod,3,el]
+  ∇ϕc[:,:,1] = master.∇ϕ[:,:,1] * diagm( ∂ξ∂x[:,1] ) + master.∇ϕ[:,:,2] * diagm( ∂ξ∂x[:,3] )
+  ∇ϕc[:,:,2] = master.∇ϕ[:,:,1] * diagm( ∂ξ∂x[:,2] ) + master.∇ϕ[:,:,2] * diagm( ∂ξ∂x[:,4] )
 
-  # cross product to find normal vector, normal = ∂x∂ξ₁ × ∂x∂ξ₂
-  normal = hcat( ( ∂x₂∂ξ₁ .* ∂x₃∂ξ₂ - ∂x₂∂ξ₂ .* ∂x₃∂ξ₁ ),
-              -(   ∂x₁∂ξ₁ .* ∂x₃∂ξ₂ - ∂x₁∂ξ₂ .* ∂x₃∂ξ₁ ),
-               (   ∂x₁∂ξ₁ .* ∂x₂∂ξ₂ - ∂x₁∂ξ₂ .* ∂x₂∂ξ₁ ) )
-  # normalize the normal vector
-  jac    = sqrt.( normal[:,1].^2 + normal[:,2].^2 + normal[:,3].^2 )
-  normal = normal ./ ( jac * [1,1,1]' )
-
-  if mesh.t2f[el,face+4] < 0
-    normal = -normal
-  end
-
-  jcw = master.gwts2D .* jac
-
-  return (master.ϕ2D, p2d, nod, normal, jcw)
+  return ∇ϕc
 
 end
 
@@ -102,7 +83,7 @@ function compJacobFace( mesh::Mesh2D, master::Master2D, el::Int64, face::Int64 )
 
   p1d  = master.ϕ1d'  * mesh.nodes[nod,:,el]
 
-  jac  = sqrt( ∂x₁∂ξ₁.^2 + ∂x₂∂ξ₁.^2 )
+  jac  = sqrt.( ∂x₁∂ξ₁.^2 + ∂x₂∂ξ₁.^2 )
   jcw  = master.gwts1d .* jac
 
   if rotdir
@@ -200,6 +181,60 @@ function compJacob!( mesh::Mesh3D, master::Master3D )
 
   mesh.jcw  = jcw
   mesh.∂ξ∂x = ∂ξ∂x
+
+end
+
+"""
+    getderbfel( master::Master3D, ∂ξ∂x::Matrix{Float64} )
+
+Returns ∇ϕ in the global coordinate system for 3D meshes.
+"""
+
+function getderbfel( master::Master3D, ∂ξ∂x::Matrix{Float64} )
+
+  ∇ϕc = fill(0.0, size(master.∇ϕ))
+
+  ∇ϕc[:,:,1] = master.∇ϕ[:,:,1] * diagm( ∂ξ∂x[:,1] ) + master.∇ϕ[:,:,2] * diagm( ∂ξ∂x[:,4] ) + master.∇ϕ[:,:,3] * diagm( ∂ξ∂x[:,7] )
+  ∇ϕc[:,:,2] = master.∇ϕ[:,:,1] * diagm( ∂ξ∂x[:,2] ) + master.∇ϕ[:,:,2] * diagm( ∂ξ∂x[:,5] ) + master.∇ϕ[:,:,3] * diagm( ∂ξ∂x[:,8] )
+  ∇ϕc[:,:,3] = master.∇ϕ[:,:,1] * diagm( ∂ξ∂x[:,3] ) + master.∇ϕ[:,:,2] * diagm( ∂ξ∂x[:,6] ) + master.∇ϕ[:,:,3] * diagm( ∂ξ∂x[:,9] )
+
+  return ∇ϕc
+
+end
+
+"""
+    compJacobFace( mesh::Mesh3D, master::Master3D, el::Int64, face::Int64 )
+
+Returns Jacobian on the `face` in element `el` for a 3D mesh.
+"""
+function compJacobFace( mesh::Mesh3D, master::Master3D, el::Int64, face::Int64 )
+
+  nod  = master.perm[ :, face, abs.(mesh.t2f[el,face+4]) ]
+
+  p2d  = master.ϕ2D'  * mesh.nodes[nod,:,el]
+
+  ∂x₁∂ξ₁ = master.∇ϕ2D[:,:,1]' * mesh.nodes[nod,1,el]
+  ∂x₁∂ξ₂ = master.∇ϕ2D[:,:,2]' * mesh.nodes[nod,1,el]
+  ∂x₂∂ξ₁ = master.∇ϕ2D[:,:,1]' * mesh.nodes[nod,2,el]
+  ∂x₂∂ξ₂ = master.∇ϕ2D[:,:,2]' * mesh.nodes[nod,2,el]
+  ∂x₃∂ξ₁ = master.∇ϕ2D[:,:,1]' * mesh.nodes[nod,3,el]
+  ∂x₃∂ξ₂ = master.∇ϕ2D[:,:,2]' * mesh.nodes[nod,3,el]
+
+  # cross product to find normal vector, normal = ∂x∂ξ₁ × ∂x∂ξ₂
+  normal = hcat( ( ∂x₂∂ξ₁ .* ∂x₃∂ξ₂ - ∂x₂∂ξ₂ .* ∂x₃∂ξ₁ ),
+              -(   ∂x₁∂ξ₁ .* ∂x₃∂ξ₂ - ∂x₁∂ξ₂ .* ∂x₃∂ξ₁ ),
+               (   ∂x₁∂ξ₁ .* ∂x₂∂ξ₂ - ∂x₁∂ξ₂ .* ∂x₂∂ξ₁ ) )
+  # normalize the normal vector
+  jac    = sqrt.( normal[:,1].^2 + normal[:,2].^2 + normal[:,3].^2 )
+  normal = normal ./ ( jac * [1,1,1]' )
+
+  if mesh.t2f[el,face+4] < 0
+    normal = -normal
+  end
+
+  jcw = master.gwts2D .* jac
+
+  return (master.ϕ2D, p2d, nod, normal, jcw)
 
 end
 

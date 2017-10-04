@@ -3,7 +3,7 @@
 # include("../src/mesh/mesh2D.jl")
 # include("../src/mesh/master3D.jl")
 
-
+using luteos
 using Base.Test
 
 println("BASIS FUNCTIONS TEST")
@@ -11,6 +11,7 @@ println("BASIS FUNCTIONS TEST")
 
 println("MESH TESTS")
 include("unit/testMesh.jl")
+# include("unit/testMesh2D.jl")
 
 println("2D MASTER TESTS")
 # include("unit/testMaster2D.jl")

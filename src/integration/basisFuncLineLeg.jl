@@ -29,7 +29,7 @@ function basisFuncLineLeg( ::Type{Val{0}}, s::Array{Float64} )
 
   # transpose
   phi   = phi'
-  dphi  = dphi'
+  dphi  = dphi[:,:,1]'
 
   return phi, dphi
 
@@ -55,7 +55,7 @@ function basisFuncLineLeg( ::Type{Val{1}}, s::Array{Float64} )
 
   # transpose
   phi   = phi'
-  dphi  = dphi'
+  dphi  = dphi[:,:,1]'
 
   return phi, dphi
 
@@ -84,7 +84,7 @@ function basisFuncLineLeg( ::Type{Val{2}}, s::Array{Float64} )
 
   # transpose
   phi   = phi'
-  dphi  = dphi'
+  dphi  = dphi[:,:,1]'
 
   return phi, dphi
 
@@ -114,7 +114,7 @@ function basisFuncLineLeg( ::Type{Val{3}}, s::Array{Float64} )
 
   # transpose
   phi   = phi'
-  dphi  = dphi'
+  dphi  = dphi[:,:,1]'
 
   return phi, dphi
 
@@ -146,7 +146,7 @@ function basisFuncLineLeg( ::Type{Val{4}}, s::Array{Float64} )
 
   # transpose
   phi   = phi'
-  dphi  = dphi'
+  dphi  = dphi[:,:,1]'
 
   return phi, dphi
 
@@ -181,7 +181,7 @@ function basisFuncLineLeg( ::Type{Val{5}}, s::Array{Float64} )
 
   # transpose
   phi   = phi'
-  dphi  = dphi'
+  dphi  = dphi[:,:,1]'
 
   return phi, dphi
 

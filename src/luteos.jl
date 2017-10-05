@@ -26,7 +26,7 @@ Fall 2017
 """
 module luteos
 
-export hdgSolveElas, Material, Problem, Master2D, Master3D, Mesh2D, Mesh3D, compJacob!, writeTecplot
+export hdgSolveElas, Material, Problem, Master2D, Master3D, Mesh2D, Mesh3D, compJacob!, writeTecplot, writeTecplotCD
 
 include("general/material.jl")
 include("general/problem.jl")
@@ -37,7 +37,11 @@ include("mesh/master.jl")
 include("mesh/compJacob.jl")
 
 include("io/writeTecplot.jl")
+include("io/writeTecplotCD.jl")
 
 include("solve/hdgSolveElas.jl")
+
+export hdgSolveCD
+include("solve/hdgSolveCD.jl")
 
 end

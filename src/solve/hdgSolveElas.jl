@@ -366,4 +366,4 @@ end
 
 return (uhath, uh, σh, ϵh, uhathTri )
 
-end # end function
+end # end hdgSolveElas

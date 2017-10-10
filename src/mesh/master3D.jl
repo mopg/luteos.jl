@@ -43,6 +43,9 @@ type Master3D <: Master
 
   perm::Array{Int64}    # Node numbers on faces
 
+  ϕnod::Array{Float64}  # Derivatives of shape functions in 3D at nodes
+  ∇ϕnod::Array{Float64} # Derivatives of shape functions in 3D at nodes
+
 end
 
 """
@@ -62,20 +65,24 @@ function Master3D( porder::Int64; pgauss::Int64 = 3*porder, typeb = "lag" )
   (gpts2D_, gwts2D_) = quadratureTriangle( Val{go2D} )
   (gpts1D_, gwts1D_) = quadratureLine( Val{go1D} )
 
+  (ploc,) = genlocal3D( porder )
+
   if typeb == "lag"
     (ϕ_,   ∇ϕ_)   = basisFuncTetLag( Val{porder}, gpts_[:,1], gpts_[:,2],  gpts_[:,3] )
     (ϕ2D_, ∇ϕ2D_) = basisFuncTriangleLag( Val{porder}, gpts2D_[:,1], gpts2D_[:,2] )
     (ϕ1D_, ∇ϕ1D_) = basisFuncLineLag( Val{porder}, gpts1D_ )
+    (ϕnod_, ∇ϕnod_)    = basisFuncTetLag( Val{porder}, ploc[:,2], ploc[:,3],  ploc[:,4] )
   elseif typeb == "leg"
     (ϕ_,   ∇ϕ_)   = basisFuncTetLeg( Val{porder}, gpts_[:,1], gpts_[:,2],  gpts_[:,3] )
     (ϕ2D_, ∇ϕ2D_) = basisFuncTriangleLeg( Val{porder}, gpts2D_[:,1], gpts2D_[:,2] )
     (ϕ1D_, ∇ϕ1D_) = basisFuncLineLeg( Val{porder}, gpts1D_ )
+    (ϕnod_, ∇ϕnod_)    = basisFuncTetLeg( Val{porder}, ploc[:,1], ploc[:,3],  ploc[:,4] )
   end
 
   perm_ = findPerm3D( porder )
 
   Master3D( porder, pgauss, gpts_, gwts_, gpts2D_, gwts2D_, gpts1D_, gwts1D_,
-    ϕ_, ∇ϕ_, ϕ2D_, ∇ϕ2D_, ϕ1D_, ∇ϕ1D_, perm_ )
+    ϕ_, ∇ϕ_, ϕ2D_, ∇ϕ2D_, ϕ1D_, ∇ϕ1D_, perm_, ϕnod_, ∇ϕnod_ )
 
 end
 
@@ -212,11 +219,11 @@ function findPerm3D( p::Int64 )
     end
 
   elseif p == 2
-
+    # [2,3,4], [1,4,3], [1,2,4], [1,3,2]
     indfaces = [2  3  4  5  6  7
-                3  1  4  9  5  8
+                1  4  3  5  8  9 #3  1  4  9  5  8
                 1  2  4  6  9  10
-                2  1  3  8  7  10]
+                1  3  2  7  10 8]#2  1  3  8  7  10]
 
     for jj in 1:4
       ifac = indfaces[jj,:]
@@ -233,9 +240,9 @@ function findPerm3D( p::Int64 )
   elseif p == 3
 
     indfaces = [2  3  4   5  6  7  8  9 10 17
-                3  1  4  13 14  6  5 11 12 18
+                1  4  3   6  5 11 12 13 14 18#3  1  4  13 14  6  5 11 12 18
                 1  2  4   8  7 14 13 15 16 19
-                2  1  3  12 11 10  9 16 15 20]
+                1  3  2  10  9 16 15 12 11 20]#2  1  3  12 11 10  9 16 15 20]
     for jj in 1:4
       ifac = indfaces[jj,:]
       perm[:,jj,1] = ifac

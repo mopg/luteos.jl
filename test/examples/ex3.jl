@@ -6,7 +6,7 @@ mat = Material(E = 1, ν = 0.33)
 
 P = 3 # Polynomial order of solution
 
-mesh   = Mesh2D( "square", P, N = 5)
+mesh   = Mesh2D( "square", P, N = 5, M = 3)
 master = Master2D( P )
 
 compJacob!( mesh, master )

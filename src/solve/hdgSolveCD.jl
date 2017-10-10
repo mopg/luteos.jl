@@ -270,6 +270,14 @@ Hfull = sparse( indRow, indCol, indUnk, size(mesh.f,1) * unkUhat, size(mesh.f,1)
 uhath = Hfull \ Rfull
 # ---------------------------------------------------------------------------- #
 
+# NOTE: TEMP
+# for ii in 1:size(mesh.f,1)
+#   it = mesh.f[ii,end-1]
+#   qq = find( abs.(mesh.t2f[it,1:nfaces]) .== ii ); qq = qq[1]
+#   (ϕdm, pdm, nod, normal, jcwdm) = compJacobFace( mesh, master, it, qq )
+#   uhath[ 1+(ii-1)*unkUhat:ii*unkUhat ] = sum(mesh.nodes[nod,:,it],2)
+# end
+
 ## Compute approximate scalar value and flux
 uhathTri = fill( 0.0, unkUhat*nfaces, 1,     nelem )
 uh       = fill( 0.0, nnodes,         1,     nelem )
@@ -296,6 +304,6 @@ for pp in 1:nelem
     uh[:,1,pp] = uTemp[ 1+dim*nnodes:(dim+1)*nnodes ]
 end
 
-return (uhath, uh, qh, uhathTri )
+return (uhath, uh, qh, uhathTri, A, B, N, D, H, M, K, L, C, E, R, G, F  )
 
 end # end hdgSolveCD

@@ -7,11 +7,13 @@ using luteos
 using Base.Test
 
 println("BASIS FUNCTIONS TEST")
-# include("unit/testBasisFunc.jl")
+include("unit/testBasisFunc.jl")
 
 println("MESH TESTS")
-include("unit/testMesh.jl")
-# include("unit/testMesh2D.jl")
+println(" 2D")
+include("unit/testMesh2D.jl")
+println(" 3D")
+include("unit/testMesh3D.jl")
 
 println("2D MASTER TESTS")
 # include("unit/testMaster2D.jl")

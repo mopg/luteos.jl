@@ -1,6 +1,3 @@
-# include("../src/mesh/master2D.jl")
-# include("../src/mesh/mesh2D.jl")
-
 tol = 1e-13
 
 pmax = 4
@@ -18,11 +15,7 @@ for ii = 1:pmax
   ploc1D[1:2] = ploc1D[ [1,ii+1] ]
   ploc1D[3:ii+1] = temp
 
-  @printf( "  Test 2D master element at %i\n", ii )
-
   master = Master2D( ii; typeb = "lag" )
-
-  println( "      1D")
 
   phi1D, dphi1D = luteos.basisFuncLineLag( Val{ii}, ploc1D )
   sz    = size( phi1D )
@@ -33,8 +26,6 @@ for ii = 1:pmax
       @test abs(phi1D[jj,kk]) < tol
     end
   end
-
-  println( "      2D")
 
   phi, dphi = luteos.basisFuncTriangleLag( Val{ii}, ploc[:,2], ploc[:,3] )
 

@@ -31,7 +31,7 @@ unkUhat = nodfac                # Total of uhat unknowns per face
 nfaces  = dim + 1               # Number of faces per element
 
 # Stability parameter
-τ = 1
+τ = 5
 
 ### Initialize quantities
 
@@ -267,7 +267,19 @@ end # end element loop
 ### Compute approximate trace
 Hfull = sparse( indRow, indCol, indUnk, size(mesh.f,1) * unkUhat, size(mesh.f,1) * unkUhat )
 
-uhath = Hfull \ Rfull
+
+
+Hlu = lufact(Hfull)
+# println("gmres")
+uhath = IterativeSolvers.gmres( Hfull, Rfull, Pl=Hlu )
+# @time uhath = IterativeSolvers.gmres( Hfull, Rfull, Pl=Hlu )
+# println(typeof(uhath))
+# uhath = Hfull \ Rfull
+
+# println("direct")
+# @time uhath = Hfull \ Rfull
+# println(typeof(uhath))
+
 # ---------------------------------------------------------------------------- #
 
 # NOTE: TEMP
@@ -304,6 +316,6 @@ for pp in 1:nelem
     uh[:,1,pp] = uTemp[ 1+dim*nnodes:(dim+1)*nnodes ]
 end
 
-return (uhath, uh, qh, uhathTri, A, B, N, D, H, M, K, L, C, E, R, G, F  )
+return ( uhath, uh, qh, uhathTri )
 
 end # end hdgSolveCD

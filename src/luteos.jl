@@ -26,6 +26,8 @@ Fall 2017
 """
 module luteos
 
+import IterativeSolvers
+
 export hdgSolveElas, Material, Problem, Master2D, Master3D, Mesh2D, Mesh3D, compJacob!, writeTecplot, writeTecplotCD
 
 include("general/material.jl")

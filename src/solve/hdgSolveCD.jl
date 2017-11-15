@@ -161,45 +161,17 @@ for pp in 1:nelem # Loop over all elements
       elseif problem.bctype[bNo] == 2
         # Neumann boundary condition
 
-        # ## N
-        # # <μ_{i} , σ^h_{ij}*n_j>_{∂T^h\∂Ω_D}
-        # for ii in 1:dim, jj in 1:dim   #j
-        #   ij = (ii-1)*dim + jj
-        #   N[(ii-1)*nodfac + faceInd, (ij-1)*nnodes + nod,pp] +=
-        #       ϕdm * jcwddm * ( ϕdm * diagm(normal[:,jj]) )'
-        # end
-        #
-        # ## P
-        # # <μ_{i} , -τ_{ijkl} u^h_k n_l n_j ) >_{∂T^h\∂Ω_D}
-        # for ii in 1:dim, jj in 1:dim, kk in 1:dim, ll in 1:dim
-        #   P[(ii-1)*nodfac + faceInd,(kk-1)*nnodes + nod,pp] -=
-        #     τ[ii,jj,kk,ll] * ϕdm * jcwddm * ( ϕdm * diagm(normal[:,ll] .* normal[:,jj]) )'
-        # end
-        #
-        # ## Q
-        # # <μ_{i} , τ_{ijkl} \hat{u}^h_k n_l n_j ) >_{∂T^h\∂Ω_D}
-        # for ii in 1:dim, jj in 1:dim, kk in 1:dim, ll in 1:dim
-        #   Q[(ii-1)*nodfac + faceInd,(kk-1)*nodfac + faceInd,pp] +=
-        #     τ[ii,jj,kk,ll] * ϕdm * jcwddm * ( ϕdm * diagm(normal[:,ll] .* normal[:,jj]) )'
-        # end
-        #
-        # # BC RHS
-        # ## G
-        # # (μ_{i} , t_i)_{∂T^h\∂Ω_D})
-        # if problem.bcnorm
-        #   # Boundary conditions are defined normal to the surface
-        #   bcout = problem.bcfunc[bNo](pdm)
-        #   for ii in 1:dim     #i
-        #     temp = normal[:,ii] .* bcout[:,1]# + tL[:,ii] .* bcout[:,2] # NOTE: No tangential component, because hard to define in 3D
-        #     G[(ii-1)*nodfac + faceInd, 1,pp] = ϕdm * jcwddm * temp
-        #   end
-        # else
-        #   # Boundary conditions are defined in the general coordinate system
-        #   bcout = problem.bcfunc[bNo](pdm)
-        #   for ii in 1:dim     #i
-        #     G[(ii-1)*nodfac + faceInd, 1,pp] = ϕdm * jcwddm * bcout[:,ii]
-        #   end
-        # end
+        ## K
+        # <μ_{i} , q_{ij}*n_j>_{∂Ω_N}
+        for ii in 1:dim
+          K[faceInd, (ii-1)*nnodes + nod, pp] = ϕdm * jcwddm * ( ϕdm * diagm(normal[:,ii]) )'
+        end
+
+        # BC RHS
+        ## G
+        # (μ_{i} , \bar{∂u∂x})_{∂Ω_N})
+        bcout = problem.bcfunc[bNo](pdm)
+        G[faceInd, 1,pp] = ϕdm * jcwddm * bcout
       else
           error("hdgSolveElas:: BC type not recognized. 1 = Dirichlet, 2 = Neumann")
       end
@@ -281,14 +253,6 @@ uhath = IterativeSolvers.gmres( Hfull, Rfull, Pl=Hlu )
 # println(typeof(uhath))
 
 # ---------------------------------------------------------------------------- #
-
-# NOTE: TEMP
-# for ii in 1:size(mesh.f,1)
-#   it = mesh.f[ii,end-1]
-#   qq = find( abs.(mesh.t2f[it,1:nfaces]) .== ii ); qq = qq[1]
-#   (ϕdm, pdm, nod, normal, jcwdm) = compJacobFace( mesh, master, it, qq )
-#   uhath[ 1+(ii-1)*unkUhat:ii*unkUhat ] = sum(mesh.nodes[nod,:,it],2)
-# end
 
 ## Compute approximate scalar value and flux
 uhathTri = fill( 0.0, unkUhat*nfaces, 1,     nelem )

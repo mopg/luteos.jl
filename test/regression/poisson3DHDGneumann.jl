@@ -19,7 +19,7 @@ function ExactSol3D(  )
 
   @syms x1 x2 x3
 
-  u = sin.(pi*x1) .* sin.(pi*x2) .* sin.(pi*x3)
+  u = sin.(pi*x1) .* sin.(0.5*pi*x2) .* sin.(pi*x3)
 
   g = (x1^2 - x1) .* (x2^2 - x2) .* (x3^2 - x3)
 
@@ -64,7 +64,8 @@ end
 function funcB( p::Array{Float64} )
   return fill( 0.0, size(p,1) )
 end
-bctype = [1,1,1,1,1,1] # All Dirichlet
+bctype = [1,1,1,1,1,2]
+
 #   Setup source function
 source = (p) -> Ffunc(p)
 
@@ -143,7 +144,7 @@ conv_qh3 = (log.( Err_qh3[:,end-1]) - log.( Err_qh3[:,end] ) ) / (log.( h[end-1]
 conv_J   = (log.( Err_J[:,end-1])   - log.( Err_J[:,end] ) ) / (log.( h[end-1]) - log.( h[end] ));
 
 # Output to terminal
-@printf("   Convergence rates for Poisson 3D Dirichlet problem\n\n")
+@printf("   Convergence rates for Poisson 3D Neumann problem\n\n")
 @printf("   ---------------------------------------------------\n\n")
 @printf( "P   ")
 for jj in 1:size(Ps,1)
@@ -182,7 +183,7 @@ for jj in 1:length(Ps)
 end
 @printf( "\n" )
 
-open("errors_Poisson_Dirichlet3D.dat", "w") do f
+open("errors_Poisson_Neumann3D.dat", "w") do f
   @printf(f, "P \t N \t E_uh \t E_qh1 \t E_qh2 \t E_qh3 \t E_J\n")
   for ii in 1:length(Ps), jj in 1:length(Ns)
     @printf(f, "%i \t %i \t %16.15e \t %16.15e \t %16.15e \t %16.15e \t %16.15e\n",

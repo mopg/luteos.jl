@@ -143,6 +143,7 @@ conv_qh3 = (log.( Err_qh3[:,end-1]) - log.( Err_qh3[:,end] ) ) / (log.( h[end-1]
 conv_J   = (log.( Err_J[:,end-1])   - log.( Err_J[:,end] ) ) / (log.( h[end-1]) - log.( h[end] ));
 
 # Output to terminal
+@printf("\n")
 @printf("   Convergence rates for Poisson 3D Dirichlet problem\n\n")
 @printf("   ---------------------------------------------------\n\n")
 @printf( "P   ")

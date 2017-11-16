@@ -3,8 +3,8 @@ using SymPy
 
 # let # limit scope
 
-Ps = 1#:3         # Range of polynomial order
-Ns = [5, 9]#[9, 17, 33] # Range of grid size
+Ps = 1:3         # Range of polynomial order
+Ns = [7, 13]#[9, 17, 33] # Range of grid size
 
 dim = 3
 
@@ -145,6 +145,8 @@ for ii in 1:length(Ps), jj in 1:length(Ns)
 
   P = Ps[ii]; N = Ns[jj]
 
+  @printf( " %6i %6i\n", P, N )
+
   mesh   = Mesh3D( "cube", P, N = N)
   master = Master3D( P )
 
@@ -242,33 +244,34 @@ conv_ϵh6 = (log.( Err_ϵh6[:,end-1]) - log.( Err_ϵh6[:,end] ) ) / (log.( h[end
 conv_ϵh9 = (log.( Err_ϵh9[:,end-1]) - log.( Err_ϵh9[:,end] ) ) / (log.( h[end-1]) - log.( h[end] ));
 
 # Output to terminal
+@printf("\n")
 @printf("   Convergence rates for 3D Dirichlet problem\n\n")
 @printf("   ------------------------------------------\n\n")
-@printf( "P   ")
+@printf( "P    ")
 for jj in 1:size(Ps,1)
   @printf( " %6i", Ps[jj] )
 end
 @printf( "\n" )
 
 #   u
-@printf( "u₁  ")
+@printf( "u₁   ")
 for jj in 1:size(Ps,1)
   @printf( " %6.4f", conv_uh1[jj] )
 end
 @printf( "\n" )
-@printf( "u₂  ")
+@printf( "u₂   ")
 for jj in 1:size(Ps,1)
   @printf( " %6.4f", conv_uh2[jj] )
 end
 @printf( "\n" )
-@printf( "u₃  ")
+@printf( "u₃   ")
 for jj in 1:size(Ps,1)
   @printf( " %6.4f", conv_uh3[jj] )
 end
 @printf( "\n" )
 
 #   σ
-@printf( "σ₁  ")
+@printf( "σ₁₁  ")
 for jj in 1:length(Ps)
   @printf( " %6.4f", conv_σh1[jj] )
 end
@@ -330,5 +333,15 @@ for jj in 1:length(Ps)
   @printf( " %6.4f", conv_ϵh9[jj] )
 end
 @printf( "\n" )
+
+open("errors_Elas_Dirichlet3D.dat", "w") do f
+  @printf(f, "P \t N \t E_uh1 \t E_uh2 \t E_uh3 \t E_σh1 \t E_σh2 \t E_σh3 \t E_σh5 \t E_σh6 \t E_σh9 \t E_ϵh1 \t E_ϵh2 \t E_ϵh3 \t E_ϵh5 \t E_ϵh6 \t E_ϵh9 \n")#\t E_J\n")
+  for ii in 1:length(Ps), jj in 1:length(Ns)
+    @printf(f, "%i \t %i \t %16.15e \t %16.15e \t %16.15e \t %16.15e \t %16.15e \t %16.15e \t %16.15e \t %16.15e \t %16.15e \t %16.15e \t %16.15e \t %16.15e \t %16.15e \t %16.15e \t %16.15e\n",
+      Ps[ii], Ns[jj], Err_uh1[ii,jj], Err_uh2[ii,jj], Err_uh3[ii,jj],
+      Err_σh1[ii,jj], Err_σh2[ii,jj], Err_σh3[ii,jj], Err_σh5[ii,jj], Err_σh6[ii,jj], Err_σh9[ii,jj],
+      Err_ϵh1[ii,jj], Err_ϵh2[ii,jj], Err_ϵh3[ii,jj], Err_ϵh5[ii,jj], Err_ϵh6[ii,jj], Err_ϵh9[ii,jj] )
+  end
+end
 
 # end # limit scope

@@ -174,6 +174,7 @@ conv_ϵh2 = (log.( Err_ϵh2[:,end-2]) - log.( Err_ϵh2[:,end] ) ) / (log.( h[end
 conv_ϵh4 = (log.( Err_ϵh4[:,end-2]) - log.( Err_ϵh4[:,end] ) ) / (log.( h[end-2]) - log.( h[end] ));
 
 # Output to terminal
+@printf("\n")
 @printf("   Convergence rates for 2D Dirichlet/Neumann problem\n\n")
 @printf("   --------------------------------------------------\n\n")
 @printf( "P   ")

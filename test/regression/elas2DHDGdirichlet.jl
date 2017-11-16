@@ -172,6 +172,7 @@ conv_ϵh2 = (log.( Err_ϵh2[:,end-2]) - log.( Err_ϵh2[:,end] ) ) / (log.( h[end
 conv_ϵh4 = (log.( Err_ϵh4[:,end-2]) - log.( Err_ϵh4[:,end] ) ) / (log.( h[end-2]) - log.( h[end] ));
 
 # Output to terminal
+@printf("\n")
 @printf("   Convergence rates for 2D Dirichlet problem\n\n")
 @printf("   ------------------------------------------\n\n")
 @printf( "P   ")
@@ -225,5 +226,15 @@ for jj in 1:length(Ps)
   @printf( " %6.4f", conv_ϵh4[jj] )
 end
 @printf( "\n" )
+
+open("errors_Elas_Dirichlet2D.dat", "w") do f
+  @printf(f, "P \t N \t E_uh1 \t E_uh2 \t E_σh1 \t E_σh2 \t E_σh4 \t E_ϵh1 \t E_ϵh2 \t E_ϵh4 \n")#\t E_J\n")
+  for ii in 1:length(Ps), jj in 1:length(Ns)
+    @printf(f, "%i \t %i \t %16.15e \t %16.15e \t %16.15e \t %16.15e \t %16.15e \t %16.15e \t %16.15e \t %16.15e\n",
+      Ps[ii], Ns[jj], Err_uh1[ii,jj], Err_uh2[ii,jj],
+      Err_σh1[ii,jj], Err_σh2[ii,jj], Err_σh4[ii,jj],
+      Err_ϵh1[ii,jj], Err_ϵh2[ii,jj], Err_ϵh4[ii,jj] )
+  end
+end
 
 # end # limit scope

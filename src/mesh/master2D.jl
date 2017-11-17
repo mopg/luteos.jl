@@ -22,7 +22,8 @@ type Master2D <: Master
 
   dim::Int64              # Dimension of the problem
 
-  porder::Int64           # Polynomial order of mesh
+  porder::Porder          # Polynomial order type
+  p::Int64                # Polynomial order of mesh
   pgauss::Int64           # Polynomial order to be integrated exactly
 
   gpts::Array{Float64}    # Gauss points  2D
@@ -42,96 +43,91 @@ type Master2D <: Master
 end
 
 """
-    Master2D( porder::Int64; pgauss::Int64 = 3*porder, typeb = "lag" )
+    Master2D( porder::Porder; PGauss = PGdef( porder ) )
 
 Constructor for Triangle master element for order `porder`.
 """
-function Master2D( porder::Int64; pgauss::Int64 = 3*porder, typeb = "lag" )
+function Master2D( porder::Porder; PGauss = PGdef( porder ) )
 
-  (go1D, go2D) = compOrder( pgauss )
+  (go1D, go2D, go3D) = comporder( pgauss )
 
-  (gpts_,   gwts_)   = quadratureTriangle( Val{go2D} )
-  (gpts1d_, gwts1d_) = quadratureLine( Val{go1D} )
+  (gpts_,   gwts_)   = quadratureTriangle( go2D )
+  (gpts1d_, gwts1d_) = quadratureLine( go1D )
 
-  if typeb == "lag"
-    (ϕ_,   ∇ϕ_)   = basisFuncTriangleLag( Val{porder}, gpts_[:,1], gpts_[:,2] )
-    (ϕ1d_, ∇ϕ1d_) = basisFuncLineLag( Val{porder}, gpts1d_ )
-  elseif typeb == "leg"
-    (ϕ_,   ∇ϕ_)   = basisFuncTriangleLeg( Val{porder}, gpts_[:,1], gpts_[:,2] )
-    (ϕ1d_, ∇ϕ1d_) = basisFuncLineLeg( Val{porder}, gpts1d_ )
-  else
-    error("Unknown type of basis function")
-  end
+  (ϕ_,   ∇ϕ_)   = basisFuncTriangleLag( porder, gpts_[:,1], gpts_[:,2] )
+  (ϕ1d_, ∇ϕ1d_) = basisFuncLineLag( porder, gpts1d_ )
 
-  perm_ = findPerm( porder )
+  p  = porder.p
+  pg = pgauss.p
+  perm_ = findPerm( p )
 
-  Master2D( 2, porder, pgauss, gpts_, gwts_, gpts1d_, gwts1d_,
+  Master2D( 2, porder, p, pg, gpts_, gwts_, gpts1d_, gwts1d_,
     ϕ_, ∇ϕ_, ϕ1d_, ∇ϕ1d_, perm_ )
 
 end
 
-"""
-    compOrder( orderRq::Int64 )
-
-Computes the polynomial order to be integrated exactly.
-"""
-function compOrder( orderRq::Int64 )
-
-  # 1D
-
-  if orderRq <= 1
-    order1D = 1
-  elseif orderRq <= 3
-    order1D = 3
-  elseif orderRq <= 5
-    order1D = 5
-  elseif orderRq <= 7
-    order1D = 7
-  elseif orderRq <= 9
-    order1D = 9
-  elseif orderRq <= 11
-    order1D = 11
-  elseif orderRq <= 13
-    order1D = 13
-  elseif orderRq <= 15
-    order1D = 15
-  elseif orderRq <= 17
-    order1D = 17
-  elseif orderRq <= 19
-    order1D = 19
-  elseif orderRq <= 21
-    order1D = 21
-  elseif orderRq <= 23
-    order1D = 23
-  end
-
-  # 2D
-
-  if orderRq <= 2
-    order2D = 1
-  elseif orderRq <= 3
-    order2D = 2
-  elseif orderRq <= 4
-    order2D = 3
-  elseif orderRq <= 5
-    order2D = 4
-  elseif orderRq <= 8
-    order2D = 5
-  # elseif orderRq <= 10
-  #   order2D = 6
-  # elseif orderRq <= 11
-  #   order2D = 7
-  elseif orderRq <= 12
-    order2D = 8
-  elseif orderRq <= 13
-    order2D = 9
-  elseif orderRq <= 14
-    order2D = 10
-  end
-
-  return order1D, order2D
-
-end
+# """
+#     compOrder( orderRq::Int64 )
+#
+# Computes the polynomial order to be integrated exactly.
+# """
+# function compOrder( orderRq::Int64 )
+#
+#   # 1D
+#
+#   if orderRq <= 1
+#     order1D = 1
+#   elseif orderRq <= 3
+#     order1D = 3
+#   elseif orderRq <= 5
+#     order1D = 5
+#   elseif orderRq <= 7
+#     order1D = 7
+#   elseif orderRq <= 9
+#     order1D = 9
+#   elseif orderRq <= 11
+#     order1D = 11
+#   elseif orderRq <= 13
+#     order1D = 13
+#   elseif orderRq <= 15
+#     order1D = 15
+#   elseif orderRq <= 17
+#     order1D = 17
+#   elseif orderRq <= 19
+#     order1D = 19
+#   elseif orderRq <= 21
+#     order1D = 21
+#   elseif orderRq <= 23
+#     order1D = 23
+#   end
+#
+#   # 2D
+#
+#   if orderRq <= 2
+#     order2D = 1
+#   elseif orderRq <= 3
+#     order2D = 2
+#   elseif orderRq <= 4
+#     order2D = 3
+#   elseif orderRq <= 5
+#     order2D = 4
+#   elseif orderRq <= 8
+#     order2D = 5
+#   # elseif orderRq <= 10
+#   #   order2D = 6
+#   # elseif orderRq <= 11
+#   #   order2D = 7
+#   elseif orderRq <= 12
+#     order2D = 8
+#   elseif orderRq <= 13
+#     order2D = 9
+#   elseif orderRq <= 14
+#     order2D = 10
+#   end
+#
+#   return order1D, order2D
+#
+# end
 
 """
     findPerm( p::Int64 )

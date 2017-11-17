@@ -20,8 +20,11 @@ Holds basis functions and quadrature points for tetrahedron master element.
 """
 type Master3D <: Master
 
-  porder::Int64         # Polynomial order of mesh
-  pgauss::Int64         # Polynomial order to be integrated exactly
+  dim::Int64
+
+  porder::Porder          # Polynomial order type
+  p::Int64                # Polynomial order of mesh
+  pgauss::Int64           # Polynomial order to be integrated exactly
 
   gpts::Array{Float64}    # Gauss points  3D
   gwts::Array{Float64}    # Gauss weights 3D
@@ -49,133 +52,134 @@ type Master3D <: Master
 end
 
 """
-    Master3D( porder::Int64; pgauss::Int64 = 3*porder, typeb = "lag" )
+    Master3D( porder::Porder; pgauss::PGauss = PGdef( porder ) )
 
 Constructor for Tetrahedron master element for order `porder`.
 """
-function Master3D( porder::Int64; pgauss::Int64 = 3*porder, typeb = "lag" )
+function Master3D( porder::Porder; pgauss::PGauss = PGdef( porder ) )
 
-  if porder > 3
+  p  = porder.p
+  pg = pgauss.p
+
+  if p > 3
     error(" P > 3 not supported for 3D ")
   end
 
-  (go1D, go2D, go3D) = compOrder3D( pgauss )
+  println(" compute order")
+  @time (go1D, go2D, go3D) = comporder( pgauss )
 
-  (gpts_,   gwts_)   = quadratureTet( Val{go3D} )
-  (gpts2D_, gwts2D_) = quadratureTriangle( Val{go2D} )
-  (gpts1D_, gwts1D_) = quadratureLine( Val{go1D} )
+  println(" compute quadrature points")
+  @time (gpts_,   gwts_)   = quadratureTet( go3D )
+  @time (gpts2D_, gwts2D_) = quadratureTriangle( go2D )
+  @time (gpts1D_, gwts1D_) = quadratureLine( go1D )
 
-  (ploc,) = genlocal3D( porder )
+  # (ploc,) = genlocal3D( p )
 
-  if typeb == "lag"
-    (ϕ_,   ∇ϕ_)   = basisFuncTetLag( Val{porder}, gpts_[:,1], gpts_[:,2],  gpts_[:,3] )
-    (ϕ2D_, ∇ϕ2D_) = basisFuncTriangleLag( Val{porder}, gpts2D_[:,1], gpts2D_[:,2] )
-    (ϕ1D_, ∇ϕ1D_) = basisFuncLineLag( Val{porder}, gpts1D_ )
-    (ϕnod_, ∇ϕnod_)    = basisFuncTetLag( Val{porder}, ploc[:,2], ploc[:,3],  ploc[:,4] )
-  elseif typeb == "leg"
-    (ϕ_,   ∇ϕ_)   = basisFuncTetLeg( Val{porder}, gpts_[:,1], gpts_[:,2],  gpts_[:,3] )
-    (ϕ2D_, ∇ϕ2D_) = basisFuncTriangleLeg( Val{porder}, gpts2D_[:,1], gpts2D_[:,2] )
-    (ϕ1D_, ∇ϕ1D_) = basisFuncLineLeg( Val{porder}, gpts1D_ )
-    (ϕnod_, ∇ϕnod_)    = basisFuncTetLeg( Val{porder}, ploc[:,1], ploc[:,3],  ploc[:,4] )
-  end
+  println(" basis functions")
+  @time (ϕ_,   ∇ϕ_)   = basisFuncTetLag( porder, gpts_[:,1], gpts_[:,2],  gpts_[:,3] )
+  @time (ϕ2D_, ∇ϕ2D_) = basisFuncTriangleLag( porder, gpts2D_[:,1], gpts2D_[:,2] )
+  @time (ϕ1D_, ∇ϕ1D_) = basisFuncLineLag( porder, gpts1D_ )
+  # @time (ϕnod_, ∇ϕnod_)    = basisFuncTetLag( porder, ploc[:,2], ploc[:,3],  ploc[:,4] )
+  ϕnod_  = similar(ϕ_)
+  ∇ϕnod_ = similar(∇ϕ_)
 
-  perm_ = findPerm3D( porder )
+  @time perm_ = findPerm3D( p )
 
-  Master3D( porder, pgauss, gpts_, gwts_, gpts2D_, gwts2D_, gpts1D_, gwts1D_,
+  @time Master3D( 3, porder, p, pg, gpts_, gwts_, gpts2D_, gwts2D_, gpts1D_, gwts1D_,
     ϕ_, ∇ϕ_, ϕ2D_, ∇ϕ2D_, ϕ1D_, ∇ϕ1D_, perm_, ϕnod_, ∇ϕnod_ )
 
 end
 
-"""
-    compOrder3D( orderRq::Int64 )
-
-Computes the polynomial order to be integrated exactly.
-"""
-function compOrder3D( orderRq::Int64 )
-
-  # 1D
-
-  if orderRq <= 1
-    order1D = 1
-  elseif orderRq <= 3
-    order1D = 3
-  elseif orderRq <= 5
-    order1D = 5
-  elseif orderRq <= 7
-    order1D = 7
-  elseif orderRq <= 9
-    order1D = 9
-  elseif orderRq <= 11
-    order1D = 11
-  elseif orderRq <= 13
-    order1D = 13
-  elseif orderRq <= 15
-    order1D = 15
-  elseif orderRq <= 17
-    order1D = 17
-  elseif orderRq <= 19
-    order1D = 19
-  elseif orderRq <= 21
-    order1D = 21
-  elseif orderRq <= 23
-    order1D = 23
-  end
-
-  # 2D
-
-  if orderRq <= 2
-    order2D = 1
-  elseif orderRq <= 3
-    order2D = 2
-  elseif orderRq <= 4
-    order2D = 3
-  elseif orderRq <= 5
-    order2D = 4
-  elseif orderRq <= 8
-    order2D = 5
-  # elseif orderRq <= 10
-  #   order2D = 6
-  # elseif orderRq <= 11
-  #   order2D = 7
-  elseif orderRq <= 12
-    order2D = 8
-  elseif orderRq <= 13
-    order2D = 9
-  elseif orderRq <= 14
-    order2D = 10
-  end
-
-  # 3D
-
-  if orderRq <= 2
-    order3D = 1
-  elseif orderRq <= 3
-    order3D = 2
-  elseif orderRq <= 5
-    order3D = 3
-  elseif orderRq <= 6
-    order3D = 4
-  elseif orderRq <= 7
-    order3D = 5
-  elseif orderRq <= 8
-    order3D = 6
-  elseif orderRq <= 9
-    order3D = 7
-  elseif orderRq <= 10
-    order3D = 8
-  elseif orderRq <= 11
-    order3D = 9
-  elseif orderRq <= 12
-    order3D = 10
-  elseif orderRq <= 13
-    order3D = 11
-  elseif orderRq <= 14
-    order3D = 12
-  end
-
-  return order1D, order2D, order3D
-
-end
+# """
+#     compOrder3D( orderRq::Int64 )
+#
+# Computes the polynomial order to be integrated exactly.
+# """
+# function compOrder3D( orderRq::Int64 )
+#
+#   # 1D
+#
+#   if orderRq <= 1
+#     order1D = 1
+#   elseif orderRq <= 3
+#     order1D = 3
+#   elseif orderRq <= 5
+#     order1D = 5
+#   elseif orderRq <= 7
+#     order1D = 7
+#   elseif orderRq <= 9
+#     order1D = 9
+#   elseif orderRq <= 11
+#     order1D = 11
+#   elseif orderRq <= 13
+#     order1D = 13
+#   elseif orderRq <= 15
+#     order1D = 15
+#   elseif orderRq <= 17
+#     order1D = 17
+#   elseif orderRq <= 19
+#     order1D = 19
+#   elseif orderRq <= 21
+#     order1D = 21
+#   elseif orderRq <= 23
+#     order1D = 23
+#   end
+#
+#   # 2D
+#
+#   if orderRq <= 2
+#     order2D = 1
+#   elseif orderRq <= 3
+#     order2D = 2
+#   elseif orderRq <= 4
+#     order2D = 3
+#   elseif orderRq <= 5
+#     order2D = 4
+#   elseif orderRq <= 8
+#     order2D = 5
+#   # elseif orderRq <= 10
+#   #   order2D = 6
+#   # elseif orderRq <= 11
+#   #   order2D = 7
+#   elseif orderRq <= 12
+#     order2D = 8
+#   elseif orderRq <= 13
+#     order2D = 9
+#   elseif orderRq <= 14
+#     order2D = 10
+#   end
+#
+#   # 3D
+#
+#   if orderRq <= 2
+#     order3D = 1
+#   elseif orderRq <= 3
+#     order3D = 2
+#   elseif orderRq <= 5
+#     order3D = 3
+#   elseif orderRq <= 6
+#     order3D = 4
+#   elseif orderRq <= 7
+#     order3D = 5
+#   elseif orderRq <= 8
+#     order3D = 6
+#   elseif orderRq <= 9
+#     order3D = 7
+#   elseif orderRq <= 10
+#     order3D = 8
+#   elseif orderRq <= 11
+#     order3D = 9
+#   elseif orderRq <= 12
+#     order3D = 10
+#   elseif orderRq <= 13
+#     order3D = 11
+#   elseif orderRq <= 14
+#     order3D = 12
+#   end
+#
+#   return order1D, order2D, order3D
+#
+# end
 
 """
     findPerm3D( p::Int64 )

@@ -11,12 +11,12 @@
 #
 # ---------------------------------------------------------------------------- #
 
-function quadratureLine( ::Type{Val{1}} )
+function quadratureLine( P::PG1 )
 
   nq = 1
 
   weight = Array{Float64}(nq)
-  xc     = Array{Float64}(nq,1)
+  xc     = Array{Float64}(nq)
 
   weight[1] = 2
   xc[1]     = 0
@@ -29,12 +29,12 @@ function quadratureLine( ::Type{Val{1}} )
 
 end
 
-function quadratureLine( ::Type{Val{3}} )
+function quadratureLine( P::PG3 )
 
   nq = 2
 
   weight = Array{Float64}(nq)
-  xc     = Array{Float64}(nq,1)
+  xc     = Array{Float64}(nq)
 
   wght = 1
   x    = 1./sqrt(3.)
@@ -51,12 +51,12 @@ function quadratureLine( ::Type{Val{3}} )
 
 end
 
-function quadratureLine( ::Type{Val{5}} )
+function quadratureLine( P::PG5 )
 
   nq = 3
 
   weight = Array{Float64}(nq)
-  xc     = Array{Float64}(nq,1)
+  xc     = Array{Float64}(nq)
 
   wght = 5./9.
   x    = sqrt(3./5.)
@@ -78,12 +78,12 @@ function quadratureLine( ::Type{Val{5}} )
 
 end
 
-function quadratureLine( ::Type{Val{7}} )
+function quadratureLine( P::PG7 )
 
   nq = 4
 
   weight = Array{Float64}(nq)
-  xc     = Array{Float64}(nq,1)
+  xc     = Array{Float64}(nq)
 
   wght = 0.5 - sqrt(5./6.)/6.
   x    = sqrt((3 + 2*sqrt(6./5.))/7.)
@@ -108,12 +108,12 @@ function quadratureLine( ::Type{Val{7}} )
 
 end
 
-function quadratureLine( ::Type{Val{9}} )
+function quadratureLine( P::PG9 )
 
   nq = 5
 
   weight = Array{Float64}(nq)
-  xc     = Array{Float64}(nq,1)
+  xc     = Array{Float64}(nq)
 
   wght      = (322 - 13*sqrt(70.))/900.
   x         = sqrt(5 + 2*sqrt(10./7.))/3.
@@ -142,12 +142,12 @@ function quadratureLine( ::Type{Val{9}} )
 
 end
 
-function quadratureLine( ::Type{Val{11}} )
+function quadratureLine( P::PG11 )
 
   nq = 6
 
   weight = Array{Float64}(nq)
-  xc     = Array{Float64}(nq,1)
+  xc     = Array{Float64}(nq)
 
   xc[1]     = -0.9324695142031520278123016
   xc[2]     = -0.6612093864662645136613996
@@ -171,12 +171,12 @@ function quadratureLine( ::Type{Val{11}} )
 
 end
 
-function quadratureLine( ::Type{Val{13}} )
+function quadratureLine( P::PG13 )
 
   nq = 7
 
   weight = Array{Float64}(nq)
-  xc     = Array{Float64}(nq,1)
+  xc     = Array{Float64}(nq)
 
   xc[1]     = -0.9491079123427585245261897
   xc[2]     = -0.7415311855993944398638648

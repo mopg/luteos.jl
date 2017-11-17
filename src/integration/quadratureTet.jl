@@ -11,7 +11,7 @@
 #
 # ---------------------------------------------------------------------------- #
 
-function quadratureTet( ::Type{Val{1}} )
+function quadratureTet( P::PG1 )
 
   nq = 1
   weight = Array{Float64}(nq)
@@ -32,7 +32,7 @@ function quadratureTet( ::Type{Val{1}} )
 
 end
 
-function quadratureTet( ::Type{Val{2}} )
+function quadratureTet( P::PG2 )
 
   nq  = 4
   weight = Array{Float64}(nq)
@@ -71,7 +71,7 @@ function quadratureTet( ::Type{Val{2}} )
 
 end
 
-function quadratureTet( ::Type{Val{3}} )
+function quadratureTet( P::PG3 )
 
   nq  = 8
   weight = Array{Float64}(nq)
@@ -103,7 +103,7 @@ function quadratureTet( ::Type{Val{3}} )
 
 end
 
-function quadratureTet( ::Type{Val{4}} )
+function quadratureTet( P::PG4 )
 
   nq = 14
   weight = Array{Float64}(nq)
@@ -147,7 +147,7 @@ function quadratureTet( ::Type{Val{4}} )
 
 end
 
-function quadratureTet( ::Type{Val{5}} )
+function quadratureTet( P::PG5 )
 
   nq = 14
   weight = Array{Float64}(nq)
@@ -191,7 +191,7 @@ function quadratureTet( ::Type{Val{5}} )
 
 end
 
-function quadratureTet( ::Type{Val{6}} )
+function quadratureTet( P::PG6 )
 
   nq = 24
   weight = Array{Float64}(nq)
@@ -255,7 +255,7 @@ function quadratureTet( ::Type{Val{6}} )
 
 end
 
-function quadratureTet( ::Type{Val{7}} )
+function quadratureTet( P::PG7 )
 
   nq = 35
   weight = Array{Float64}(nq)
@@ -341,7 +341,7 @@ function quadratureTet( ::Type{Val{7}} )
 
 end
 
-function quadratureTet( ::Type{Val{8}} )
+function quadratureTet( P::PG9 )
 
   nq = 46
   weight = Array{Float64}(nq)

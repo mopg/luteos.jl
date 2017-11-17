@@ -11,7 +11,7 @@
 #
 # ---------------------------------------------------------------------------- #
 
-function quadratureTriangle( ::Type{Val{1}} )
+function quadratureTriangle( P::PG1 )
 
   nq = 1
   weight = Array{Float64}(nq)
@@ -30,7 +30,7 @@ function quadratureTriangle( ::Type{Val{1}} )
 
 end
 
-function quadratureTriangle( ::Type{Val{2}} )
+function quadratureTriangle( P::PG2 )
 
   nq = 3
 
@@ -58,7 +58,7 @@ function quadratureTriangle( ::Type{Val{2}} )
 
 end
 
-function quadratureTriangle( ::Type{Val{3}} )
+function quadratureTriangle( P::PG3 )
 
   nq = 6
   weight = Array{Float64}(nq)
@@ -102,7 +102,7 @@ function quadratureTriangle( ::Type{Val{3}} )
 
 end
 
-function quadratureTriangle( ::Type{Val{4}} )
+function quadratureTriangle( P::PG4 )
 
   nq = 6
   weight = Array{Float64}(nq)
@@ -146,7 +146,7 @@ function quadratureTriangle( ::Type{Val{4}} )
 
 end
 
-function quadratureTriangle( ::Type{Val{5}} )
+function quadratureTriangle( P::PG5 )
 
   nq = 7
   weight = Array{Float64}(nq)
@@ -195,7 +195,7 @@ function quadratureTriangle( ::Type{Val{5}} )
 
 end
 
-function quadratureTriangle( ::Type{Val{8}} )
+function quadratureTriangle( P::PG8 )
 
   nq = 16
   weight = Array{Float64}(nq)

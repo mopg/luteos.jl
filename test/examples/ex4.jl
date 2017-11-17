@@ -4,12 +4,15 @@ using luteos
 
 mat = Material(E = 1, ν = 0.33)
 
-P = 3 # Polynomial order of solution
+P = P3() # Polynomial order of solution
 
-mesh   = Mesh3D( "cube", P, N = 5)
-master = Master3D( P )
+println("Generate mesh")
+@time mesh   = Mesh3D( "cube", P, N = 9)
+println("Generate master")
+@time master = Master3D( P )
 
-compJacob!( mesh, master )
+println("Compute Jacobians")
+@time compJacob!( mesh, master )
 
 # source function
 function funcS( p::Array{Float64} )
@@ -28,9 +31,12 @@ function funcU( p::Array{Float64} )
   return sin.(pi * (p[:,1]-0.5)) .* sin.(pi * (p[:,2]-0.5)) .* sin.(pi * (p[:,3]-0.5))
 end
 
-prob = Problem( "Example 3 - Poisson", funcS, [1,1,1,2,1,1], 1, [funcB, funcB, funcB, funcB, funcB, funcB] )
+println("Setup problem")
+@time prob = Problem( "Example 3 - Poisson", funcS, [1,1,1,2,1,1], 1, [funcB, funcB, funcB, funcB, funcB, funcB] )
 
-(uhath, uh, qh, uhathTri ) = hdgSolveCD( master, mesh, mat, prob )
+println("Solve problem")
+@time (uhath, uh, qh, uhathTri ) = hdgSolveCD( master, mesh, mat, prob )
 
 # write solution
-writeTecplotCD( "blaCD3D.dat", prob, mesh, uh, qh )
+println("Write solution")
+@time writeTecplotCD( "blaCD3D.dat", prob, mesh, uh, qh )

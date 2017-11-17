@@ -11,40 +11,40 @@
 #
 # ---------------------------------------------------------------------------- #
 
-function basisFuncTetLeg( ::Type{Val{0}}, s::Array{Float64}, t::Array{Float64}, u::Array{Float64} )
+# function basisFuncTetLeg( ::Type{Val{0}}, s::Array{Float64}, t::Array{Float64}, u::Array{Float64} )
+#
+#   dim = 3
+#   nx  = length( s )
+#
+#   # Constant
+#
+#   nphi = 1
+#   phi  = Array{Float64}(nx, nphi)
+#   dphi = Array{Float64}(nx, nphi, dim)
+#
+#   # value
+#   phi[:,1] = 1.0
+#
+#   # derivative in x
+#   dphi[:,1,1] = 0.0
+#   # derivative in y
+#   dphi[:,1,2] = 0.0
+#   # derivative in z
+#   dphi[:,1,3] = 0.0
+#
+#   # transpose
+#   phi   = phi'
+#
+#   dphi2 = fill( 0.0, size(dphi,2), size(dphi,1), 3 )
+#   dphi2[:,:,1] = dphi[:,:,1]'
+#   dphi2[:,:,2] = dphi[:,:,2]'
+#   dphi2[:,:,3] = dphi[:,:,3]'
+#
+#   return phi, dphi2
+#
+# end
 
-  dim = 3
-  nx  = length( s )
-
-  # Constant
-
-  nphi = 1
-  phi  = Array{Float64}(nx, nphi)
-  dphi = Array{Float64}(nx, nphi, dim)
-
-  # value
-  phi[:,1] = 1.0
-
-  # derivative in x
-  dphi[:,1,1] = 0.0
-  # derivative in y
-  dphi[:,1,2] = 0.0
-  # derivative in z
-  dphi[:,1,3] = 0.0
-
-  # transpose
-  phi   = phi'
-
-  dphi2 = fill( 0.0, size(dphi,2), size(dphi,1), 3 )
-  dphi2[:,:,1] = dphi[:,:,1]'
-  dphi2[:,:,2] = dphi[:,:,2]'
-  dphi2[:,:,3] = dphi[:,:,3]'
-
-  return phi, dphi2
-
-end
-
-function basisFuncTetLeg( ::Type{Val{1}}, s::Array{Float64}, t::Array{Float64}, u::Array{Float64} )
+function basisFuncTetLeg( P::P1, s::Array{Float64}, t::Array{Float64}, u::Array{Float64} )
 
   dim = 3
   nx  = length( s )
@@ -92,7 +92,7 @@ function basisFuncTetLeg( ::Type{Val{1}}, s::Array{Float64}, t::Array{Float64}, 
 end
 
 
-function basisFuncTetLeg( ::Type{Val{2}}, s::Array{Float64}, t::Array{Float64}, u::Array{Float64} )
+function basisFuncTetLeg( P::P2, s::Array{Float64}, t::Array{Float64}, u::Array{Float64} )
 
   dim = 3
   nx  = length( s )
@@ -165,7 +165,7 @@ function basisFuncTetLeg( ::Type{Val{2}}, s::Array{Float64}, t::Array{Float64}, 
 
 end
 
-function basisFuncTetLeg( ::Type{Val{3}}, s::Array{Float64}, t::Array{Float64}, u::Array{Float64} )
+function basisFuncTetLeg( P::P3, s::Array{Float64}, t::Array{Float64}, u::Array{Float64} )
 
   dim = 3
   nx  = length( s )

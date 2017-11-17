@@ -154,14 +154,14 @@ for pp in 1:nelem # Loop over all elements
 
     ## B
     # <v_i, τ_{ijkl} u^h_k * n_l * n_j >_{∂T^h}
-    for ii in 1:dim, jj in 1:dim, kk in 1:dim, ll in 1:dim #l
+    for ll in 1:dim, kk in 1:dim, jj in 1:dim, ii in 1:dim # column-major ordering
       B[(ii-1)*nnodes + nod,(kk-1)*nnodes + nod,pp] +=
         τ[ii,jj,kk,ll] * ϕdm * jcwddm * ( ϕdm * diagm(normal[:,ll].*normal[:,jj]) )'
     end
 
     ## C
     # <v_i, τ_{ijkl} \hat{u}^h_k * n_l * n_j >_{∂T^h}
-    for ii in 1:dim, jj in 1:dim, kk in 1:dim, ll in 1:dim
+    for ll in 1:dim, kk in 1:dim, jj in 1:dim, ii in 1:dim # column-major ordering
       C[(ii-1)*nnodes + nod, (kk-1)*nodfac + faceInd,pp] -=
           τ[ii,jj,kk,ll] * ϕdm * jcwddm * ( ϕdm * diagm(normal[:,ll] .* normal[:,jj]) )'
     end
@@ -211,14 +211,14 @@ for pp in 1:nelem # Loop over all elements
 
         ## P
         # <μ_{i} , -τ_{ijkl} u^h_k n_l n_j ) >_{∂T^h\∂Ω_D}
-        for ii in 1:dim, jj in 1:dim, kk in 1:dim, ll in 1:dim
+        for ll in 1:dim, kk in 1:dim, jj in 1:dim, ii in 1:dim # column-major ordering
           P[(ii-1)*nodfac + faceInd,(kk-1)*nnodes + nod,pp] -=
             τ[ii,jj,kk,ll] * ϕdm * jcwddm * ( ϕdm * diagm(normal[:,ll] .* normal[:,jj]) )'
         end
 
         ## Q
         # <μ_{i} , τ_{ijkl} \hat{u}^h_k n_l n_j ) >_{∂T^h\∂Ω_D}
-        for ii in 1:dim, jj in 1:dim, kk in 1:dim, ll in 1:dim
+        for ll in 1:dim, kk in 1:dim, jj in 1:dim, ii in 1:dim # column-major ordering
           Q[(ii-1)*nodfac + faceInd,(kk-1)*nodfac + faceInd,pp] +=
             τ[ii,jj,kk,ll] * ϕdm * jcwddm * ( ϕdm * diagm(normal[:,ll] .* normal[:,jj]) )'
         end
@@ -257,14 +257,14 @@ for pp in 1:nelem # Loop over all elements
 
       ## P
       # <μ_{i} , -τ_{ijkl} u^h_k n_l n_j ) >_{∂T^h\∂Ω_D}
-      for ii in 1:dim, jj in 1:dim, kk in 1:dim, ll in 1:dim
+      for ll in 1:dim, kk in 1:dim, jj in 1:dim, ii in 1:dim # column-major ordering
         P[(ii-1)*nodfac + faceInd,(kk-1)*nnodes + nod,pp] -=
           τ[ii,jj,kk,ll] * ϕdm * jcwddm * ( ϕdm * diagm(normal[:,ll] .* normal[:,jj]) )'
       end
 
       ## Q
       # <μ_{i} , τ_{ijkl} \hat{u}^h_k n_l n_j ) >_{∂T^h\∂Ω_D}
-      for ii in 1:dim, jj in 1:dim, kk in 1:dim, ll in 1:dim
+      for ll in 1:dim, kk in 1:dim, jj in 1:dim, ii in 1:dim # column-major ordering
         Q[(ii-1)*nodfac + faceInd,(kk-1)*nodfac + faceInd,pp] +=
           τ[ii,jj,kk,ll] * ϕdm * jcwddm * ( ϕdm * diagm(normal[:,ll] .* normal[:,jj]) )'
       end

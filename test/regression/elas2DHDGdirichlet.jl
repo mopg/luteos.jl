@@ -108,8 +108,6 @@ for ii in 1:length(Ps), jj in 1:length(Ns)
   mesh   = Mesh2D( "square", P, N = N)
   master = Master2D( P )
 
-  compJacob!( mesh, master )
-
   prob = Problem( @sprintf("Reg %i %i", P.p, N), source, bctype, 0, [funcB, funcB, funcB, funcB] )
 
   (uhathTri, uh, σh, ϵh) = hdgSolveElas( master, mesh, mat, prob )
@@ -119,9 +117,17 @@ for ii in 1:length(Ps), jj in 1:length(Ns)
   err_σh = fill( 0.0, dim^2 )
   err_ϵh = fill( 0.0, dim^2 )
 
+  # preallocate
+  jcw  = fill( 0.0, size(master.∇ϕ,2) )
+  ∂ξ∂x = fill( 0.0, size(master.∇ϕ,2), dim^2 )
+  ∂x∂ξ = fill( 0.0, size(master.∇ϕ,2), dim^2 )
+
   for kk in 1:size(mesh.t,1)
 
-    jcwd = diagm(mesh.jcw[:,kk])
+    # Compute Jacobians
+    compJacob!( master, mesh.nodes[:,:,kk], ∂ξ∂x, jcw, ∂x∂ξ )
+
+    jcwd = diagm( jcw )
 
     # u
     Δuh1       = master.ϕ' * ( uh[:,1,kk] - u1func( mesh.nodes[:,:,kk] ) )

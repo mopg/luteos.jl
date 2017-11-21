@@ -7,7 +7,7 @@ mat = Material(E = 1, ν = 0.33)
 P = P3() # Polynomial order of solution
 
 println("Generate mesh")
-@time mesh   = Mesh3D( "cube", P, N = 5)
+@time mesh   = Mesh3D( "cube", P, N = 9)
 println("Generate master")
 @time master = Master3D( P )
 

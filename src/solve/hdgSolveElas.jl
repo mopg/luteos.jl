@@ -76,15 +76,21 @@ Rfull = fill( 0.0, size(mesh.f,1)*unkUhat ) # RHS vector
 
 rr = 1 # iterator for unknowns in sparsity matrix
 
-∇ϕc = fill(0.0, size(master.∇ϕ))
+# preallocate
+jcw  = fill( 0.0, size(master.∇ϕ,2) )
+∂ξ∂x = fill( 0.0, size(master.∇ϕ,2), dim^2 )
+∂x∂ξ = fill( 0.0, size(master.∇ϕ,2), dim^2 )
 
 for pp in 1:nelem # Loop over all elements
 
+  # Compute Jacobians
+  compJacob!( master, mesh.nodes[:,:,pp], ∂ξ∂x, jcw, ∂x∂ξ )
+
   pLoc = master.ϕ' * mesh.nodes[:,:,pp]
 
-  ∇ϕc = getderbfel( master, mesh.∂ξ∂x[:,pp,:] )
+  ∇ϕc = getderbfel( master, ∂ξ∂x )
 
-  jcwd = diagm(mesh.jcw[:,pp])
+  jcwd = diagm( jcw )
 
   # ------------------------- Volume integrals ------------------------------- #
   ## A (first part)

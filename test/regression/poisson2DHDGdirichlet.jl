@@ -91,9 +91,15 @@ for ii in 1:length(Ps), jj in 1:length(Ns)
   err_qh = fill( 0.0, dim )
   Jcomp  = 0.0
 
+  # preallocate
+  jcw  = fill( 0.0, size(master.∇ϕ,2) )
+  ∂ξ∂x = fill( 0.0, size(master.∇ϕ,2), dim^2 )
+  ∂x∂ξ = fill( 0.0, size(master.∇ϕ,2), dim^2 )
+
   for kk in 1:size(mesh.t,1)
 
     # Compute Jacobians
+    #compJacob!( master, mesh.nodes[:,:,kk], ∂ξ∂x, jcw, ∂x∂ξ )
     (jcw, ∂ξ∂x) = luteos.compJacob( master, mesh.nodes[:,:,kk] )
     jcwd = diagm( jcw )
 

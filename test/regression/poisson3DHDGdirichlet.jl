@@ -3,7 +3,7 @@ using SymPy
 
 # let # limit scope
 
-Ps = [P1(), P2(), P3()]  # Range of polynomial order
+Ps = [P1(), P2()]#, P3()]  # Range of polynomial order
 Ns = [9, 17]             # Range of grid size
 
 dim = 3

@@ -46,9 +46,6 @@ type Master3D <: Master
 
   perm::Array{Int64}    # Node numbers on faces
 
-  ϕnod::Array{Float64}  # Derivatives of shape functions in 3D at nodes
-  ∇ϕnod::Array{Float64} # Derivatives of shape functions in 3D at nodes
-
 end
 
 """
@@ -65,28 +62,20 @@ function Master3D( porder::Porder; pgauss::PGauss = PGdef( porder ) )
     error(" P > 3 not supported for 3D ")
   end
 
-  println(" compute order")
-  @time (go1D, go2D, go3D) = comporder( pgauss )
+  (go1D, go2D, go3D) = comporder( pgauss )
 
-  println(" compute quadrature points")
-  @time (gpts_,   gwts_)   = quadratureTet( go3D )
-  @time (gpts2D_, gwts2D_) = quadratureTriangle( go2D )
-  @time (gpts1D_, gwts1D_) = quadratureLine( go1D )
+  (gpts_,   gwts_)   = quadratureTet( go3D )
+  (gpts2D_, gwts2D_) = quadratureTriangle( go2D )
+  (gpts1D_, gwts1D_) = quadratureLine( go1D )
 
-  # (ploc,) = genlocal3D( p )
+  (ϕ_,   ∇ϕ_)   = basisFuncTetLag( porder, gpts_[:,1], gpts_[:,2],  gpts_[:,3] )
+  (ϕ2D_, ∇ϕ2D_) = basisFuncTriangleLag( porder, gpts2D_[:,1], gpts2D_[:,2] )
+  (ϕ1D_, ∇ϕ1D_) = basisFuncLineLag( porder, gpts1D_ )
 
-  println(" basis functions")
-  @time (ϕ_,   ∇ϕ_)   = basisFuncTetLag( porder, gpts_[:,1], gpts_[:,2],  gpts_[:,3] )
-  @time (ϕ2D_, ∇ϕ2D_) = basisFuncTriangleLag( porder, gpts2D_[:,1], gpts2D_[:,2] )
-  @time (ϕ1D_, ∇ϕ1D_) = basisFuncLineLag( porder, gpts1D_ )
-  # @time (ϕnod_, ∇ϕnod_)    = basisFuncTetLag( porder, ploc[:,2], ploc[:,3],  ploc[:,4] )
-  ϕnod_  = similar(ϕ_)
-  ∇ϕnod_ = similar(∇ϕ_)
+  perm_ = findPerm3D( p )
 
-  @time perm_ = findPerm3D( p )
-
-  @time Master3D( 3, porder, p, pg, gpts_, gwts_, gpts2D_, gwts2D_, gpts1D_, gwts1D_,
-    ϕ_, ∇ϕ_, ϕ2D_, ∇ϕ2D_, ϕ1D_, ∇ϕ1D_, perm_, ϕnod_, ∇ϕnod_ )
+  Master3D( 3, porder, p, pg, gpts_, gwts_, gpts2D_, gwts2D_, gpts1D_, gwts1D_,
+    ϕ_, ∇ϕ_, ϕ2D_, ∇ϕ2D_, ϕ1D_, ∇ϕ1D_, perm_ )
 
 end
 

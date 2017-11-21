@@ -23,18 +23,12 @@ abstract type Master
 
 end
 
-println("quadline")
-@time include("../integration/quadratureLine.jl")
-println("quadtriangle")
-@time include("../integration/quadratureTriangle.jl")
-println("quadtet")
-@time include("../integration/quadratureTet.jl")
-println("basisline")
-@time include("../integration/basisFuncLineLag.jl")
-println("basistriangle")
-@time include("../integration/basisFuncTriangleLag.jl")
-println("basistet")
-@time include("../integration/basisFuncTetLag.jl")
+include("../integration/quadratureLine.jl")
+include("../integration/quadratureTriangle.jl")
+include("../integration/quadratureTet.jl")
+include("../integration/basisFuncLineLag.jl")
+include("../integration/basisFuncTriangleLag.jl")
+include("../integration/basisFuncTetLag.jl")
 
 println("master2d")
 @time include("master2D.jl")

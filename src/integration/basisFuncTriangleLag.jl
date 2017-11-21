@@ -49,8 +49,8 @@ function basisFuncTriangleLag( P::P2, s::Vector{Float64}, t::Vector{Float64} )
   # Quadratric
 
   nphi = 6
-  phi  = Array{Float64}(nx, nphi)
-  dphi = Array{Float64}(nx, nphi, dim)
+  phi  = Array{Float64}(nphi, nx)
+  dphi = Array{Float64}(nphi, nx, dim)
 
   # value
   phi[1,:] = s.*-3.0-t.*3.0+s.*t.*4.0+(s.*s).*2.0+(t.*t).*2.0+1.0

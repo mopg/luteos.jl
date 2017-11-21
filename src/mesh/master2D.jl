@@ -43,11 +43,11 @@ type Master2D <: Master
 end
 
 """
-    Master2D( porder::Porder; PGauss = PGdef( porder ) )
+    Master2D( porder::Porder; pgauss = PGdef( porder ) )
 
 Constructor for Triangle master element for order `porder`.
 """
-function Master2D( porder::Porder; PGauss = PGdef( porder ) )
+function Master2D( porder::Porder; pgauss = PGdef( porder ) )
 
   (go1D, go2D, go3D) = comporder( pgauss )
 

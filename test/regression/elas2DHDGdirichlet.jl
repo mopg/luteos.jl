@@ -3,8 +3,8 @@ using SymPy
 
 # let # limit scope
 
-Ps = 1:3         # Range of polynomial order
-Ns = [9, 17, 33] # Range of grid size
+Ps = [P1(), P2(), P3()] # Range of polynomial order
+Ns = [9, 17, 33]        # Range of grid size
 
 dim = 2
 
@@ -110,7 +110,7 @@ for ii in 1:length(Ps), jj in 1:length(Ns)
 
   compJacob!( mesh, master )
 
-  prob = Problem( @sprintf("Reg %i %i", P, N), source, bctype, 0, [funcB, funcB, funcB, funcB] )
+  prob = Problem( @sprintf("Reg %i %i", P.p, N), source, bctype, 0, [funcB, funcB, funcB, funcB] )
 
   (uhathTri, uh, σh, ϵh) = hdgSolveElas( master, mesh, mat, prob )
 
@@ -177,7 +177,7 @@ conv_ϵh4 = (log.( Err_ϵh4[:,end-2]) - log.( Err_ϵh4[:,end] ) ) / (log.( h[end
 @printf("   ------------------------------------------\n\n")
 @printf( "P   ")
 for jj in 1:size(Ps,1)
-  @printf( " %6i", Ps[jj] )
+  @printf( " %6i", Ps[jj].p )
 end
 @printf( "\n" )
 
@@ -231,7 +231,7 @@ open("errors_Elas_Dirichlet2D.dat", "w") do f
   @printf(f, "P \t N \t E_uh1 \t E_uh2 \t E_σh1 \t E_σh2 \t E_σh4 \t E_ϵh1 \t E_ϵh2 \t E_ϵh4 \n")#\t E_J\n")
   for ii in 1:length(Ps), jj in 1:length(Ns)
     @printf(f, "%i \t %i \t %16.15e \t %16.15e \t %16.15e \t %16.15e \t %16.15e \t %16.15e \t %16.15e \t %16.15e\n",
-      Ps[ii], Ns[jj], Err_uh1[ii,jj], Err_uh2[ii,jj],
+      Ps[ii].p, Ns[jj], Err_uh1[ii,jj], Err_uh2[ii,jj],
       Err_σh1[ii,jj], Err_σh2[ii,jj], Err_σh4[ii,jj],
       Err_ϵh1[ii,jj], Err_ϵh2[ii,jj], Err_ϵh4[ii,jj] )
   end

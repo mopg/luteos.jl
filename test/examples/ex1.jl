@@ -29,4 +29,4 @@ prob = Problem( funcS, [funcB, funcB, funcB, funcB, funcB, funcB], [1,1,1,1,1,1]
 (uhath, uh, σh, ϵh, uhathTri ) = hdgSolveElas( master, mesh, mat, prob )
 
 # write solution
-writeTecplot( "bla.dat", prob, mesh, uh, σh, ϵh )
+writeTecplot( "elas3D.dat", prob, mesh, uh, σh, ϵh )

@@ -13,21 +13,20 @@
 
 function basisFuncLineLag( P::P1, s::Vector{Float64} )
 
-  dim = 1
   nx  = length( s )
 
   # Linear
   nphi = 2
   phi  = Array{Float64}(nphi, nx)
-  dphi = Array{Float64}(nphi, nx, dim)
+  dphi = Array{Float64}(nphi, nx)
 
   t = 1 - s
 
   phi[1,:] = t
   phi[2,:] = s
 
-  dphi[1,:,1] =  -1.0
-  dphi[2,:,1] =   1.0
+  dphi[1,:] =  -1.0
+  dphi[2,:] =   1.0
 
   return phi, dphi
 
@@ -36,13 +35,12 @@ end
 
 function basisFuncLineLag( P::P2, s::Vector{Float64} )
 
-  dim = 1
   nx  = length( s )
 
   # Quadratric
   nphi = 3
   phi  = Array{Float64}(nphi, nx)
-  dphi = Array{Float64}(nphi, nx, dim)
+  dphi = Array{Float64}(nphi, nx)
 
   t = 1 - s
 
@@ -60,13 +58,12 @@ end
 
 function basisFuncLineLag( P::P3, s::Vector{Float64} )
 
-  dim = 1
   nx  = length( s )
 
   # Cubic
   nphi = 4
   phi  = Array{Float64}(nphi, nx)
-  dphi = Array{Float64}(nphi, nx, dim)
+  dphi = Array{Float64}(nphi, nx)
 
   t = 1 - s
 
@@ -86,13 +83,12 @@ end
 
 function basisFuncLineLag( P::P4, s::Vector{Float64} )
 
-  dim = 1
   nx  = length( s )
 
   # Quartic
   nphi = 5
   phi  = Array{Float64}(nphi, nx)
-  dphi = Array{Float64}(nphi, nx, dim)
+  dphi = Array{Float64}(nphi, nx)
 
   t = 1 - s
 
@@ -114,13 +110,12 @@ end
 
 function basisFuncLineLag( P::P4, s::Vector{Float64} )
 
-  dim = 1
   nx  = length( s )
 
   # Quintic
   nphi = 6
   phi  = Array{Float64}(nphi, nx)
-  dphi = Array{Float64}(nphi, nx, dim)
+  dphi = Array{Float64}(nphi, nx)
 
   t = 1 - s
 

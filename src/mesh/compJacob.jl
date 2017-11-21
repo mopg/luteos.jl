@@ -99,20 +99,20 @@ function compJacobFace( mesh::Mesh2D, master::Master2D, el::Int64, face::Int64 )
 end
 
 """
-    compJacob( ::Type{Val{2}}, ∇ϕ::Array{Float64,3}, gwts::Vector{Float64},
+    compJacob( master::Master2D, ∇ϕ::Array{Float64,3}, gwts::Vector{Float64},
                nodes::Matrix{Float64} )
 
 Returns Jacobian of a 2D mesh.
 """
-function compJacob( ::Type{Val{2}}, ∇ϕ::Array{Float64,3}, gwts::Vector{Float64}, nodes::Matrix{Float64} )
+function compJacob( master::Master2D, nodes::Matrix{Float64} )
 
-  ∂x∂ξ = ∇ϕ[:,:,1]' * nodes[:,1]
-  ∂x∂η = ∇ϕ[:,:,2]' * nodes[:,1]
-  ∂y∂ξ = ∇ϕ[:,:,1]' * nodes[:,2]
-  ∂y∂η = ∇ϕ[:,:,2]' * nodes[:,2]
+  ∂x∂ξ = master.∇ϕ[:,:,1]' * nodes[:,1]
+  ∂x∂η = master.∇ϕ[:,:,2]' * nodes[:,1]
+  ∂y∂ξ = master.∇ϕ[:,:,1]' * nodes[:,2]
+  ∂y∂η = master.∇ϕ[:,:,2]' * nodes[:,2]
 
   jac = ∂x∂ξ.*∂y∂η - ∂x∂η.*∂y∂ξ
-  jcw = diagm( gwts ) * jac
+  jcw = diagm( master.gwts ) * jac
 
   # [∂ξ∂x ∂η∂x; ∂ξ∂y ∂η∂y] = [∂x∂ξ ∂y∂ξ; ∂x∂η ∂y∂η]^-1
 
@@ -277,48 +277,58 @@ end
 
 Returns Jacobian of a 3D mesh.
 """
-function compJacob( ::Type{Val{3}}, ∇ϕ::Array{Float64,3}, gwts::Vector{Float64}, nodes::Matrix{Float64} )
+function compJacob( master::Master3D, nodes::Matrix{Float64} )
 
   # http://www.csun.edu/~lcaretto/me692/Coordinate%20transformations.pdf
 
-  ∂x₁∂ξ₁ = ∇ϕ[:,:,1]' * nodes[:,1]
-  ∂x₁∂ξ₂ = ∇ϕ[:,:,2]' * nodes[:,1]
-  ∂x₁∂ξ₃ = ∇ϕ[:,:,3]' * nodes[:,1]
-  ∂x₂∂ξ₁ = ∇ϕ[:,:,1]' * nodes[:,2]
-  ∂x₂∂ξ₂ = ∇ϕ[:,:,2]' * nodes[:,2]
-  ∂x₂∂ξ₃ = ∇ϕ[:,:,3]' * nodes[:,2]
-  ∂x₃∂ξ₁ = ∇ϕ[:,:,1]' * nodes[:,3]
-  ∂x₃∂ξ₂ = ∇ϕ[:,:,2]' * nodes[:,3]
-  ∂x₃∂ξ₃ = ∇ϕ[:,:,3]' * nodes[:,3]
+  ∂x∂ξ  = fill( 0.0, size(master.∇ϕ,2), 3, 3 )
+  ∂ξ∂x2 = fill( 0.0, size(master.∇ϕ,2), 3, 3 )
 
-  jac = ∂x₁∂ξ₁.*∂x₂∂ξ₂.*∂x₃∂ξ₃ + ∂x₂∂ξ₁.*∂x₃∂ξ₂.*∂x₁∂ξ₃ + ∂x₃∂ξ₁.*∂x₁∂ξ₂.*∂x₂∂ξ₃ -
-        ∂x₃∂ξ₁.*∂x₂∂ξ₂.*∂x₁∂ξ₃ - ∂x₂∂ξ₁.*∂x₁∂ξ₂.*∂x₃∂ξ₃ - ∂x₁∂ξ₁.*∂x₃∂ξ₂.*∂x₂∂ξ₃
-  jcw = diagm( gwts ) * jac
+  ∂x∂ξ[:,1,1] = master.∇ϕ[:,:,1]' * nodes[:,1]
+  ∂x∂ξ[:,1,2] = master.∇ϕ[:,:,2]' * nodes[:,1]
+  ∂x∂ξ[:,1,3] = master.∇ϕ[:,:,3]' * nodes[:,1]
+  ∂x∂ξ[:,2,1] = master.∇ϕ[:,:,1]' * nodes[:,2]
+  ∂x∂ξ[:,2,2] = master.∇ϕ[:,:,2]' * nodes[:,2]
+  ∂x∂ξ[:,2,3] = master.∇ϕ[:,:,3]' * nodes[:,2]
+  ∂x∂ξ[:,3,1] = master.∇ϕ[:,:,1]' * nodes[:,3]
+  ∂x∂ξ[:,3,2] = master.∇ϕ[:,:,2]' * nodes[:,3]
+  ∂x∂ξ[:,3,3] = master.∇ϕ[:,:,3]' * nodes[:,3]
 
-  ∂ξ₁∂x₁ =  1./jac .* ( ∂x₂∂ξ₂ .* ∂x₃∂ξ₃ - ∂x₃∂ξ₂ .* ∂x₂∂ξ₃ )
-  ∂ξ₁∂x₂ =  1./jac .* ( ∂x₁∂ξ₃ .* ∂x₃∂ξ₂ - ∂x₁∂ξ₂ .* ∂x₃∂ξ₃ )
-  ∂ξ₁∂x₃ =  1./jac .* ( ∂x₁∂ξ₂ .* ∂x₂∂ξ₃ - ∂x₁∂ξ₃ .* ∂x₂∂ξ₂ )
+  jac = ∂x∂ξ[:,1,1].*∂x∂ξ[:,2,2].*∂x∂ξ[:,3,3] + ∂x∂ξ[:,2,1].*∂x∂ξ[:,3,2].*∂x∂ξ[:,1,3] + ∂x∂ξ[:,3,1].*∂x∂ξ[:,1,2].*∂x∂ξ[:,2,3] -
+        ∂x∂ξ[:,3,1].*∂x∂ξ[:,2,2].*∂x∂ξ[:,1,3] - ∂x∂ξ[:,2,1].*∂x∂ξ[:,1,2].*∂x∂ξ[:,3,3] - ∂x∂ξ[:,1,1].*∂x∂ξ[:,3,2].*∂x∂ξ[:,2,3]
+  jcw = diagm( master.gwts ) * jac
 
-  ∂ξ₂∂x₁ =  1./jac .* ( ∂x₂∂ξ₃ .* ∂x₃∂ξ₁ - ∂x₂∂ξ₁ .* ∂x₃∂ξ₃ )
-  ∂ξ₂∂x₂ =  1./jac .* ( ∂x₁∂ξ₁ .* ∂x₃∂ξ₃ - ∂x₁∂ξ₃ .* ∂x₃∂ξ₁ )
-  ∂ξ₂∂x₃ =  1./jac .* ( ∂x₁∂ξ₁ .* ∂x₂∂ξ₃ - ∂x₁∂ξ₃ .* ∂x₂∂ξ₁ )
+  for ii in 1:3, jj in 1:3
+    iip1 = ii + 1
+    jjp1 = jj + 1
+    iip2 = ii + 2
+    jjp2 = jj + 2
+    if jjp1 != 3
+      jjp1 = rem(jjp1,3)
+    end
+    if jjp2 != 3
+      jjp2 = rem(jjp2,3)
+    end
+    if iip1 != 3
+      iip1 = rem(iip1,3)
+    end
+    if iip2 != 3
+      iip2 = rem(iip2,3)
+    end
+    ∂ξ∂x2[:,ii,jj] = 1./jac .* ( ∂x∂ξ[:,jjp1,iip1].*∂x∂ξ[:,jjp2,iip2] - ∂x∂ξ[:,jjp1,iip2].*∂x∂ξ[:,jjp2,iip1] )
+  end
+  ∂ξ∂x = fill(0.0, size(master.∇ϕ,2), 9)
+  ∂ξ∂x[:,1] = ∂ξ∂x2[:,1,1]#∂ξ₁∂x₁
+  ∂ξ∂x[:,2] = ∂ξ∂x2[:,1,2]#∂ξ₁∂x₂
+  ∂ξ∂x[:,3] = ∂ξ∂x2[:,1,3]#∂ξ₁∂x₃
 
-  ∂ξ₃∂x₁ =  1./jac .* ( ∂x₂∂ξ₁ .* ∂x₃∂ξ₂ - ∂x₂∂ξ₂ .* ∂x₃∂ξ₁ )
-  ∂ξ₃∂x₂ =  1./jac .* ( ∂x₁∂ξ₂ .* ∂x₃∂ξ₁ - ∂x₁∂ξ₁ .* ∂x₃∂ξ₂ )
-  ∂ξ₃∂x₃ =  1./jac .* ( ∂x₁∂ξ₁ .* ∂x₂∂ξ₂ - ∂x₁∂ξ₂ .* ∂x₂∂ξ₁ )
+  ∂ξ∂x[:,4] = ∂ξ∂x2[:,2,1]#∂ξ₂∂x₁
+  ∂ξ∂x[:,5] = ∂ξ∂x2[:,2,2]#∂ξ₂∂x₂
+  ∂ξ∂x[:,6] = ∂ξ∂x2[:,2,3]#∂ξ₂∂x₃
 
-  ∂ξ∂x = fill(0.0, size(∂x₁∂ξ₁,1), 9)
-  ∂ξ∂x[:,:,1] = ∂ξ₁∂x₁
-  ∂ξ∂x[:,:,2] = ∂ξ₁∂x₂
-  ∂ξ∂x[:,:,3] = ∂ξ₁∂x₃
-
-  ∂ξ∂x[:,:,4] = ∂ξ₂∂x₁
-  ∂ξ∂x[:,:,5] = ∂ξ₂∂x₂
-  ∂ξ∂x[:,:,6] = ∂ξ₂∂x₃
-
-  ∂ξ∂x[:,:,7] = ∂ξ₃∂x₁
-  ∂ξ∂x[:,:,8] = ∂ξ₃∂x₂
-  ∂ξ∂x[:,:,9] = ∂ξ₃∂x₃
+  ∂ξ∂x[:,7] = ∂ξ∂x2[:,3,1]#∂ξ₃∂x₁
+  ∂ξ∂x[:,8] = ∂ξ∂x2[:,3,2]#∂ξ₃∂x₂
+  ∂ξ∂x[:,9] = ∂ξ∂x2[:,3,3]#∂ξ₃∂x₃
 
   return (jcw, ∂ξ∂x)
 

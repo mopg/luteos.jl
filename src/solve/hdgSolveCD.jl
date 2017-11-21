@@ -74,11 +74,14 @@ c = fill(0.0,dim)
 
 for pp in 1:nelem # Loop over all elements
 
+  # Compute Jacobians
+  (jcw, ∂ξ∂x) = compJacob( master, mesh.nodes[:,:,pp] )
+
   pLoc = master.ϕ' * mesh.nodes[:,:,pp]
 
-  ∇ϕc = getderbfel( master, mesh.∂ξ∂x[:,pp,:] )
+  ∇ϕc = getderbfel( master, ∂ξ∂x )
 
-  jcwd = diagm(mesh.jcw[:,pp])
+  jcwd = diagm( jcw )
 
   # ------------------------- Volume integrals ------------------------------- #
   ## A

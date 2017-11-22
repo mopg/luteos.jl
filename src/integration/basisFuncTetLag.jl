@@ -61,6 +61,15 @@ function basisFuncTetLag( P::P2, s::Vector{Float64}, t::Vector{Float64}, u::Vect
   phi  = Array{Float64}(nphi, nx)
   dphi = Array{Float64}(nphi, nx, dim)
 
+  # precompute
+  ss = (s.*s)
+  tt = (t.*t)
+  uu = (u.*u)
+
+  st = s.*t
+  su = s.*u
+  tu = t.*u
+
   # value
   phi[1,:] =  s.*-3.0-t.*3.0-u.*3.0+st.*4.0+su.*4.0+tu.*4.0+ss.*2.0+tt.*2.0+uu.*2.0+1.0
   phi[2,:] =  -s+ss.*2.0

@@ -76,7 +76,6 @@ Err_qh2 = fill( 0.0, length(Ps), length(Ns) )
 Err_qh3 = fill( 0.0, length(Ps), length(Ns) )
 Err_J   = fill( 0.0, length(Ps), length(Ns) )
 
-
 #   Loop over polynomial order and grid size
 for ii in 1:length(Ps), jj in 1:length(Ns)
 
@@ -87,8 +86,6 @@ for ii in 1:length(Ps), jj in 1:length(Ns)
   mesh   = Mesh3D( "cube", P, N = N)
   master = Master3D( P )
 
-  # compJacob!( mesh, master )
-
   prob = Problem( @sprintf("Poisson - Reg %i %i", P.p, N), source, bctype, 0, [funcB, funcB, funcB, funcB, funcB, funcB] )
 
   (uhath, uh, qh, uhathTri) = hdgSolveCD( master, mesh, mat, prob )
@@ -98,10 +95,15 @@ for ii in 1:length(Ps), jj in 1:length(Ns)
   err_qh = fill( 0.0, dim )
   Jcomp  = 0.0
 
+  # preallocate
+  jcw  = fill( 0.0, size(master.∇ϕ,2) )
+  ∂ξ∂x = fill( 0.0, size(master.∇ϕ,2), dim^2 )
+  ∂x∂ξ = fill( 0.0, size(master.∇ϕ,2), dim^2 )
+
   for kk in 1:size(mesh.t,1)
 
     # Compute Jacobians
-    (jcw, ∂ξ∂x) = luteos.compJacob( master, mesh.nodes[:,:,kk] )
+    compJacob!( master, mesh.nodes[:,:,kk], ∂ξ∂x, jcw, ∂x∂ξ )
     jcwd = diagm( jcw )
 
     # u

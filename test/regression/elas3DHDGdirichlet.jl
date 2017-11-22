@@ -133,12 +133,12 @@ Err_σh3 = fill( 0.0, length(Ps), length(Ns) )
 Err_σh5 = fill( 0.0, length(Ps), length(Ns) )
 Err_σh6 = fill( 0.0, length(Ps), length(Ns) )
 Err_σh9 = fill( 0.0, length(Ps), length(Ns) )
-Err_ϵh1 = fill( 0.0, length(Ps), length(Ns) )
-Err_ϵh2 = fill( 0.0, length(Ps), length(Ns) )
-Err_ϵh3 = fill( 0.0, length(Ps), length(Ns) )
-Err_ϵh5 = fill( 0.0, length(Ps), length(Ns) )
-Err_ϵh6 = fill( 0.0, length(Ps), length(Ns) )
-Err_ϵh9 = fill( 0.0, length(Ps), length(Ns) )
+# Err_ϵh1 = fill( 0.0, length(Ps), length(Ns) )
+# Err_ϵh2 = fill( 0.0, length(Ps), length(Ns) )
+# Err_ϵh3 = fill( 0.0, length(Ps), length(Ns) )
+# Err_ϵh5 = fill( 0.0, length(Ps), length(Ns) )
+# Err_ϵh6 = fill( 0.0, length(Ps), length(Ns) )
+# Err_ϵh9 = fill( 0.0, length(Ps), length(Ns) )
 
 #   Loop over polynomial order and grid size
 for ii in 1:length(Ps), jj in 1:length(Ns)
@@ -157,7 +157,7 @@ for ii in 1:length(Ps), jj in 1:length(Ns)
   #   Initialize arrays
   err_uh = fill( 0.0, dim )
   err_σh = fill( 0.0, dim^2 )
-  err_ϵh = fill( 0.0, dim^2 )
+  # err_ϵh = fill( 0.0, dim^2 )
 
   # preallocate
   jcw  = fill( 0.0, size(master.∇ϕ,2) )
@@ -193,19 +193,19 @@ for ii in 1:length(Ps), jj in 1:length(Ns)
     err_σh[6] += Δσh6' * jcwd * Δσh6
     err_σh[9] += Δσh9' * jcwd * Δσh9
 
-    # ϵ
-    Δϵh1       = master.ϕ' * ( ϵh[:,1,kk] - ϵ11func( mesh.nodes[:,:,kk] ) )
-    Δϵh2       = master.ϕ' * ( ϵh[:,2,kk] - ϵ12func( mesh.nodes[:,:,kk] ) )
-    Δϵh3       = master.ϕ' * ( ϵh[:,3,kk] - ϵ13func( mesh.nodes[:,:,kk] ) )
-    Δϵh5       = master.ϕ' * ( ϵh[:,5,kk] - ϵ22func( mesh.nodes[:,:,kk] ) )
-    Δϵh6       = master.ϕ' * ( ϵh[:,6,kk] - ϵ23func( mesh.nodes[:,:,kk] ) )
-    Δϵh9       = master.ϕ' * ( ϵh[:,9,kk] - ϵ33func( mesh.nodes[:,:,kk] ) )
-    err_ϵh[1] += Δϵh1' * jcwd * Δϵh1
-    err_ϵh[2] += Δϵh2' * jcwd * Δϵh2
-    err_ϵh[3] += Δϵh3' * jcwd * Δϵh3
-    err_ϵh[5] += Δϵh5' * jcwd * Δϵh5
-    err_ϵh[6] += Δϵh6' * jcwd * Δϵh6
-    err_ϵh[9] += Δϵh9' * jcwd * Δϵh9
+    # # ϵ
+    # Δϵh1       = master.ϕ' * ( ϵh[:,1,kk] - ϵ11func( mesh.nodes[:,:,kk] ) )
+    # Δϵh2       = master.ϕ' * ( ϵh[:,2,kk] - ϵ12func( mesh.nodes[:,:,kk] ) )
+    # Δϵh3       = master.ϕ' * ( ϵh[:,3,kk] - ϵ13func( mesh.nodes[:,:,kk] ) )
+    # Δϵh5       = master.ϕ' * ( ϵh[:,5,kk] - ϵ22func( mesh.nodes[:,:,kk] ) )
+    # Δϵh6       = master.ϕ' * ( ϵh[:,6,kk] - ϵ23func( mesh.nodes[:,:,kk] ) )
+    # Δϵh9       = master.ϕ' * ( ϵh[:,9,kk] - ϵ33func( mesh.nodes[:,:,kk] ) )
+    # err_ϵh[1] += Δϵh1' * jcwd * Δϵh1
+    # err_ϵh[2] += Δϵh2' * jcwd * Δϵh2
+    # err_ϵh[3] += Δϵh3' * jcwd * Δϵh3
+    # err_ϵh[5] += Δϵh5' * jcwd * Δϵh5
+    # err_ϵh[6] += Δϵh6' * jcwd * Δϵh6
+    # err_ϵh[9] += Δϵh9' * jcwd * Δϵh9
 
   end
 
@@ -220,12 +220,12 @@ for ii in 1:length(Ps), jj in 1:length(Ns)
   Err_σh6[ii,jj] = sqrt(err_σh[6])
   Err_σh9[ii,jj] = sqrt(err_σh[9])
 
-  Err_ϵh1[ii,jj] = sqrt(err_ϵh[1])
-  Err_ϵh2[ii,jj] = sqrt(err_ϵh[2])
-  Err_ϵh3[ii,jj] = sqrt(err_ϵh[3])
-  Err_ϵh5[ii,jj] = sqrt(err_ϵh[5])
-  Err_ϵh6[ii,jj] = sqrt(err_ϵh[6])
-  Err_ϵh9[ii,jj] = sqrt(err_ϵh[9])
+  # Err_ϵh1[ii,jj] = sqrt(err_ϵh[1])
+  # Err_ϵh2[ii,jj] = sqrt(err_ϵh[2])
+  # Err_ϵh3[ii,jj] = sqrt(err_ϵh[3])
+  # Err_ϵh5[ii,jj] = sqrt(err_ϵh[5])
+  # Err_ϵh6[ii,jj] = sqrt(err_ϵh[6])
+  # Err_ϵh9[ii,jj] = sqrt(err_ϵh[9])
 
 end
 
@@ -242,12 +242,12 @@ conv_σh5 = (log.( Err_σh5[:,end-1]) - log.( Err_σh5[:,end] ) ) / (log.( h[end
 conv_σh6 = (log.( Err_σh6[:,end-1]) - log.( Err_σh6[:,end] ) ) / (log.( h[end-1]) - log.( h[end] ));
 conv_σh9 = (log.( Err_σh9[:,end-1]) - log.( Err_σh9[:,end] ) ) / (log.( h[end-1]) - log.( h[end] ));
 
-conv_ϵh1 = (log.( Err_ϵh1[:,end-1]) - log.( Err_ϵh1[:,end] ) ) / (log.( h[end-1]) - log.( h[end] ));
-conv_ϵh2 = (log.( Err_ϵh2[:,end-1]) - log.( Err_ϵh2[:,end] ) ) / (log.( h[end-1]) - log.( h[end] ));
-conv_ϵh3 = (log.( Err_ϵh3[:,end-1]) - log.( Err_ϵh3[:,end] ) ) / (log.( h[end-1]) - log.( h[end] ));
-conv_ϵh5 = (log.( Err_ϵh5[:,end-1]) - log.( Err_ϵh5[:,end] ) ) / (log.( h[end-1]) - log.( h[end] ));
-conv_ϵh6 = (log.( Err_ϵh6[:,end-1]) - log.( Err_ϵh6[:,end] ) ) / (log.( h[end-1]) - log.( h[end] ));
-conv_ϵh9 = (log.( Err_ϵh9[:,end-1]) - log.( Err_ϵh9[:,end] ) ) / (log.( h[end-1]) - log.( h[end] ));
+# conv_ϵh1 = (log.( Err_ϵh1[:,end-1]) - log.( Err_ϵh1[:,end] ) ) / (log.( h[end-1]) - log.( h[end] ));
+# conv_ϵh2 = (log.( Err_ϵh2[:,end-1]) - log.( Err_ϵh2[:,end] ) ) / (log.( h[end-1]) - log.( h[end] ));
+# conv_ϵh3 = (log.( Err_ϵh3[:,end-1]) - log.( Err_ϵh3[:,end] ) ) / (log.( h[end-1]) - log.( h[end] ));
+# conv_ϵh5 = (log.( Err_ϵh5[:,end-1]) - log.( Err_ϵh5[:,end] ) ) / (log.( h[end-1]) - log.( h[end] ));
+# conv_ϵh6 = (log.( Err_ϵh6[:,end-1]) - log.( Err_ϵh6[:,end] ) ) / (log.( h[end-1]) - log.( h[end] ));
+# conv_ϵh9 = (log.( Err_ϵh9[:,end-1]) - log.( Err_ϵh9[:,end] ) ) / (log.( h[end-1]) - log.( h[end] ));
 
 # Output to terminal
 @printf("\n")
@@ -308,45 +308,45 @@ for jj in 1:length(Ps)
 end
 @printf( "\n" )
 
-#   ϵ
-@printf( "ϵ₁₁  ")
-for jj in 1:length(Ps)
-  @printf( " %6.4f", conv_ϵh1[jj] )
-end
-@printf( "\n" )
-@printf( "ϵ₁₂  ")
-for jj in 1:length(Ps)
-  @printf( " %6.4f", conv_ϵh2[jj] )
-end
-@printf( "\n" )
-@printf( "ϵ₁₃  ")
-for jj in 1:length(Ps)
-  @printf( " %6.4f", conv_ϵh3[jj] )
-end
-@printf( "\n" )
-@printf( "ϵ₂₂  ")
-for jj in 1:length(Ps)
-  @printf( " %6.4f", conv_ϵh5[jj] )
-end
-@printf( "\n" )
-@printf( "ϵ₂₃  ")
-for jj in 1:length(Ps)
-  @printf( " %6.4f", conv_ϵh6[jj] )
-end
-@printf( "\n" )
-@printf( "ϵ₃₃  ")
-for jj in 1:length(Ps)
-  @printf( " %6.4f", conv_ϵh9[jj] )
-end
-@printf( "\n" )
+# #   ϵ
+# @printf( "ϵ₁₁  ")
+# for jj in 1:length(Ps)
+#   @printf( " %6.4f", conv_ϵh1[jj] )
+# end
+# @printf( "\n" )
+# @printf( "ϵ₁₂  ")
+# for jj in 1:length(Ps)
+#   @printf( " %6.4f", conv_ϵh2[jj] )
+# end
+# @printf( "\n" )
+# @printf( "ϵ₁₃  ")
+# for jj in 1:length(Ps)
+#   @printf( " %6.4f", conv_ϵh3[jj] )
+# end
+# @printf( "\n" )
+# @printf( "ϵ₂₂  ")
+# for jj in 1:length(Ps)
+#   @printf( " %6.4f", conv_ϵh5[jj] )
+# end
+# @printf( "\n" )
+# @printf( "ϵ₂₃  ")
+# for jj in 1:length(Ps)
+#   @printf( " %6.4f", conv_ϵh6[jj] )
+# end
+# @printf( "\n" )
+# @printf( "ϵ₃₃  ")
+# for jj in 1:length(Ps)
+#   @printf( " %6.4f", conv_ϵh9[jj] )
+# end
+# @printf( "\n" )
 
 open("errors_Elas_Dirichlet3D.dat", "w") do f
-  @printf(f, "P \t N \t E_uh1 \t E_uh2 \t E_uh3 \t E_σh1 \t E_σh2 \t E_σh3 \t E_σh5 \t E_σh6 \t E_σh9 \t E_ϵh1 \t E_ϵh2 \t E_ϵh3 \t E_ϵh5 \t E_ϵh6 \t E_ϵh9 \n")#\t E_J\n")
+  @printf(f, "P \t N \t E_uh1 \t E_uh2 \t E_uh3 \t E_σh1 \t E_σh2 \t E_σh3 \t E_σh5 \t E_σh6 \t E_σh9 \n")#\t E_ϵh1 \t E_ϵh2 \t E_ϵh3 \t E_ϵh5 \t E_ϵh6 \t E_ϵh9 \n")#\t E_J\n")
   for ii in 1:length(Ps), jj in 1:length(Ns)
-    @printf(f, "%i \t %i \t %16.15e \t %16.15e \t %16.15e \t %16.15e \t %16.15e \t %16.15e \t %16.15e \t %16.15e \t %16.15e \t %16.15e \t %16.15e \t %16.15e \t %16.15e \t %16.15e \t %16.15e\n",
+    @printf(f, "%i \t %i \t %16.15e \t %16.15e \t %16.15e \t %16.15e \t %16.15e \t %16.15e \t %16.15e \t %16.15e \t %16.15e \n", #\t %16.15e \t %16.15e \t %16.15e \t %16.15e \t %16.15e \t %16.15e\n",
       Ps[ii], Ns[jj], Err_uh1[ii,jj], Err_uh2[ii,jj], Err_uh3[ii,jj],
-      Err_σh1[ii,jj], Err_σh2[ii,jj], Err_σh3[ii,jj], Err_σh5[ii,jj], Err_σh6[ii,jj], Err_σh9[ii,jj],
-      Err_ϵh1[ii,jj], Err_ϵh2[ii,jj], Err_ϵh3[ii,jj], Err_ϵh5[ii,jj], Err_ϵh6[ii,jj], Err_ϵh9[ii,jj] )
+      Err_σh1[ii,jj], Err_σh2[ii,jj], Err_σh3[ii,jj], Err_σh5[ii,jj], Err_σh6[ii,jj], Err_σh9[ii,jj] )#,
+      # Err_ϵh1[ii,jj], Err_ϵh2[ii,jj], Err_ϵh3[ii,jj], Err_ϵh5[ii,jj], Err_ϵh6[ii,jj], Err_ϵh9[ii,jj] )
   end
 end
 

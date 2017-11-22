@@ -3,8 +3,8 @@ using SymPy
 
 # let # limit scope
 
-Ps = 1:3         # Range of polynomial order
-Ns = [9, 17, 33] # Range of grid size
+Ps = [P1(), P2(), P3()] # Range of polynomial order
+Ns = [9, 17, 33]        # Range of grid size
 
 dim = 2
 
@@ -80,9 +80,7 @@ for ii in 1:length(Ps), jj in 1:length(Ns)
   mesh   = Mesh2D( "square", P, N = N)
   master = Master2D( P )
 
-  compJacob!( mesh, master )
-
-  prob = Problem( @sprintf("Poisson - Reg %i %i", P, N), source, bctype, 0, [funcB, funcB, funcB, funcB] )
+  prob = Problem( @sprintf("Poisson - Reg %i %i", P.p, N), source, bctype, 0, [funcB, funcB, funcB, funcB] )
 
   (uhath, uh, qh, uhathTri) = hdgSolveCD( master, mesh, mat, prob )
 
@@ -91,9 +89,16 @@ for ii in 1:length(Ps), jj in 1:length(Ns)
   err_qh = fill( 0.0, dim )
   Jcomp  = 0.0
 
+  # preallocate
+  jcw  = fill( 0.0, size(master.∇ϕ,2) )
+  ∂ξ∂x = fill( 0.0, size(master.∇ϕ,2), dim^2 )
+  ∂x∂ξ = fill( 0.0, size(master.∇ϕ,2), dim^2 )
+
   for kk in 1:size(mesh.t,1)
 
-    jcwd = diagm(mesh.jcw[:,kk])
+    # Compute Jacobians
+    compJacob!( master, mesh.nodes[:,:,kk], ∂ξ∂x, jcw, ∂x∂ξ )
+    jcwd = diagm( jcw )
 
     # u
     Δuh     = master.ϕ' * ( uh[:,1,kk] - ufunc( mesh.nodes[:,:,kk] ) )
@@ -137,7 +142,7 @@ conv_J = (log.( Err_J[:,end-1]) - log.( Err_J[:,end] ) ) / (log.( h[end-1]) - lo
 @printf("   ------------------------------------------------\n\n")
 @printf( "P   ")
 for jj in 1:size(Ps,1)
-  @printf( " %6i", Ps[jj] )
+  @printf( " %6i", Ps[jj].p )
 end
 @printf( "\n" )
 
@@ -172,7 +177,7 @@ open("errors_Poisson_Neumann2D.dat", "w") do f
   @printf(f, "P \t N \t E_uh \t E_qh1 \t E_qh2 \t J\n")
   for ii in 1:length(Ps), jj in 1:length(Ns)
     @printf(f, "%i \t %i \t %16.15e \t %16.15e \t %16.15e \t %16.15e\n",
-    Ps[ii],Ns[jj],Err_uh[ii,jj],Err_qh1[ii,jj],Err_qh2[ii,jj],Err_J[ii,jj])
+    Ps[ii].p,Ns[jj],Err_uh[ii,jj],Err_qh1[ii,jj],Err_qh2[ii,jj],Err_J[ii,jj])
   end
 end
 

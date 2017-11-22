@@ -4,12 +4,10 @@ using luteos
 
 mat = Material(E = 1, ν = 0.0)
 
-P = 3 # Polynomial order of solution
+P = P3() # Polynomial order of solution
 
 mesh   = Mesh3D( "cube", P, N = 2)
 master = Master3D( P )
-
-compJacob!( mesh, master )
 
 # source function
 function funcS( p::Array{Float64} )

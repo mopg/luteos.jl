@@ -80,8 +80,6 @@ for ii in 1:length(Ps), jj in 1:length(Ns)
   mesh   = Mesh2D( "square", P, N = N)
   master = Master2D( P )
 
-  # compJacob!( mesh, master )
-
   prob = Problem( @sprintf("Poisson - Reg %i %i", P.p, N), source, bctype, 0, [funcB, funcB, funcB, funcB] )
 
   (uhath, uh, qh, uhathTri) = hdgSolveCD( master, mesh, mat, prob )
@@ -99,8 +97,7 @@ for ii in 1:length(Ps), jj in 1:length(Ns)
   for kk in 1:size(mesh.t,1)
 
     # Compute Jacobians
-    #compJacob!( master, mesh.nodes[:,:,kk], ∂ξ∂x, jcw, ∂x∂ξ )
-    (jcw, ∂ξ∂x) = luteos.compJacob( master, mesh.nodes[:,:,kk] )
+    compJacob!( master, mesh.nodes[:,:,kk], ∂ξ∂x, jcw, ∂x∂ξ )
     jcwd = diagm( jcw )
 
     # u

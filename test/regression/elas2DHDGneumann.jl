@@ -98,9 +98,9 @@ Err_uh2 = fill( 0.0, length(Ps), length(Ns) )
 Err_σh1 = fill( 0.0, length(Ps), length(Ns) )
 Err_σh2 = fill( 0.0, length(Ps), length(Ns) )
 Err_σh4 = fill( 0.0, length(Ps), length(Ns) )
-Err_ϵh1 = fill( 0.0, length(Ps), length(Ns) )
-Err_ϵh2 = fill( 0.0, length(Ps), length(Ns) )
-Err_ϵh4 = fill( 0.0, length(Ps), length(Ns) )
+# Err_ϵh1 = fill( 0.0, length(Ps), length(Ns) )
+# Err_ϵh2 = fill( 0.0, length(Ps), length(Ns) )
+# Err_ϵh4 = fill( 0.0, length(Ps), length(Ns) )
 
 #   Loop over polynomial order and grid size
 for ii in 1:length(Ps), jj in 1:length(Ns)
@@ -112,12 +112,12 @@ for ii in 1:length(Ps), jj in 1:length(Ns)
 
   prob = Problem( @sprintf("Reg %i %i", P, N), source, bctype, 0, [funcB, funcNE, funcB, funcNW] )
 
-  (uhathTri, uh, σh, ϵh) = hdgSolveElas( master, mesh, mat, prob )
+  (uhathTri, uh, σh) = hdgSolveElas( master, mesh, mat, prob )
 
   #   Initialize arrays
   err_uh = fill( 0.0, dim )
   err_σh = fill( 0.0, dim^2 )
-  err_ϵh = fill( 0.0, dim^2 )
+  # err_ϵh = fill( 0.0, dim^2 )
 
   # preallocate
   jcw  = fill( 0.0, size(master.∇ϕ,2) )
@@ -145,13 +145,13 @@ for ii in 1:length(Ps), jj in 1:length(Ns)
     err_σh[2] += Δσh2' * jcwd * Δσh2
     err_σh[4] += Δσh4' * jcwd * Δσh4
 
-    # ϵ
-    Δϵh1       = master.ϕ' * ( ϵh[:,1,kk] - ϵ1func( mesh.nodes[:,:,kk] ) )
-    Δϵh2       = master.ϕ' * ( ϵh[:,2,kk] - ϵ2func( mesh.nodes[:,:,kk] ) )
-    Δϵh4       = master.ϕ' * ( ϵh[:,4,kk] - ϵ4func( mesh.nodes[:,:,kk] ) )
-    err_ϵh[1] += Δϵh1' * jcwd * Δϵh1
-    err_ϵh[2] += Δϵh2' * jcwd * Δϵh2
-    err_ϵh[4] += Δϵh4' * jcwd * Δϵh4
+    # # ϵ
+    # Δϵh1       = master.ϕ' * ( ϵh[:,1,kk] - ϵ1func( mesh.nodes[:,:,kk] ) )
+    # Δϵh2       = master.ϕ' * ( ϵh[:,2,kk] - ϵ2func( mesh.nodes[:,:,kk] ) )
+    # Δϵh4       = master.ϕ' * ( ϵh[:,4,kk] - ϵ4func( mesh.nodes[:,:,kk] ) )
+    # err_ϵh[1] += Δϵh1' * jcwd * Δϵh1
+    # err_ϵh[2] += Δϵh2' * jcwd * Δϵh2
+    # err_ϵh[4] += Δϵh4' * jcwd * Δϵh4
 
   end
 
@@ -160,9 +160,9 @@ for ii in 1:length(Ps), jj in 1:length(Ns)
   Err_σh1[ii,jj] = sqrt(err_σh[1])
   Err_σh2[ii,jj] = sqrt(err_σh[2])
   Err_σh4[ii,jj] = sqrt(err_σh[4])
-  Err_ϵh1[ii,jj] = sqrt(err_ϵh[1])
-  Err_ϵh2[ii,jj] = sqrt(err_ϵh[2])
-  Err_ϵh4[ii,jj] = sqrt(err_ϵh[4])
+  # Err_ϵh1[ii,jj] = sqrt(err_ϵh[1])
+  # Err_ϵh2[ii,jj] = sqrt(err_ϵh[2])
+  # Err_ϵh4[ii,jj] = sqrt(err_ϵh[4])
 
 end
 
@@ -175,9 +175,9 @@ conv_σh1 = (log.( Err_σh1[:,end-2]) - log.( Err_σh1[:,end] ) ) / (log.( h[end
 conv_σh2 = (log.( Err_σh2[:,end-2]) - log.( Err_σh2[:,end] ) ) / (log.( h[end-2]) - log.( h[end] ));
 conv_σh4 = (log.( Err_σh4[:,end-2]) - log.( Err_σh4[:,end] ) ) / (log.( h[end-2]) - log.( h[end] ));
 
-conv_ϵh1 = (log.( Err_ϵh1[:,end-2]) - log.( Err_ϵh1[:,end] ) ) / (log.( h[end-2]) - log.( h[end] ));
-conv_ϵh2 = (log.( Err_ϵh2[:,end-2]) - log.( Err_ϵh2[:,end] ) ) / (log.( h[end-2]) - log.( h[end] ));
-conv_ϵh4 = (log.( Err_ϵh4[:,end-2]) - log.( Err_ϵh4[:,end] ) ) / (log.( h[end-2]) - log.( h[end] ));
+# conv_ϵh1 = (log.( Err_ϵh1[:,end-2]) - log.( Err_ϵh1[:,end] ) ) / (log.( h[end-2]) - log.( h[end] ));
+# conv_ϵh2 = (log.( Err_ϵh2[:,end-2]) - log.( Err_ϵh2[:,end] ) ) / (log.( h[end-2]) - log.( h[end] ));
+# conv_ϵh4 = (log.( Err_ϵh4[:,end-2]) - log.( Err_ϵh4[:,end] ) ) / (log.( h[end-2]) - log.( h[end] ));
 
 # Output to terminal
 @printf("\n")
@@ -217,22 +217,32 @@ for jj in 1:length(Ps)
   @printf( " %6.4f", conv_σh4[jj] )
 end
 @printf( "\n" )
+#
+# #   ϵ
+# @printf( "ϵ₁  ")
+# for jj in 1:length(Ps)
+#   @printf( " %6.4f", conv_ϵh1[jj] )
+# end
+# @printf( "\n" )
+# @printf( "ϵ₂  ")
+# for jj in 1:length(Ps)
+#   @printf( " %6.4f", conv_ϵh2[jj] )
+# end
+# @printf( "\n" )
+# @printf( "ϵ₄  ")
+# for jj in 1:length(Ps)
+#   @printf( " %6.4f", conv_ϵh4[jj] )
+# end
+# @printf( "\n" )
 
-#   ϵ
-@printf( "ϵ₁  ")
-for jj in 1:length(Ps)
-  @printf( " %6.4f", conv_ϵh1[jj] )
+open("errors_Elas_Neumann2D.dat", "w") do f
+  @printf(f, "P \t N \t E_uh1 \t E_uh2 \t E_σh1 \t E_σh2 \t E_σh4 \n")#\t E_ϵh1 \t E_ϵh2 \t E_ϵh4 \n")#\t E_J\n")
+  for ii in 1:length(Ps), jj in 1:length(Ns)
+    @printf(f, "%i \t %i \t %16.15e \t %16.15e \t %16.15e \t %16.15e \t %16.15e \n",#\t %16.15e \t %16.15e \t %16.15e\n",
+      Ps[ii].p, Ns[jj], Err_uh1[ii,jj], Err_uh2[ii,jj],
+      Err_σh1[ii,jj], Err_σh2[ii,jj], Err_σh4[ii,jj] )#,
+      #Err_ϵh1[ii,jj], Err_ϵh2[ii,jj], Err_ϵh4[ii,jj] )
+  end
 end
-@printf( "\n" )
-@printf( "ϵ₂  ")
-for jj in 1:length(Ps)
-  @printf( " %6.4f", conv_ϵh2[jj] )
-end
-@printf( "\n" )
-@printf( "ϵ₄  ")
-for jj in 1:length(Ps)
-  @printf( " %6.4f", conv_ϵh4[jj] )
-end
-@printf( "\n" )
 
 # end # limit scope

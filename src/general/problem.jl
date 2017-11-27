@@ -41,8 +41,6 @@ boundary condition on each boundary surface.
 function Problem(src, bcf, bctype;
                  name = "Answer to Life Universe and Everything", bcnorm = false)
 
-  setup()
-
   if length(bctype) != length(bcf)
     error("Problem:: bctype needs have the same size as bcf")
   end

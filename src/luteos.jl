@@ -53,4 +53,10 @@ include("solve/hdgSolveCD.jl")
 
 # TODO: Use __init__() for pretty picture
 
+function __init__()
+
+    setup()
+    
+end
+
 end

@@ -247,18 +247,8 @@ end # end element loop
 ### Compute approximate trace
 Hfull = sparse( indRow, indCol, indUnk, size(mesh.f,1) * unkUhat, size(mesh.f,1) * unkUhat )
 
-
-
-Hlu = lufact(Hfull)
-# println("gmres")
-uhath = IterativeSolvers.gmres( Hfull, Rfull, Pl=Hlu )
-# @time uhath = IterativeSolvers.gmres( Hfull, Rfull, Pl=Hlu )
-# println(typeof(uhath))
-# uhath = Hfull \ Rfull
-
-# println("direct")
-# @time uhath = Hfull \ Rfull
-# println(typeof(uhath))
+fact = ILU.crout_ilu( Hfull, τ = 0.1 )
+uhath = IterativeSolvers.gmres( Hfull, Rfull, Pl=fact )
 
 # ---------------------------------------------------------------------------- #
 

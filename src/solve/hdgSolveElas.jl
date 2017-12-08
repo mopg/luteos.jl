@@ -83,37 +83,35 @@ Rfull = fill( 0.0, size(mesh.f,1)*unkUhat ) # RHS vector
 rr = 1 # iterator for unknowns in sparsity matrix
 
 # preallocate
-jcw  = fill( 0.0, size(master.∇ϕ,2) )
+jcwd = fill( 0.0, size(master.∇ϕ,2), size(master.∇ϕ,2) )
 ∂ξ∂x = fill( 0.0, size(master.∇ϕ,2), dim^2 )
 ∂x∂ξ = fill( 0.0, size(master.∇ϕ,2), dim^2 )
 
 for pp in 1:nelem # Loop over all elements
 
   # zero out all matrices
-  A = 0.0 * A
-  B = 0.0 * B
-  C = 0.0 * C
-  F = 0.0 * F
-  D = 0.0 * D
-  H = 0.0 * H
-  J = 0.0 * J
-  K = 0.0 * K
-  M = 0.0 * M
-  N = 0.0 * N
-  P = 0.0 * P
-  Q = 0.0 * Q
-  G = 0.0 * G
-  A_UHATH = 0.0 * A_UHATH
-  B_UHATH = 0.0 * B_UHATH
+  A *= 0.0
+  B *= 0.0
+  C *= 0.0
+  F *= 0.0
+  D *= 0.0
+  H *= 0.0
+  J *= 0.0
+  K *= 0.0
+  M *= 0.0
+  N *= 0.0
+  P *= 0.0
+  Q *= 0.0
+  G *= 0.0
+  A_UHATH *= 0.0
+  B_UHATH *= 0.0
 
   # Compute Jacobians
-  compJacob!( master, mesh.nodes[:,:,pp], ∂ξ∂x, jcw, ∂x∂ξ )
+  compJacob!( master, mesh.nodes[:,:,pp], ∂ξ∂x, jcwd, ∂x∂ξ )
 
   pLoc = master.ϕ' * mesh.nodes[:,:,pp]
 
   ∇ϕc = getderbfel( master, ∂ξ∂x )
-
-  jcwd = diagm( jcw )
 
   # ------------------------- Volume integrals ------------------------------- #
   ## A (first part)
@@ -354,8 +352,8 @@ end # end element loop
 ### Compute approximate trace
 Hfull = sparse( indRow, indCol, indUnk, size(mesh.f,1) * unkUhat, size(mesh.f,1) * unkUhat )
 
-Hlu   = lufact(Hfull)
-uhath = IterativeSolvers.gmres( Hfull, Rfull, Pl=Hlu )
+fact = ILU.crout_ilu( Hfull, τ = 0.1 )
+uhath = IterativeSolvers.gmres( Hfull, Rfull, Pl=fact )
 # ---------------------------------------------------------------------------- #
 
 ## Compute approximate scalar value and flux

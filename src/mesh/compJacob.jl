@@ -19,7 +19,7 @@
 Returns Jacobian of a 2D cell.
 """
 function compJacob!( master::Master2D, nodes::Matrix{Float64},
-                     ∂ξ∂x::Matrix{Float64}, jcw::Vector{Float64},
+                     ∂ξ∂x::Matrix{Float64}, jcw::Matrix{Float64},
                      ∂x∂ξ::Matrix{Float64} )
 
   ∂x∂ξ[:,1] = master.∇ϕ[:,:,1]' * nodes[:,1] # ∂x∂ξ
@@ -28,24 +28,10 @@ function compJacob!( master::Master2D, nodes::Matrix{Float64},
   ∂x∂ξ[:,4] = master.∇ϕ[:,:,2]' * nodes[:,2] # ∂y∂η
 
   jac = ∂x∂ξ[:,1].*∂x∂ξ[:,4] - ∂x∂ξ[:,2].*∂x∂ξ[:,3]
-  # jac = ∂x∂ξ.*∂y∂η - ∂x∂η.*∂y∂ξ
-  # jcw = diagm( master.gwts ) * jac
-
-  # [∂ξ∂x ∂η∂x; ∂ξ∂y ∂η∂y] = [∂x∂ξ ∂y∂ξ; ∂x∂η ∂y∂η]^-1
 
   for ii in 1:length(jac)
-    jcw[ii] = master.gwts[ii] * jac[ii]
+    jcw[ii,ii] = master.gwts[ii] * jac[ii]
   end
-
-  # ∂ξ∂x =  1./jac .* ∂y∂η
-  # ∂η∂x = -1./jac .* ∂y∂ξ
-  # ∂ξ∂y = -1./jac .* ∂x∂η
-  # ∂η∂y =  1./jac .* ∂x∂ξ
-  #
-  # ∂ξ∂x_vec[:,1] = ∂ξ∂x
-  # ∂ξ∂x_vec[:,2] = ∂ξ∂y
-  # ∂ξ∂x_vec[:,3] = ∂η∂x
-  # ∂ξ∂x_vec[:,4] = ∂η∂y
 
   ∂ξ∂x[:,1] =  1./jac .* ∂x∂ξ[:,4]
   ∂ξ∂x[:,2] = -1./jac .* ∂x∂ξ[:,2]
@@ -124,8 +110,6 @@ function compJacob( master::Master2D, nodes::Matrix{Float64} )
   jac = ∂x∂ξ.*∂y∂η - ∂x∂η.*∂y∂ξ
   jcw = diagm( master.gwts ) * jac
 
-  # [∂ξ∂x ∂η∂x; ∂ξ∂y ∂η∂y] = [∂x∂ξ ∂y∂ξ; ∂x∂η ∂y∂η]^-1
-
   ∂ξ∂x =  1./jac .* ∂y∂η
   ∂η∂x = -1./jac .* ∂y∂ξ
   ∂ξ∂y = -1./jac .* ∂x∂η
@@ -167,29 +151,6 @@ function compJacob!( mesh::Mesh3D, master::Master3D )
         ∂x∂ξ[:,:,3,1].*∂x∂ξ[:,:,2,2].*∂x∂ξ[:,:,1,3] - ∂x∂ξ[:,:,2,1].*∂x∂ξ[:,:,1,2].*∂x∂ξ[:,:,3,3] - ∂x∂ξ[:,:,1,1].*∂x∂ξ[:,:,3,2].*∂x∂ξ[:,:,2,3]
   jcw = diagm( master.gwts ) * jac
 
-  # ∂ξ₁∂x₁ =  1./jac .* ( ∂x₂∂ξ₂ .* ∂x₃∂ξ₃ - ∂x₃∂ξ₂ .* ∂x₂∂ξ₃ )
-  # ∂ξ₁∂x₂ =  1./jac .* ( ∂x₁∂ξ₃ .* ∂x₃∂ξ₂ - ∂x₁∂ξ₂ .* ∂x₃∂ξ₃ )
-  # ∂ξ₁∂x₃ =  1./jac .* ( ∂x₁∂ξ₂ .* ∂x₂∂ξ₃ - ∂x₁∂ξ₃ .* ∂x₂∂ξ₂ )
-  #
-  # ∂ξ₂∂x₁ =  1./jac .* ( ∂x₂∂ξ₃ .* ∂x₃∂ξ₁ - ∂x₂∂ξ₁ .* ∂x₃∂ξ₃ )
-  # ∂ξ₂∂x₂ =  1./jac .* ( ∂x₁∂ξ₁ .* ∂x₃∂ξ₃ - ∂x₁∂ξ₃ .* ∂x₃∂ξ₁ )
-  # ∂ξ₂∂x₃ =  1./jac .* ( ∂x₁∂ξ₁ .* ∂x₂∂ξ₃ - ∂x₁∂ξ₃ .* ∂x₂∂ξ₁ )
-  #
-  # ∂ξ₃∂x₁ =  1./jac .* ( ∂x₂∂ξ₁ .* ∂x₃∂ξ₂ - ∂x₂∂ξ₂ .* ∂x₃∂ξ₁ )
-  # ∂ξ₃∂x₂ =  1./jac .* ( ∂x₁∂ξ₂ .* ∂x₃∂ξ₁ - ∂x₁∂ξ₁ .* ∂x₃∂ξ₂ )
-  # ∂ξ₃∂x₃ =  1./jac .* ( ∂x₁∂ξ₁ .* ∂x₂∂ξ₂ - ∂x₁∂ξ₂ .* ∂x₂∂ξ₁ )
-
-  # ∂ξⁱ∂xʲ = 1/J * ( ∂x(j+1))∂ξ(i+1)*∂x(j+2))∂ξ(i+2) - ∂x(j+1))∂ξ(i+2)*∂x(j+2))∂ξ(i+1) )
-  # ∂ξ₁∂x₁ =  1./jac .* ( ∂x₂∂ξ₂ .* ∂x₃∂ξ₃ -
-  # ∂ξ₁∂x₂ =  1./jac .* (
-  # ∂ξ₁∂x₃ =  1./jac .* (
-  # ∂ξ₂∂x₁ =  1./jac .* (
-  # ∂ξ₂∂x₂ =  1./jac .* (
-  # ∂ξ₂∂x₃ =  1./jac .* (
-  # ∂ξ₃∂x₁ =  1./jac .* (
-  # ∂ξ₃∂x₂ =  1./jac .* (
-  # ∂ξ₃∂x₃ =  1./jac .* (
-
   for ii in 1:3, jj in 1:3
     iip1 = ii + 1
     jjp1 = jj + 1
@@ -209,6 +170,7 @@ function compJacob!( mesh::Mesh3D, master::Master3D )
     end
     ∂ξ∂x2[:,:,ii,jj] = 1./jac .* ( ∂x∂ξ[:,:,jjp1,iip1].*∂x∂ξ[:,:,jjp2,iip2] - ∂x∂ξ[:,:,jjp1,iip2].*∂x∂ξ[:,:,jjp2,iip1] )
   end
+
   ∂ξ∂x = fill(0.0, size(master.∇ϕ,2), size(mesh.nodes,3), 9)
   ∂ξ∂x[:,:,1] = ∂ξ∂x2[:,:,1,1]#∂ξ₁∂x₁
   ∂ξ∂x[:,:,2] = ∂ξ∂x2[:,:,1,2]#∂ξ₁∂x₂
@@ -289,12 +251,10 @@ end
 Returns Jacobian of a 3D cell.
 """
 function compJacob!( master::Master3D, nodes::Matrix{Float64},
-                     ∂ξ∂x::Matrix{Float64}, jcw::Vector{Float64},
+                     ∂ξ∂x::Matrix{Float64}, jcw::Matrix{Float64},
                      ∂x∂ξ::Matrix{Float64} )
 
   # http://www.csun.edu/~lcaretto/me692/Coordinate%20transformations.pdf
-
-  # ∂x∂ξ  = fill( 0.0, size(master.∇ϕ,2), 3, 3 )
 
   ∂x∂ξ[:,1] = master.∇ϕ[:,:,1]' * nodes[:,1] # 1 1 - 1
   ∂x∂ξ[:,2] = master.∇ϕ[:,:,2]' * nodes[:,1] # 1 2 - 2
@@ -308,12 +268,9 @@ function compJacob!( master::Master3D, nodes::Matrix{Float64},
 
   jac = ∂x∂ξ[:,1].*∂x∂ξ[:,5].*∂x∂ξ[:,9] + ∂x∂ξ[:,4].*∂x∂ξ[:,8].*∂x∂ξ[:,3] + ∂x∂ξ[:,7].*∂x∂ξ[:,2].*∂x∂ξ[:,6] -
         ∂x∂ξ[:,7].*∂x∂ξ[:,5].*∂x∂ξ[:,3] - ∂x∂ξ[:,4].*∂x∂ξ[:,2].*∂x∂ξ[:,9] - ∂x∂ξ[:,1].*∂x∂ξ[:,8].*∂x∂ξ[:,6]
-  # jac = ∂x∂ξ[:,1,1].*∂x∂ξ[:,2,2].*∂x∂ξ[:,3,3] + ∂x∂ξ[:,2,1].*∂x∂ξ[:,3,2].*∂x∂ξ[:,1,3] + ∂x∂ξ[:,3,1].*∂x∂ξ[:,1,2].*∂x∂ξ[:,2,3] -
-  #       ∂x∂ξ[:,3,1].*∂x∂ξ[:,2,2].*∂x∂ξ[:,1,3] - ∂x∂ξ[:,2,1].*∂x∂ξ[:,1,2].*∂x∂ξ[:,3,3] - ∂x∂ξ[:,1,1].*∂x∂ξ[:,3,2].*∂x∂ξ[:,2,3]
-  #jcw = diagm( master.gwts ) * jac
 
   for ii in 1:length(jac)
-    jcw[ii] = master.gwts[ii] * jac[ii]
+    jcw[ii,ii] = master.gwts[ii] * jac[ii]
   end
 
   for ii in 1:3, jj in 1:3

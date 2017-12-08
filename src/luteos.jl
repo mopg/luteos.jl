@@ -17,7 +17,7 @@ __precompile__()
     luteos
 
 Julia library for high-order FEM problems.
-`luteos` is the Latin transliteration of the ancient greek word λυτέος, which
+`luteos` is the Latin transliteration of the ancient Greek word λυτέος, which
 means "one must solve".
 
 Max Opgenoord
@@ -27,8 +27,9 @@ Fall 2017
 module luteos
 
 import IterativeSolvers
+import ILU
 
-export hdgSolveElas, Material, Problem, Master2D, Master3D, Mesh2D, Mesh3D, compJacob!, writeTecplot, writeTecplotCD
+export hdgSolveElas, Material, Problem, Master2D, Master3D, Mesh2D, Mesh3D, writeTecplot, writeTecplotCD
 
 include("general/material.jl")
 include("general/problem.jl")
@@ -43,8 +44,11 @@ include("mesh/mesh.jl")
 include("mesh/master.jl")
 include("mesh/compJacob.jl")
 
+include("meshers/mesher.jl")
+
 include("io/writeTecplot.jl")
 include("io/writeTecplotCD.jl")
+include("io/readSU2.jl")
 
 include("solve/hdgSolveElas.jl")
 
@@ -56,7 +60,7 @@ include("solve/hdgSolveCD.jl")
 function __init__()
 
     setup()
-    
+
 end
 
 end

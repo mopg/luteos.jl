@@ -64,15 +64,16 @@ Returns Jacobian on on the `face` in element `el` for a 2D mesh.
 """
 function compJacobFace( mesh::Mesh2D, master::Master2D, el::Int64, face::Int64 )
 
+  indnod = 1
+  rotdir = false
+
   if mesh.t2f[el,face] < 0
     # face DOES NOT follow counter-clockwise rotation
-    nod    = master.perm[:,face,2]
+    indnod = 2
     rotdir = true
-  else
-    # face follows counter-clockwise rotation
-    nod    = master.perm[:,face,1]
-    rotdir = false
   end
+
+  nod    = master.perm[:,face,indnod]
 
   ∂x₁∂ξ₁ = master.∇ϕ1d' * mesh.nodes[nod,1,el]
   ∂x₂∂ξ₁ = master.∇ϕ1d' * mesh.nodes[nod,2,el]
@@ -82,10 +83,10 @@ function compJacobFace( mesh::Mesh2D, master::Master2D, el::Int64, face::Int64 )
   jac  = sqrt.( ∂x₁∂ξ₁.^2 + ∂x₂∂ξ₁.^2 )
   jcw  = master.gwts1d .* jac
 
+  normal = [ ∂x₂∂ξ₁ -∂x₁∂ξ₁ ] ./ [jac jac]
+
   if rotdir
-    normal = -[ ∂x₂∂ξ₁ -∂x₁∂ξ₁ ] ./ [jac jac]
-  else
-    normal =  [ ∂x₂∂ξ₁ -∂x₁∂ξ₁ ] ./ [jac jac]
+    normal *= -1.
   end
 
   tangent = [ normal[:,2] -normal[:,1] ]
@@ -215,6 +216,7 @@ Returns Jacobian on the `face` in element `el` for a 3D mesh.
 function compJacobFace( mesh::Mesh3D, master::Master3D, el::Int64, face::Int64 )
 
   nod  = master.perm[ :, face, abs.(mesh.t2f[el,face+4]) ]
+  #nod  = master.perm[ :, 1, 1 ]
 
   p2d  = master.ϕ2D'  * mesh.nodes[nod,:,el]
 
@@ -227,14 +229,14 @@ function compJacobFace( mesh::Mesh3D, master::Master3D, el::Int64, face::Int64 )
 
   # cross product to find normal vector, normal = ∂x∂ξ₁ × ∂x∂ξ₂
   normal = hcat( ( ∂x₂∂ξ₁ .* ∂x₃∂ξ₂ - ∂x₂∂ξ₂ .* ∂x₃∂ξ₁ ),
-              -(   ∂x₁∂ξ₁ .* ∂x₃∂ξ₂ - ∂x₁∂ξ₂ .* ∂x₃∂ξ₁ ),
-               (   ∂x₁∂ξ₁ .* ∂x₂∂ξ₂ - ∂x₁∂ξ₂ .* ∂x₂∂ξ₁ ) )
+                -( ∂x₁∂ξ₁ .* ∂x₃∂ξ₂ - ∂x₁∂ξ₂ .* ∂x₃∂ξ₁ ),
+                 ( ∂x₁∂ξ₁ .* ∂x₂∂ξ₂ - ∂x₁∂ξ₂ .* ∂x₂∂ξ₁ ) )
   # normalize the normal vector
-  jac    = sqrt.( normal[:,1].^2 + normal[:,2].^2 + normal[:,3].^2 )
-  normal = normal ./ ( jac * [1,1,1]' )
+  jac      = sqrt.( normal[:,1].^2 + normal[:,2].^2 + normal[:,3].^2 )
+  normal ./= jac * [1,1,1]'
 
   if mesh.t2f[el,face+4] < 0
-    normal = -normal
+    normal *= -1.0
   end
 
   jcw = master.gwts2D .* jac

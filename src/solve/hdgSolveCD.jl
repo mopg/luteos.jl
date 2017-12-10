@@ -73,20 +73,18 @@ rr = 1 # iterator for unknowns in sparsity matrix
 c = fill(0.0,dim)
 
 # preallocate
-jcw  = fill( 0.0, size(master.∇ϕ,2) )
+jcwd = fill( 0.0, size(master.∇ϕ,2), size(master.∇ϕ,2) )
 ∂ξ∂x = fill( 0.0, size(master.∇ϕ,2), dim^2 )
 ∂x∂ξ = fill( 0.0, size(master.∇ϕ,2), dim^2 )
 
 for pp in 1:nelem # Loop over all elements
 
   # Compute Jacobians
-  compJacob!( master, mesh.nodes[:,:,pp], ∂ξ∂x, jcw, ∂x∂ξ )
+  compJacob!( master, mesh.nodes[:,:,pp], ∂ξ∂x, jcwd, ∂x∂ξ )
 
   pLoc = master.ϕ' * mesh.nodes[:,:,pp]
 
   ∇ϕc = getderbfel( master, ∂ξ∂x )
-
-  jcwd = diagm( jcw )
 
   # ------------------------- Volume integrals ------------------------------- #
   ## A

@@ -59,7 +59,7 @@ include("solve/hdgSolveCD.jl")
 
 function __init__()
 
-    setup()
+    # setup()
 
 end
 

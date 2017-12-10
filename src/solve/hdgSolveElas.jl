@@ -22,11 +22,8 @@ function hdgSolveElas( master::Master, mesh::Mesh, material::Material, problem::
 dim     = mesh.dim
 nelem   = size( mesh.nodes, 3 ) # Mumber of elements in mesh
 nnodes  = size( mesh.nodes, 1 ) # Number of nodes in one element
-nodfac  = mesh.porder + 1
-if dim > 2
-  nodfac *= 0.5 * ( mesh.porder + 2 )
-end
-nodfac = Int64(nodfac)
+nodfac  = master.nodfac # Number of nodes on a face
+
 unkUhat = nodfac * dim          # Total of uhat unknowns per face
 nfaces  = dim + 1               # Number of faces per element
 
@@ -87,7 +84,7 @@ jcwd = fill( 0.0, size(master.∇ϕ,2), size(master.∇ϕ,2) )
 ∂ξ∂x = fill( 0.0, size(master.∇ϕ,2), dim^2 )
 ∂x∂ξ = fill( 0.0, size(master.∇ϕ,2), dim^2 )
 
-for pp in 1:nelem # Loop over all elements
+@time for pp in 1:nelem # Loop over all elements
 
   # zero out all matrices
   A *= 0.0
@@ -311,7 +308,7 @@ for pp in 1:nelem # Loop over all elements
   SYS_U_UHATH_21 = P + N * invKM * invDH
   SYS_U_UHATH_22 = Q + N * invKM * invDJ
 
-  tempMat = SYS_U_UHATH_11 \ ( [ -SYS_U_UHATH_12 F ] )
+  tempMat =  SYS_U_UHATH_11 \ ( [ -SYS_U_UHATH_12 F ] )
   A_UHATH =  SYS_U_UHATH_21 * tempMat[:,1:end-1] + SYS_U_UHATH_22
   B_UHATH = -SYS_U_UHATH_21 * tempMat[:,end]     + G
 
@@ -352,8 +349,8 @@ end # end element loop
 ### Compute approximate trace
 Hfull = sparse( indRow, indCol, indUnk, size(mesh.f,1) * unkUhat, size(mesh.f,1) * unkUhat )
 
-fact = ILU.crout_ilu( Hfull, τ = 0.1 )
-uhath = IterativeSolvers.gmres( Hfull, Rfull, Pl=fact )
+@time fact = ILU.crout_ilu( Hfull, τ = 0.1 )
+@time uhath = IterativeSolvers.gmres( Hfull, Rfull, Pl=fact )
 # ---------------------------------------------------------------------------- #
 
 ## Compute approximate scalar value and flux

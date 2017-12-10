@@ -7,12 +7,9 @@ mat = Material(E = 1, ν = 0.33)
 P = P3() # Polynomial order of solution
 
 println("Generate mesh")
-@time mesh   = Mesh3D( "cube", P, N = 9)
+@time mesh   = Mesh3D( "cube", P, N = 3)#9)
 println("Generate master")
 @time master = Master3D( P )
-
-# println("Compute Jacobians")
-# @time compJacob!( mesh, master )
 
 # source function
 function funcS( p::Array{Float64} )

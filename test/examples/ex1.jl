@@ -4,27 +4,29 @@ using luteos
 
 mat = Material(E = 1, ν = 0.0)
 
-P = P3() # Polynomial order of solution
+P = P1() # Polynomial order of solution
 
-mesh   = Mesh3D( "cube", P, N = 2)
+mesh   = Mesh3D( "cube", P, N = 3 )#17)
 master = Master3D( P )
 
 # source function
-function funcS( p::Array{Float64} )
+function funcS( p::Array{Float64,2} )
   return fill(1.0, size(p,1), 3)
 end
 
-function funcB( p::Array{Float64} )
+function funcB( p::Array{Float64,2} )
   return fill(0.0, size(p,1), 3)
 end
-function funcBNH( p::Array{Float64} )
+function funcBNH( p::Array{Float64,2} )
   return fill(1.0, size(p,1), 3)
 end
 
 prob = Problem( funcS, [funcB, funcB, funcB, funcB, funcB, funcB], [1,1,1,1,1,1],
                 name="Example 1", bcnorm=false )
 
-(uhath, uh, σh, ϵh, uhathTri ) = hdgSolveElas( master, mesh, mat, prob )
+@time (uhath, uh, σh ) = hdgSolveElas( master, mesh, mat, prob )
 
 # write solution
-writeTecplot( "elas3D.dat", prob, mesh, uh, σh, ϵh )
+# writeTecplot( "elas3D.dat", prob, mesh, uh, σh, ϵh )
+
+@printf("No. elements: %i", size(σh,3))

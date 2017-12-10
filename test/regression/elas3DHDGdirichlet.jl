@@ -3,7 +3,7 @@ using SymPy
 
 # let # limit scope
 
-Ps = 1:3         # Range of polynomial order
+Ps = [P1(), P2()]#, P3()]         # Range of polynomial order
 Ns = [7, 13]#[9, 17, 33] # Range of grid size
 
 dim = 3
@@ -145,14 +145,14 @@ for ii in 1:length(Ps), jj in 1:length(Ns)
 
   P = Ps[ii]; N = Ns[jj]
 
-  @printf( " %6i %6i\n", P, N )
+  @printf( " %6i %6i\n", P.p, N )
 
   mesh   = Mesh3D( "cube", P, N = N)
   master = Master3D( P )
 
-  prob = Problem( @sprintf("Reg %i %i", P, N), source, bctype, 0, [funcB, funcB, funcB, funcB, funcB, funcB] )
+  prob = Problem( @sprintf("Reg %i %i", P.p, N), source, bctype, 0, [funcB, funcB, funcB, funcB, funcB, funcB] )
 
-  (uhathTri, uh, σh, ϵh) = hdgSolveElas( master, mesh, mat, prob )
+  (uhath, uh, σh) = hdgSolveElas( master, mesh, mat, prob )
 
   #   Initialize arrays
   err_uh = fill( 0.0, dim )
@@ -160,16 +160,14 @@ for ii in 1:length(Ps), jj in 1:length(Ns)
   # err_ϵh = fill( 0.0, dim^2 )
 
   # preallocate
-  jcw  = fill( 0.0, size(master.∇ϕ,2) )
+  jcwd = fill( 0.0, size(master.∇ϕ,2), size(master.∇ϕ,2) )
   ∂ξ∂x = fill( 0.0, size(master.∇ϕ,2), dim^2 )
   ∂x∂ξ = fill( 0.0, size(master.∇ϕ,2), dim^2 )
 
   for kk in 1:size(mesh.t,1)
 
     # Compute Jacobians
-    compJacob!( master, mesh.nodes[:,:,kk], ∂ξ∂x, jcw, ∂x∂ξ )
-
-    jcwd = diagm( jcw )
+    luteos.compJacob!( master, mesh.nodes[:,:,kk], ∂ξ∂x, jcwd, ∂x∂ξ )
 
     # u
     Δuh1       = master.ϕ' * ( uh[:,1,kk] - u1func( mesh.nodes[:,:,kk] ) )
@@ -255,7 +253,7 @@ conv_σh9 = (log.( Err_σh9[:,end-1]) - log.( Err_σh9[:,end] ) ) / (log.( h[end
 @printf("   ------------------------------------------\n\n")
 @printf( "P    ")
 for jj in 1:size(Ps,1)
-  @printf( " %6i", Ps[jj] )
+  @printf( " %6i", Ps[jj].p )
 end
 @printf( "\n" )
 
@@ -344,7 +342,7 @@ open("errors_Elas_Dirichlet3D.dat", "w") do f
   @printf(f, "P \t N \t E_uh1 \t E_uh2 \t E_uh3 \t E_σh1 \t E_σh2 \t E_σh3 \t E_σh5 \t E_σh6 \t E_σh9 \n")#\t E_ϵh1 \t E_ϵh2 \t E_ϵh3 \t E_ϵh5 \t E_ϵh6 \t E_ϵh9 \n")#\t E_J\n")
   for ii in 1:length(Ps), jj in 1:length(Ns)
     @printf(f, "%i \t %i \t %16.15e \t %16.15e \t %16.15e \t %16.15e \t %16.15e \t %16.15e \t %16.15e \t %16.15e \t %16.15e \n", #\t %16.15e \t %16.15e \t %16.15e \t %16.15e \t %16.15e \t %16.15e\n",
-      Ps[ii], Ns[jj], Err_uh1[ii,jj], Err_uh2[ii,jj], Err_uh3[ii,jj],
+      Ps[ii].p, Ns[jj], Err_uh1[ii,jj], Err_uh2[ii,jj], Err_uh3[ii,jj],
       Err_σh1[ii,jj], Err_σh2[ii,jj], Err_σh3[ii,jj], Err_σh5[ii,jj], Err_σh6[ii,jj], Err_σh9[ii,jj] )#,
       # Err_ϵh1[ii,jj], Err_ϵh2[ii,jj], Err_ϵh3[ii,jj], Err_ϵh5[ii,jj], Err_ϵh6[ii,jj], Err_ϵh9[ii,jj] )
   end

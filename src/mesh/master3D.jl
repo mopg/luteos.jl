@@ -22,29 +22,30 @@ type Master3D <: Master
 
   dim::Int64
 
-  porder::Porder          # Polynomial order type
-  p::Int64                # Polynomial order of mesh
-  pgauss::Int64           # Polynomial order to be integrated exactly
+  porder::Porder            # Polynomial order type
+  p::Int64                  # Polynomial order of mesh
+  pgauss::Int64             # Polynomial order to be integrated exactly
+  nodfac::Int64            # Number of nodes on face
 
-  gpts::Array{Float64}    # Gauss points  3D
-  gwts::Array{Float64}    # Gauss weights 3D
+  gpts::Array{Float64,2}    # Gauss points  3D
+  gwts::Array{Float64,1}    # Gauss weights 3D
 
-  gpts2D::Array{Float64}  # Gauss points  2D
-  gwts2D::Array{Float64}  # Gauss weights 2D
+  gpts2D::Array{Float64,2}  # Gauss points  2D
+  gwts2D::Array{Float64,1}  # Gauss weights 2D
 
-  gpts1D::Array{Float64}  # Gauss points  1D
-  gwts1D::Array{Float64}  # Gauss weights 1D
+  gpts1D::Array{Float64,1}  # Gauss points  1D
+  gwts1D::Array{Float64,1}  # Gauss weights 1D
 
-  ϕ::Array{Float64}     # Shape functions in 3D
-  ∇ϕ::Array{Float64}    # Derivatives of shape functions in 3D
+  ϕ::Array{Float64,2}       # Shape functions in 3D
+  ∇ϕ::Array{Float64,3}      # Derivatives of shape functions in 3D
 
-  ϕ2D::Array{Float64}   # Shape functions in 2D
-  ∇ϕ2D::Array{Float64}  # Derivatives of shape functions in 2D
+  ϕ2D::Array{Float64,2}     # Shape functions in 2D
+  ∇ϕ2D::Array{Float64,3}    # Derivatives of shape functions in 2D
 
-  ϕ1D::Array{Float64}   # Shape functions in 1D
-  ∇ϕ1D::Array{Float64}  # Derivatives of shape functions in 1D
+  ϕ1D::Array{Float64,2}     # Shape functions in 1D
+  ∇ϕ1D::Array{Float64,2}    # Derivatives of shape functions in 1D
 
-  perm::Array{Int64}    # Node numbers on faces
+  perm::Array{Int64,3}      # Node numbers on faces
 
 end
 
@@ -74,7 +75,9 @@ function Master3D( porder::Porder; pgauss::PGauss = PGdef( porder ) )
 
   perm_ = findPerm3D( p )
 
-  Master3D( 3, porder, p, pg, gpts_, gwts_, gpts2D_, gwts2D_, gpts1D_, gwts1D_,
+  nodfac_ = size(ϕ2D_,1)
+
+  Master3D( 3, porder, p, pg, nodfac_, gpts_, gwts_, gpts2D_, gwts2D_, gpts1D_, gwts1D_,
     ϕ_, ∇ϕ_, ϕ2D_, ∇ϕ2D_, ϕ1D_, ∇ϕ1D_, perm_ )
 
 end
@@ -247,8 +250,8 @@ function findPerm3D( p::Int64 )
         oind = [ orderind[ii,:]'; orderind[ii,:]' ]
         oind = 2*oind
         oind[1,:] -= 1
-        oind = oind[:]
-        ifac[4:9] = indfaces[ jj, 3 + oind ]
+        oindv = oind[:]
+        ifac[4:9] = indfaces[ jj, 3 + oindv ]
         # middle point unchanged
 
         perm[:,jj,ii] = ifac
@@ -260,8 +263,8 @@ function findPerm3D( p::Int64 )
         oind = [ orderind[ii,:]'; orderind[ii,:]' ]
         oind = 2*oind
         oind[2,:] -= 1
-        oind = oind[:]
-        ifac[4:9] = indfaces[ jj, 3 + oind ]
+        oindv = oind[:]
+        ifac[4:9] = indfaces[ jj, 3 + oindv ]
         # middle point unchanged
 
         perm[:,jj,ii] = ifac

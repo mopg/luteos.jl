@@ -20,25 +20,26 @@ Holds basis functions and quadrature points for triangle master element.
 """
 type Master2D <: Master
 
-  dim::Int64              # Dimension of the problem
+  dim::Int64               # Dimension of the problem
 
-  porder::Porder          # Polynomial order type
-  p::Int64                # Polynomial order of mesh
-  pgauss::Int64           # Polynomial order to be integrated exactly
+  porder::Porder           # Polynomial order type
+  p::Int64                 # Polynomial order of mesh
+  pgauss::Int64            # Polynomial order to be integrated exactly
+  nodfac::Int64            # Number of nodes on face
 
-  gpts::Array{Float64}    # Gauss points  2D
-  gwts::Array{Float64}    # Gauss weights 2D
+  gpts::Array{Float64,2}   # Gauss points  2D
+  gwts::Array{Float64,1}   # Gauss weights 2D
 
-  gpts1d::Array{Float64}  # Gauss points  1D
-  gwts1d::Array{Float64}  # Gauss weights 1D
+  gpts1d::Array{Float64,1} # Gauss points  1D
+  gwts1d::Array{Float64,1} # Gauss weights 1D
 
-  ϕ::Array{Float64}       # Shape functions in 2D
-  ∇ϕ::Array{Float64}      # Derivatives of shape functions in 2D
+  ϕ::Array{Float64,2}      # Shape functions in 2D
+  ∇ϕ::Array{Float64,3}     # Derivatives of shape functions in 2D
 
-  ϕ1d::Array{Float64}     # Shape functions in 1D
-  ∇ϕ1d::Array{Float64}    # Derivatives of shape functions in 1D
+  ϕ1d::Array{Float64,2}    # Shape functions in 1D
+  ∇ϕ1d::Array{Float64,2}   # Derivatives of shape functions in 1D
 
-  perm::Array{Int64}      # Node numbers on faces
+  perm::Array{Int64,3}     # Node numbers on faces
 
 end
 
@@ -61,7 +62,9 @@ function Master2D( porder::Porder; pgauss = PGdef( porder ) )
   pg = pgauss.p
   perm_ = findPerm( p )
 
-  Master2D( 2, porder, p, pg, gpts_, gwts_, gpts1d_, gwts1d_,
+  nodfac_ = size(ϕ1d_,1)
+
+  Master2D( 2, porder, p, pg, nodfac_, gpts_, gwts_, gpts1d_, gwts1d_,
     ϕ_, ∇ϕ_, ϕ1d_, ∇ϕ1d_, perm_ )
 
 end

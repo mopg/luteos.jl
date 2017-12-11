@@ -17,7 +17,7 @@
 Material type:
 Holds material properties and computes stiffness matrices.
 """
-type Material
+struct Material
 
   name::String   # Name of problem
   E::Float64     # Young's modulus

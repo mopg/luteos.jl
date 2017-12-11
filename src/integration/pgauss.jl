@@ -22,7 +22,7 @@ abstract type PGauss
 end
 
 ### PG = 1
-type PG1 <: PGauss
+struct PG1 <: PGauss
   p::Int64
 end
 function PG1(  )
@@ -33,7 +33,7 @@ function comporder( P::PG1 )
 end
 
 ### PG = 2
-type PG2 <: PGauss
+struct PG2 <: PGauss
   p::Int64
 end
 function PG2(  )
@@ -44,7 +44,7 @@ function comporder( P::PG2 )
 end
 
 ### PG = 3
-type PG3 <: PGauss
+struct PG3 <: PGauss
   p::Int64
 end
 function PG3(  )
@@ -55,7 +55,7 @@ function comporder( P::PG3 )
 end
 
 ### PG = 4
-type PG4 <: PGauss
+struct PG4 <: PGauss
   p::Int64
 end
 function PG4(  )
@@ -66,7 +66,7 @@ function comporder( P::PG4 )
 end
 
 ### PG = 5
-type PG5 <: PGauss
+struct PG5 <: PGauss
   p::Int64
 end
 function PG5(  )
@@ -77,7 +77,7 @@ function comporder( P::PG5 )
 end
 
 ### PG = 6
-type PG6 <: PGauss
+struct PG6 <: PGauss
   p::Int64
 end
 function PG6(  )
@@ -88,7 +88,7 @@ function comporder( P::PG6 )
 end
 
 ### PG = 7
-type PG7 <: PGauss
+struct PG7 <: PGauss
   p::Int64
 end
 function PG7(  )
@@ -99,7 +99,7 @@ function comporder( P::PG7 )
 end
 
 ### PG = 8
-type PG8 <: PGauss
+struct PG8 <: PGauss
   p::Int64
 end
 function PG8(  )
@@ -110,7 +110,7 @@ function comporder( P::PG8 )
 end
 
 ### PG = 9
-type PG9 <: PGauss
+struct PG9 <: PGauss
   p::Int64
 end
 function PG9(  )
@@ -121,7 +121,7 @@ function comporder( P::PG9 )
 end
 
 ### PG = 10
-type PG10 <: PGauss
+struct PG10 <: PGauss
   p::Int64
 end
 function PG10(  )
@@ -132,7 +132,7 @@ function comporder( P::PG10 )
 end
 
 ### PG = 11
-type PG11 <: PGauss
+struct PG11 <: PGauss
   p::Int64
 end
 function PG11(  )
@@ -143,7 +143,7 @@ function comporder( P::PG11 )
 end
 
 ### PG = 12
-type PG12 <: PGauss
+struct PG12 <: PGauss
   p::Int64
 end
 function PG12(  )
@@ -154,7 +154,7 @@ function comporder( P::PG12 )
 end
 
 ### PG = 13
-type PG13 <: PGauss
+struct PG13 <: PGauss
   p::Int64
 end
 function PG13(  )

@@ -22,7 +22,7 @@ abstract type Porder
 end
 
 ### P = 1
-type P1 <: Porder
+struct P1 <: Porder
   p::Int64
 end
 function P1(  )
@@ -33,7 +33,7 @@ function PGdef( P::P1 )
 end
 
 ### P = 2
-type P2 <: Porder
+struct P2 <: Porder
   p::Int64
 end
 function P2(  )
@@ -44,7 +44,7 @@ function PGdef( P::P2 )
 end
 
 ### P = 3
-type P3 <: Porder
+struct P3 <: Porder
   p::Int64
 end
 function P3(  )
@@ -55,7 +55,7 @@ function PGdef( P::P3 )
 end
 
 ### P = 4
-type P4 <: Porder
+struct P4 <: Porder
   p::Int64
 end
 function P4(  )
@@ -66,7 +66,7 @@ function PGdef( P::P4 )
 end
 
 # ### P = 5
-# type P5 <: Porder
+# struct P5 <: Porder
 #   p::Int64
 # end
 #

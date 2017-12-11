@@ -18,7 +18,7 @@
 Master2D type:
 Holds basis functions and quadrature points for triangle master element.
 """
-type Master2D <: Master
+struct Master2D <: Master
 
   dim::Int64               # Dimension of the problem
 

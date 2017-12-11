@@ -18,7 +18,7 @@
 Master3D type:
 Holds basis functions and quadrature points for tetrahedron master element.
 """
-type Master3D <: Master
+struct Master3D <: Master
 
   dim::Int64
 

@@ -9,7 +9,7 @@ Ns = [7, 13]#[9, 17, 33] # Range of grid size
 dim = 3
 
 # Material
-mat = Material( ν=0.33, E=1.0 )
+mat = Material( ν=0.33, E=1.0, dim=3 )
 
 ## Set up problem
 #   Get functions for exact solution
@@ -112,7 +112,7 @@ end
 ( u1func, u2func, u3func,
   F1func, F2func, F3func,
   σ11func, σ12func, σ13func, σ22func, σ23func, σ33func,
-  ϵ11func, ϵ12func, ϵ13func, ϵ22func, ϵ23func, ϵ33func ) = ExactSol3D( mat.Cstiff[dim] )
+  ϵ11func, ϵ12func, ϵ13func, ϵ22func, ϵ23func, ϵ33func ) = ExactSol3D( mat.Cstiff )
 
 #   Setup boundary conditions
 function funcB( p::Array{Float64} )
@@ -150,7 +150,7 @@ for ii in 1:length(Ps), jj in 1:length(Ns)
   mesh   = Mesh3D( "cube", P, N = N)
   master = Master3D( P )
 
-  prob = Problem( @sprintf("Reg %i %i", P.p, N), source, bctype, 0, [funcB, funcB, funcB, funcB, funcB, funcB] )
+  prob = Problem( @sprintf("Reg %i %i", P.p, N), source, bctype, false, [funcB, funcB, funcB, funcB, funcB, funcB] )
 
   (uhath, uh, σh) = hdgSolveElas( master, mesh, mat, prob )
 

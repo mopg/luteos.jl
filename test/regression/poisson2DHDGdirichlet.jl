@@ -80,7 +80,7 @@ for ii in 1:length(Ps), jj in 1:length(Ns)
   mesh   = Mesh2D( "square", P, N = N)
   master = Master2D( P )
 
-  prob = Problem( @sprintf("Poisson - Reg %i %i", P.p, N), source, bctype, 0, [funcB, funcB, funcB, funcB] )
+  prob = Problem( @sprintf("Poisson - Reg %i %i", P.p, N), source, bctype, false, [funcB, funcB, funcB, funcB] )
 
   (uhath, uh, qh, uhathTri) = hdgSolveCD( master, mesh, mat, prob )
 

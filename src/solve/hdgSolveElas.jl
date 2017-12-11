@@ -28,7 +28,7 @@ unkUhat = nodfac * dim          # Total of uhat unknowns per face
 nfaces  = dim + 1               # Number of faces per element
 
 # Compute the stiffness tensor
-Cstiff = material.Cstiff[dim]
+Cstiff = material.Cstiff
 
 # Stability parameter
 τ = Cstiff
@@ -87,21 +87,21 @@ jcwd = fill( 0.0, size(master.∇ϕ,2), size(master.∇ϕ,2) )
 @time for pp in 1:nelem # Loop over all elements
 
   # zero out all matrices
-  A *= 0.0
-  B *= 0.0
-  C *= 0.0
-  F *= 0.0
-  D *= 0.0
-  H *= 0.0
-  J *= 0.0
-  K *= 0.0
-  M *= 0.0
-  N *= 0.0
-  P *= 0.0
-  Q *= 0.0
-  G *= 0.0
-  A_UHATH *= 0.0
-  B_UHATH *= 0.0
+  A .*= 0.0
+  B .*= 0.0
+  C .*= 0.0
+  F .*= 0.0
+  D .*= 0.0
+  H .*= 0.0
+  J .*= 0.0
+  K .*= 0.0
+  M .*= 0.0
+  N .*= 0.0
+  P .*= 0.0
+  Q .*= 0.0
+  G .*= 0.0
+  A_UHATH .*= 0.0
+  B_UHATH .*= 0.0
 
   # Compute Jacobians
   compJacob!( master, mesh.nodes[:,:,pp], ∂ξ∂x, jcwd, ∂x∂ξ )

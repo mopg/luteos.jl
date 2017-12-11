@@ -29,7 +29,7 @@ type Material
   σt::Float64    # Maximum tensile stress at yield
   σc::Float64    # Maximum compressive stress at yield
 
-  Cstiff::Array{Array{Float64,4}} # Stiffness matrices (for 2 and 3D)
+  Cstiff::Array{Float64,4} # Stiffness matrices
 
 end
 
@@ -38,7 +38,7 @@ end
 
 Constructor for one of the default materials: PLA, Titanium, Al6061.
 """
-function Material( name::String )
+function Material( name::String, dim::Int64 )
 
   if name == "PLA"
     E  = 3.5e9  # Pa
@@ -63,11 +63,7 @@ function Material( name::String )
   λ = E * ν / ( (1 + ν) * (1 - 2*ν) )
   μ = E / ( 2 * (1 + ν) )
 
-  Cstiff = Array{Array{Float64,4}}(3)
-
-  for dd in 1:3
-    Cstiff[dd] = compCstiff( λ, μ, dd)
-  end
+  Cstiff = compCstiff( λ, μ, dim)
 
   Material( name, E, ν, ρ, λ, μ, σt, σc, Cstiff )
 
@@ -78,16 +74,12 @@ end
 
 Empty constructor for `Material`.
 """
-function Material(; name="Unobtainium", E = 68.9e9, ν = 0.33, ρ = 2.7e3, σt = 276e6, σc = 386e6  )
+function Material(; name="Unobtainium", E = 68.9e9, ν = 0.33, ρ = 2.7e3, σt = 276e6, σc = 386e6, dim = 2  )
 
   λ = E * ν / ( (1 + ν) * (1 - 2*ν) )
   μ = E / ( 2 * (1 + ν) )
 
-  Cstiff = Array{Array{Float64}}(3)
-
-  for dd in 1:3
-    Cstiff[dd] = compCstiff( λ, μ, dd)
-  end
+  Cstiff = compCstiff( λ, μ, dim)
 
   Material( name, E, ν, ρ, λ, μ, σt, σc, Cstiff )
 

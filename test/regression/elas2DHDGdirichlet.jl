@@ -9,7 +9,7 @@ Ns = [9, 17, 33]        # Range of grid size
 dim = 2
 
 # Material
-mat = Material( ν=0.33, E=1.0 )
+mat = Material( ν=0.33, E=1.0, dim = dim )
 
 ## Set up problem
 #   Get functions for exact solution
@@ -79,7 +79,7 @@ function ExactSol( Cstiff )
 
 end
 
-( u1func, u2func, F1func, F2func, σ1func, σ2func, σ4func, ϵ1func, ϵ2func, ϵ4func ) = ExactSol( mat.Cstiff[2] )
+( u1func, u2func, F1func, F2func, σ1func, σ2func, σ4func, ϵ1func, ϵ2func, ϵ4func ) = ExactSol( mat.Cstiff )
 
 #   Setup boundary conditions
 function funcB( p::Array{Float64} )
@@ -108,7 +108,7 @@ for ii in 1:length(Ps), jj in 1:length(Ns)
   mesh   = Mesh2D( "square", P, N = N)
   master = Master2D( P )
 
-  prob = Problem( @sprintf("Reg %i %i", P.p, N), source, bctype, 0, [funcB, funcB, funcB, funcB] )
+  prob = Problem( @sprintf("Reg %i %i", P.p, N), source, bctype, false, [funcB, funcB, funcB, funcB] )
 
   (uhathTri, uh, σh) = hdgSolveElas( master, mesh, mat, prob )
 

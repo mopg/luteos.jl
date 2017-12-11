@@ -33,26 +33,30 @@ nfaces  = dim + 1               # Number of faces per element
 ### Initialize quantities
 
 # Equations of motion (Newton's second law)
-A = fill(0.0, nnodes*dim    , nnodes*dim       , nelem)    # (v_i, q^h_i)_{T^h}
-B = fill(0.0, nnodes*dim    , nnodes           , nelem)    # <v_i,i,  >_{∂T^h}
-C = fill(0.0, nnodes*dim    , nodfac*nfaces    , nelem)    # <v_i, func(\hat{u}^h_k) >_{∂T^h}
+A = fill(0.0, nnodes*dim    , nnodes*dim)       # (v_i, q^h_i)_{T^h}
+B = fill(0.0, nnodes*dim    , nnodes    )       # <v_i,i,  >_{∂T^h}
+C = fill(0.0, nnodes*dim    , nodfac*nfaces)    # <v_i, func(\hat{u}^h_k) >_{∂T^h}
 
-N = fill(0.0, nnodes        , nnodes*dim       , nelem)    # <v_i, func(\hat{u}^h_k) >_{∂T^h}
-D = fill(0.0, nnodes        , nnodes           , nelem)    # <v_i, func(\hat{u}^h_k) >_{∂T^h}
-E = fill(0.0, nnodes        , nodfac*nfaces    , nelem)    # <v_i, func(\hat{u}^h_k) >_{∂T^h}
+N = fill(0.0, nnodes        , nnodes*dim)       # <v_i, func(\hat{u}^h_k) >_{∂T^h}
+D = fill(0.0, nnodes        , nnodes)           # <v_i, func(\hat{u}^h_k) >_{∂T^h}
+E = fill(0.0, nnodes        , nodfac*nfaces)    # <v_i, func(\hat{u}^h_k) >_{∂T^h}
 
-K = fill(0.0, nodfac*nfaces , nnodes*dim       , nelem)    # <v_i, func(\hat{u}^h_k) >_{∂T^h}
-L = fill(0.0, nodfac*nfaces , nnodes           , nelem)    # <v_i, func(\hat{u}^h_k) >_{∂T^h}
-M = fill(0.0, nodfac*nfaces , nodfac*nfaces    , nelem)    # <v_i, func(\hat{u}^h_k) >_{∂T^h}
+K = fill(0.0, nodfac*nfaces , nnodes*dim)       # <v_i, func(\hat{u}^h_k) >_{∂T^h}
+L = fill(0.0, nodfac*nfaces , nnodes)           # <v_i, func(\hat{u}^h_k) >_{∂T^h}
+M = fill(0.0, nodfac*nfaces , nodfac*nfaces)    # <v_i, func(\hat{u}^h_k) >_{∂T^h}
 
-F = fill(0.0, nnodes        , 1                , nelem)    # (v_{i}, b_{i})_{T^h}
-G = fill(0.0, nodfac*nfaces , 1                , nelem)    # (v_{i}, b_{i})_{T^h}
+G = fill(0.0, nodfac*nfaces , 1)                # (v_{i}, b_{i})_{T^h}
 
 # Matrix with unknowns for uhath
-H = fill(0.0, nodfac*nfaces , nodfac*nfaces    , nelem)
-R = fill(0.0, nodfac*nfaces , 1                , nelem)    # (v_{i}, b_{i})_{T^h}
+H = fill(0.0, nodfac*nfaces , nodfac*nfaces)
+R = fill(0.0, nodfac*nfaces , 1            )    # (v_{i}, b_{i})_{T^h}
 
 zm = fill( 0.0, nnodes*dim, 1)
+
+# Matrices that need to be saved in order to recover u and qh
+F    = fill(0.0, nnodes        , 1,              nelem)                # (v_{i}, b_{i})_{T^h}
+ABND = fill(0.0, nnodes*(dim+1), nnodes*(dim+1), nelem)
+CE   = fill(0.0, nnodes*(dim+1), nodfac*nfaces,  nelem)
 
 # Set up column and row indices for sparse matrix
 indRow = fill( 0.0, (dim+1)^2 * nelem * unkUhat^2 )
@@ -76,6 +80,20 @@ jcwd = fill( 0.0, size(master.∇ϕ,2), size(master.∇ϕ,2) )
 
 for pp in 1:nelem # Loop over all elements
 
+  # zero all matrices
+  A .*= 0.0
+  B .*= 0.0
+  C .*= 0.0
+  N .*= 0.0
+  D .*= 0.0
+  E .*= 0.0
+  K .*= 0.0
+  L .*= 0.0
+  M .*= 0.0
+  G .*= 0.0
+  H .*= 0.0
+  R .*= 0.0
+
   # Compute Jacobians
   compJacob!( master, mesh.nodes[:,:,pp], ∂ξ∂x, jcwd, ∂x∂ξ )
 
@@ -87,28 +105,28 @@ for pp in 1:nelem # Loop over all elements
   ## A
   # (v,qₕ)_{Tₕ}
   for ii in 1:dim
-    A[1+(ii-1)*nnodes:ii*nnodes,1+(ii-1)*nnodes:ii*nnodes,pp] = master.ϕ * jcwd * master.ϕ'
+    A[1+(ii-1)*nnodes:ii*nnodes,1+(ii-1)*nnodes:ii*nnodes] = master.ϕ * jcwd * master.ϕ'
   end
 
   ## B
   # (w_{ij}  , ϵ^h_{ij})_{T^h}
   for ii in 1:dim
-    B[1+(ii-1)*nnodes:ii*nnodes,:,pp] = ∇ϕc[:,:,ii] * jcwd * master.ϕ'
+    B[1+(ii-1)*nnodes:ii*nnodes,:] = ∇ϕc[:,:,ii] * jcwd * master.ϕ'
   end
 
   ## N
-  N[:,:,pp] = -κ * B[:,:,pp]'
+  N += -κ * B'
 
   ## D (second part)
   # (w_{ij,j}, u^h_i)_{T^h} + (w_{ij,i}, u^h_j)_{T^h}
   for ii in 1:dim
-    D[:,:,pp] -= c[ii] * ∇ϕc[:,:,ii] * jcwd * master.ϕ'
+    D -= c[ii] * ∇ϕc[:,:,ii] * jcwd * master.ϕ'
   end
 
   ## F
   # (z_{ij}  , σ^h_{ij})_{T^h}
-  src = problem.source(pLoc)
-  F[:,1,pp] = master.ϕ * jcwd * src
+  src       = problem.source(pLoc)
+  F[:,:,pp] = master.ϕ * jcwd * src
 
   # -------------------------------------------------------------------------- #
 
@@ -129,16 +147,16 @@ for pp in 1:nelem # Loop over all elements
     ## C
     # -<v_i, σ^h_{ij} n_j>_{∂T^h}
     for ii in 1:dim
-      C[(ii-1)*nnodes + nod,faceInd,pp] -= ( ϕdm * diagm(normal[:,ii]) ) * jcwddm * ϕdm'
+      C[(ii-1)*nnodes + nod,faceInd] -= ( ϕdm * diagm(normal[:,ii]) ) * jcwddm * ϕdm'
     end
 
     ## D
     # <v_i, τ_{ijkl} u^h_k * n_l * n_j >_{∂T^h}
-    D[nod,nod,pp] += ϕdm * (τ * jcwddm) * ϕdm'
+    D[nod,nod] += ϕdm * (τ * jcwddm) * ϕdm'
 
     ## E
     # <v_i, τ_{ijkl} \hat{u}^h_k * n_l * n_j >_{∂T^h}
-    E[nod,faceInd,pp] = - ϕdm * (τ * jcwddm) * ϕdm' + ϕdm * ( diagm(cn) * jcwddm ) * ϕdm'
+    E[nod,faceInd] = - ϕdm * (τ * jcwddm) * ϕdm' + ϕdm * ( diagm(cn) * jcwddm ) * ϕdm'
 
     indF = abs( mesh.t2f[pp,qq] )
 
@@ -152,14 +170,14 @@ for pp in 1:nelem # Loop over all elements
 
         ## M
         # (μ_{i} , \hat{u}^h_{i})_{∂Ω_D}
-        M[faceInd,faceInd,pp] = ϕdm * jcwddm * ϕdm'
+        M[faceInd,faceInd] = ϕdm * jcwddm * ϕdm'
 
 
         # BC RHS
         ## G
         # (μ_{i} , \bar{u}_i)_{∂Ω_D}
         bcout = problem.bcfunc[bNo](pdm)
-        G[faceInd, 1,pp] = ϕdm * jcwddm * bcout
+        G[faceInd, 1] = ϕdm * jcwddm * bcout
 
       elseif problem.bctype[bNo] == 2
         # Neumann boundary condition
@@ -167,14 +185,14 @@ for pp in 1:nelem # Loop over all elements
         ## K
         # <μ_{i} , q_{ij}*n_j>_{∂Ω_N}
         for ii in 1:dim
-          K[faceInd, (ii-1)*nnodes + nod, pp] = ϕdm * jcwddm * ( ϕdm * diagm(normal[:,ii]) )'
+          K[faceInd, (ii-1)*nnodes + nod] = ϕdm * jcwddm * ( ϕdm * diagm(normal[:,ii]) )'
         end
 
         # BC RHS
         ## G
         # (μ_{i} , \bar{∂u∂x})_{∂Ω_N})
         bcout = problem.bcfunc[bNo](pdm)
-        G[faceInd, 1,pp] = ϕdm * jcwddm * bcout
+        G[faceInd, 1] = ϕdm * jcwddm * bcout
       else
           error("hdgSolveElas:: BC type not recognized. 1 = Dirichlet, 2 = Neumann")
       end
@@ -185,17 +203,17 @@ for pp in 1:nelem # Loop over all elements
       ## K
       # <μ_{i} , σ^h_{ij}*n_j>_{∂T^h\∂Ω_D}
       for ii in 1:dim
-        K[faceInd, (ii-1)*nnodes + nod, pp] = - ϕdm * jcwddm * ( ϕdm * diagm(normal[:,ii]) )'
+        K[faceInd, (ii-1)*nnodes + nod] = - ϕdm * jcwddm * ( ϕdm * diagm(normal[:,ii]) )'
       end
 
       ## L
       # <μ_{i} , -τ_{ijkl} u^h_k n_l n_j ) >_{∂T^h\∂Ω_D}
 
-      L[faceInd,nod,pp] = ϕdm * (τ * jcwddm) * ϕdm'
+      L[faceInd,nod] = ϕdm * (τ * jcwddm) * ϕdm'
 
       ## M
       # <μ_{i} , τ_{ijkl} \hat{u}^h_k n_l n_j ) >_{∂T^h\∂Ω_D}
-      M[faceInd,faceInd,pp] = - ϕdm * (τ * jcwddm) * ϕdm' + ϕdm * ( diagm(cn) * jcwddm ) * ϕdm'
+      M[faceInd,faceInd] = - ϕdm * (τ * jcwddm) * ϕdm' + ϕdm * ( diagm(cn) * jcwddm ) * ϕdm'
 
     end # boundary if-statement
 
@@ -203,11 +221,13 @@ for pp in 1:nelem # Loop over all elements
   # -------------------------------------------------------------------------- #
 
   # ------------------------- Form elemental quantities ---------------------- #
-  ABND = [ A[:,:,pp] B[:,:,pp];
-           N[:,:,pp] D[:,:,pp] ]
+  ABND[:,:,pp] = [ A B;
+                   N D ]
 
-  H[:,:,pp] = M[:,:,pp] + [K[:,:,pp]  L[:,:,pp]] * ( ABND \ [-C[:,:,pp]; -E[:,:,pp]] )
-  R[:,:,pp] = G[:,:,pp] - [K[:,:,pp]  L[:,:,pp]] * ( ABND \ [ zm;         F[:,:,pp]] )
+  CE[:,:,pp] = [ C; E ]
+
+  H += M - [K  L] * ( ABND[:,:,pp] \ CE[:,:,pp] )
+  R += G - [K  L] * ( ABND[:,:,pp] \ [ zm; F[:,:,pp] ] )
 
   # -------------------------------------------------------------------------- #
 
@@ -220,18 +240,18 @@ for pp in 1:nelem # Loop over all elements
     deleteat!(indFall,qq)
 
     indF = abs(mesh.t2f[pp,qq])
-    Rfull[1+(indF-1)*unkUhat:indF*unkUhat] += R[1+(qq-1)*unkUhat:qq*unkUhat,1,pp]
+    Rfull[1+(indF-1)*unkUhat:indF*unkUhat] += R[1+(qq-1)*unkUhat:qq*unkUhat,1]
 
     indRow[rr:rr-1+unkUhat^2] = repmat(  1+(indF-1)*unkUhat:indF*unkUhat, unkUhat )
     indCol[rr:rr-1+unkUhat^2] = repmat(  1+(indF-1)*unkUhat:indF*unkUhat, 1, unkUhat )'[:]
-    indUnk[rr:rr-1+unkUhat^2] = H[ 1+(qq-1)*unkUhat:qq*unkUhat, 1+(qq-1)*unkUhat:qq*unkUhat, pp ][:]
+    indUnk[rr:rr-1+unkUhat^2] = H[ 1+(qq-1)*unkUhat:qq*unkUhat, 1+(qq-1)*unkUhat:qq*unkUhat ][:]
 
     rr = rr + unkUhat^2
 
     for tt = 1:(nfaces-1)
       indRow[rr:rr-1+unkUhat^2] = repmat(  1+(indF-1)*unkUhat:indF*unkUhat, unkUhat )
       indCol[rr:rr-1+unkUhat^2] = repmat(  1+(indFall[tt]-1)*unkUhat:indFall[tt]*unkUhat, 1, unkUhat )'[:]
-      indUnk[rr:rr-1+unkUhat^2] = H[ 1+(qq-1)*unkUhat:qq*unkUhat, 1+(indJ[tt]-1)*unkUhat:indJ[tt]*unkUhat, pp ][:]
+      indUnk[rr:rr-1+unkUhat^2] = H[ 1+(qq-1)*unkUhat:qq*unkUhat, 1+(indJ[tt]-1)*unkUhat:indJ[tt]*unkUhat ][:]
 
       rr = rr + unkUhat^2
     end
@@ -260,12 +280,10 @@ for pp in 1:nelem
     end
     # ------------------------------------------------------------------------ #
     # ----------- Compute approximate displacement value --------------------- #
-    ABND = [ A[:,:,pp] B[:,:,pp];
-             N[:,:,pp] D[:,:,pp] ]
 
-    rhsTemp = [ zm; F[:,:,pp] ] - [ C[:,:,pp]; E[:,:,pp] ] * uhathTri[:,:,pp]
+    rhsTemp = [ zm; F[:,:,pp] ] - CE[:,:,pp] * uhathTri[:,:,pp]
 
-    uTemp   = ABND \ rhsTemp
+    uTemp   = ABND[:,:,pp] \ rhsTemp
 
     for ii in 1:dim
       qh[:,ii,pp] = uTemp[ 1+(ii-1)*nnodes:ii*nnodes ]

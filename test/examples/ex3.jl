@@ -2,12 +2,12 @@
 
 using luteos
 
-mat = Material(E = 1, ν = 0.33)
-
 P = P3() # Polynomial order of solution
 
 mesh   = Mesh2D( "square", P, N = 5, M = 3)
 master = Master2D( P )
+
+mat = Material(E = 1, ν = 0.0, dim = mesh.dim )
 
 # source function
 function funcS( p::Array{Float64} )

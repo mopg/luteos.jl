@@ -349,8 +349,8 @@ end # end element loop
 ### Compute approximate trace
 Hfull = sparse( indRow, indCol, indUnk, size(mesh.f,1) * unkUhat, size(mesh.f,1) * unkUhat )
 
-@time fact = ILU.crout_ilu( Hfull, τ = 0.1 )
-@time uhath = IterativeSolvers.gmres( Hfull, Rfull, Pl=fact )
+# @time fact = ILU.crout_ilu( Hfull, τ = 0.1 )
+@time uhath = Hfull \ Rfull #IterativeSolvers.gmres( Hfull, Rfull, Pl=fact )
 # ---------------------------------------------------------------------------- #
 
 ## Compute approximate scalar value and flux

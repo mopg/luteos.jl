@@ -4,7 +4,7 @@ using luteos
 
 mat = Material(E = 1, ν = 0.33)
 
-P = P3() # Polynomial order of solution
+P = P1() # Polynomial order of solution
 
 println("Generate mesh")
 @time mesh   = Mesh3D( "cube", P, N = 3)#9)
@@ -29,7 +29,7 @@ function funcU( p::Array{Float64} )
 end
 
 println("Setup problem")
-@time prob = Problem( "Example 3 - Poisson", funcS, [1,1,1,2,1,1], 1, [funcB, funcB, funcB, funcB, funcB, funcB] )
+@time prob = Problem( "Example 3 - Poisson", funcS, [1,1,1,2,1,1], true, [funcB, funcB, funcB, funcB, funcB, funcB] )
 
 println("Solve problem")
 @time (uhath, uh, qh, uhathTri ) = hdgSolveCD( master, mesh, mat, prob )

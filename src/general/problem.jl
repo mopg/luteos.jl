@@ -18,15 +18,15 @@ Problem type:
 Used as placeholder for information about the problem,
 e.g name, source function, and boundary conditions.
 """
-type Problem
+struct Problem{S<:Function,B<:Function}
 
   name::String     # Name of problem
 
-  source::Function # Rhs of problem
+  source::S               # Rhs of problem
 
-  bctype::Array{Int64}    # Relates each boundary to a boundary function type
+  bctype::Vector{Int64}   # Relates each boundary to a boundary function type
   bcnorm::Bool            # Whether or not boundary functions are defined normal to the surface
-  bcfunc::Array{Function} # Boundary function for each boundary face
+  bcfunc::Vector{B} # Boundary function for each boundary face
 
 end
 
@@ -38,7 +38,7 @@ Constructor for `Problem` type. `src` is a function that returns the source
 function for the problem. `bcf` is an Array of Functions, which specifies the
 boundary condition on each boundary surface.
 """
-function Problem(src, bcf, bctype;
+function Problem(src::Function, bcf::Vector{Function}, bctype::Vector{Int64};
                  name = "Answer to Life Universe and Everything", bcnorm = false)
 
   if length(bctype) != length(bcf)

@@ -22,11 +22,8 @@ function hdgSolveCD( master::Master, mesh::Mesh, material::Material, problem::Pr
 dim     = mesh.dim
 nelem   = size( mesh.nodes, 3 ) # Mumber of elements in mesh
 nnodes  = size( mesh.nodes, 1 ) # Number of nodes in one element
-nodfac  = mesh.porder + 1
-if dim > 2
-  nodfac *= 0.5 * ( mesh.porder + 2 )
-end
-nodfac = Int64(nodfac)
+nodfac  = master.nodfac # Number of nodes on a face
+
 unkUhat = nodfac                # Total of uhat unknowns per face
 nfaces  = dim + 1               # Number of faces per element
 
@@ -245,8 +242,8 @@ end # end element loop
 ### Compute approximate trace
 Hfull = sparse( indRow, indCol, indUnk, size(mesh.f,1) * unkUhat, size(mesh.f,1) * unkUhat )
 
-fact = ILU.crout_ilu( Hfull, τ = 0.1 )
-uhath = IterativeSolvers.gmres( Hfull, Rfull, Pl=fact )
+#fact = ILU.crout_ilu( Hfull, τ = 0.1 )
+uhath = Hfull \ Rfull #IterativeSolvers.gmres( Hfull, Rfull, Pl=fact )
 
 # ---------------------------------------------------------------------------- #
 

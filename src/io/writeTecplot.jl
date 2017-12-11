@@ -13,13 +13,13 @@
 
 """
     writeTecplot( flname::String, prob::Problem, mesh::Mesh2D,
-                  uh::Array{Float64,3}, σh::Array{Float64,3},
-                  ϵh::Array{Float64,3}; σmises = Array{Float64,3}(0,0,0) )
+                  uh::Array{Float64,3}, σh::Array{Float64,3};
+                  σmises = Array{Float64,3}(0,0,0) )
 
 Outputs tecplot data file to `flname` for 2D meshes.
 """
 function writeTecplot( flname::String, prob::Problem, mesh::Mesh2D, uh::Array{Float64,3},
-  σh::Array{Float64,3}, ϵh::Array{Float64,3}; σmises = Array{Float64,3}(0,0,0) )
+  σh::Array{Float64,3}; σmises = Array{Float64,3}(0,0,0) )
 
   nelem   = size( mesh.nodes, 3 )
   nnodes  = size( mesh.nodes, 1 )
@@ -27,7 +27,7 @@ function writeTecplot( flname::String, prob::Problem, mesh::Mesh2D, uh::Array{Fl
 
   nnodesTot = nnodes * nelem
 
-  nunkTot = mesh.dim + mesh.dim + mesh.dim^2 + mesh.dim^2 + ( size(σmises,1) > 0 )
+  nunkTot = mesh.dim + mesh.dim + mesh.dim^2 + ( size(σmises,1) > 0 )
 
   # Open file
   fid = open( flname, "w" )
@@ -41,9 +41,9 @@ function writeTecplot( flname::String, prob::Problem, mesh::Mesh2D, uh::Array{Fl
   for ii in 1:mesh.dim, jj in 1:mesh.dim
     @printf( fid, ", \"<greek>S</greek><sub>%i%i</sub>\"", ii, jj )
   end
-  for ii in 1:mesh.dim, jj in 1:mesh.dim
-    @printf( fid, ", \"<greek>E</greek><sub>%i%i</sub>\"", ii, jj )
-  end
+  # for ii in 1:mesh.dim, jj in 1:mesh.dim
+  #   @printf( fid, ", \"<greek>E</greek><sub>%i%i</sub>\"", ii, jj )
+  # end
   if size( σmises, 1 ) > 0
     @printf( fid, ", \"<greek>σ</greek><sub>mises</sub>\"" )
   end
@@ -57,9 +57,9 @@ function writeTecplot( flname::String, prob::Problem, mesh::Mesh2D, uh::Array{Fl
     wrtval = fill( 0.0, nnodes, nunkTot )
 
     if size( σmises, 1 ) == 0
-        wrtval = [mesh.nodes[:,:,pp] uh[:,:,pp] σh[:,:,pp] ϵh[:,:,pp] ]
+        wrtval = [mesh.nodes[:,:,pp] uh[:,:,pp] σh[:,:,pp] ]
     else
-        wrtval = [mesh.nodes[:,:,pp] uh[:,:,pp] σh[:,:,pp] ϵh[:,:,pp] σmises[:,:,pp] ]
+        wrtval = [mesh.nodes[:,:,pp] uh[:,:,pp] σh[:,:,pp] σmises[:,:,pp] ]
     end
 
     for jj in 1:nnodes
@@ -91,13 +91,13 @@ end
 
 """
     writeTecplot( flname::String, prob::Problem, mesh::Mesh3D,
-                  uh::Array{Float64,3}, σh::Array{Float64,3},
-                  ϵh::Array{Float64,3}; σmises = Array{Float64,3}(0,0,0) )
+                  uh::Array{Float64,3}, σh::Array{Float64,3};
+                  σmises = Array{Float64,3}(0,0,0) )
 
 Outputs tecplot data file to `flname` for 3D meshes.
 """
 function writeTecplot( flname::String, prob::Problem, mesh::Mesh3D, uh::Array{Float64,3},
-  σh::Array{Float64,3}, ϵh::Array{Float64,3}; σmises = Array{Float64,3}(0,0,0) )
+  σh::Array{Float64,3}; σmises = Array{Float64,3}(0,0,0) )
 
   nelem   = size( mesh.nodes, 3 )
   nnodes  = size( mesh.nodes, 1 )
@@ -105,7 +105,7 @@ function writeTecplot( flname::String, prob::Problem, mesh::Mesh3D, uh::Array{Fl
 
   nnodesTot = nnodes * nelem
 
-  nunkTot = mesh.dim + mesh.dim + mesh.dim^2 + mesh.dim^2 + ( size(σmises,1) > 0 )
+  nunkTot = mesh.dim + mesh.dim + mesh.dim^2 + ( size(σmises,1) > 0 )
 
   # Open file
   fid = open( flname, "w" )
@@ -119,9 +119,9 @@ function writeTecplot( flname::String, prob::Problem, mesh::Mesh3D, uh::Array{Fl
   for ii in 1:mesh.dim, jj in 1:mesh.dim
     @printf( fid, ", \"<greek>S</greek><sub>%i%i</sub>\"", ii, jj )
   end
-  for ii in 1:mesh.dim, jj in 1:mesh.dim
-    @printf( fid, ", \"<greek>E</greek><sub>%i%i</sub>\"", ii, jj )
-  end
+  # for ii in 1:mesh.dim, jj in 1:mesh.dim
+  #   @printf( fid, ", \"<greek>E</greek><sub>%i%i</sub>\"", ii, jj )
+  # end
   if size( σmises, 1 ) > 0
     @printf( fid, ", \"<greek>σ</greek><sub>mises</sub>\"" )
   end
@@ -135,9 +135,9 @@ function writeTecplot( flname::String, prob::Problem, mesh::Mesh3D, uh::Array{Fl
     wrtval = fill( 0.0, nnodes, nunkTot )
 
     if size( σmises, 1 ) == 0
-        wrtval = [mesh.nodes[:,:,pp] uh[:,:,pp] σh[:,:,pp] ϵh[:,:,pp] ]
+        wrtval = [mesh.nodes[:,:,pp] uh[:,:,pp] σh[:,:,pp] ]
     else
-        wrtval = [mesh.nodes[:,:,pp] uh[:,:,pp] σh[:,:,pp] ϵh[:,:,pp] σmises[:,:,pp] ]
+        wrtval = [mesh.nodes[:,:,pp] uh[:,:,pp] σh[:,:,pp] σmises[:,:,pp] ]
     end
 
     for jj in 1:nnodes

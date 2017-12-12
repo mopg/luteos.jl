@@ -55,11 +55,9 @@ include("solve/hdgSolveElas.jl")
 export hdgSolveCD
 include("solve/hdgSolveCD.jl")
 
-# TODO: Use __init__() for pretty picture
-
 function __init__()
 
-    # setup()
+    setup()
 
 end
 

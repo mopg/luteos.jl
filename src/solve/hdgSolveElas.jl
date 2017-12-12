@@ -84,6 +84,11 @@ jcwd = fill( 0.0, size(master.∇ϕ,2), size(master.∇ϕ,2) )
 ∂ξ∂x = fill( 0.0, size(master.∇ϕ,2), dim^2 )
 ∂x∂ξ = fill( 0.0, size(master.∇ϕ,2), dim^2 )
 
+tempf  = fill( 0.0, nodfac, nodfac )
+ϕjϕn   = [Array{Float64}(nodfac,nodfac) for idx in 1:dim]
+ϕjϕnl  = [Array{Float64}(nodfac,nodfac) for idx in 1:dim, idy in 1:dim]
+τϕjϕnl = [Array{Float64}(nodfac,nodfac) for idx in 1:dim, idy in 1:dim]
+
 @time for pp in 1:nelem # Loop over all elements
 
   # zero out all matrices
@@ -110,34 +115,38 @@ jcwd = fill( 0.0, size(master.∇ϕ,2), size(master.∇ϕ,2) )
 
   ∇ϕc = getderbfel( master, ∂ξ∂x )
 
+  # mass matrices
+  ϕj  = master.ϕ * jcwd
+  ϕjϕ = master.ϕ * jcwd * master.ϕ'
+
   # ------------------------- Volume integrals ------------------------------- #
   ## A (first part)
   # (v_{i,j}, σ^h_{ij})_{T^h}
   for ii in 1:dim, jj in 1:dim
     ij = (ii-1)*dim + jj
-    A[1+(ii-1)*nnodes:ii*nnodes,1+(ij-1)*nnodes:ij*nnodes] = ∇ϕc[:,:,jj] * jcwd * master.ϕ'
+    A[1+(ii-1)*nnodes:ii*nnodes,1+(ij-1)*nnodes:ij*nnodes] = ∇ϕc[:,:,jj] * ϕj'
   end
 
   ## D
   # (w_{ij}  , ϵ^h_{ij})_{T^h}
   for ii in 1:dim, jj in 1:dim
     ij = (ii-1)*dim + jj
-    D[1+(ij-1)*nnodes:ij*nnodes,1+(ij-1)*nnodes:ij*nnodes] = master.ϕ * jcwd * master.ϕ'
+    D[1+(ij-1)*nnodes:ij*nnodes,1+(ij-1)*nnodes:ij*nnodes] = ϕjϕ
   end
 
   ## H
   # (w_{ij,j}, u^h_i)_{T^h} + (w_{ij,i}, u^h_j)_{T^h}
   for ii in 1:dim, jj in 1:dim
     ij = (ii-1)*dim + jj
-    H[1+(ij-1)*nnodes:ij*nnodes,1+(ii-1)*nnodes:ii*nnodes] += 0.5 * ∇ϕc[:,:,jj] * jcwd * master.ϕ'
-    H[1+(ij-1)*nnodes:ij*nnodes,1+(jj-1)*nnodes:jj*nnodes] += 0.5 * ∇ϕc[:,:,ii] * jcwd * master.ϕ'
+    H[1+(ij-1)*nnodes:ij*nnodes,1+(ii-1)*nnodes:ii*nnodes] += 0.5 * ∇ϕc[:,:,jj] * ϕj'
+    H[1+(ij-1)*nnodes:ij*nnodes,1+(jj-1)*nnodes:jj*nnodes] += 0.5 * ∇ϕc[:,:,ii] * ϕj'
   end
 
   ## K
   # (z_{ij}  , σ^h_{ij})_{T^h}
   for ii in 1:dim, jj in 1:dim
     ij = (ii-1)*dim + jj
-    K[1+(ij-1)*nnodes:ij*nnodes,1+(ij-1)*nnodes:ij*nnodes] = master.ϕ * jcwd * master.ϕ'
+    K[1+(ij-1)*nnodes:ij*nnodes,1+(ij-1)*nnodes:ij*nnodes] = ϕjϕ
   end
 
   ## M
@@ -146,7 +155,7 @@ jcwd = fill( 0.0, size(master.∇ϕ,2), size(master.∇ϕ,2) )
     ij = (ii-1)*dim + jj
     for kk in 1:dim, ll in 1:dim
       kl = (kk-1)*dim + ll
-      M[1+(ij-1)*nnodes:ij*nnodes,1+(kl-1)*nnodes:kl*nnodes] -= Cstiff[ii,jj,kk,ll] * master.ϕ * jcwd * master.ϕ'
+      M[1+(ij-1)*nnodes:ij*nnodes,1+(kl-1)*nnodes:kl*nnodes] -= Cstiff[ii,jj,kk,ll] * ϕjϕ
     end
   end
 
@@ -154,11 +163,11 @@ jcwd = fill( 0.0, size(master.∇ϕ,2), size(master.∇ϕ,2) )
   # (v_{i}, b_{i})_{T^h}
   src = problem.source(pLoc)
   for ii in 1:dim
-      F[1+(ii-1)*nnodes:ii*nnodes,1] = master.ϕ * jcwd * src[:,ii]
+      F[1+(ii-1)*nnodes:ii*nnodes,1] = ϕj * src[:,ii]
   end
 
   # -------------------------------------------------------------------------- #
-
+  #
   # ------------------------- Boundary integrals ----------------------------- #
   for qq in 1:nfaces # loop over number of faces
 
@@ -169,33 +178,49 @@ jcwd = fill( 0.0, size(master.∇ϕ,2), size(master.∇ϕ,2) )
     faceInd = dim * (qq-1) * nodfac + ( 1:nodfac )
     # We need to premultiply with "dim" because those are the number of unknowns per face
 
+    # mass matrices
+    ϕjf  = ϕdm * jcwddm
+    ϕjϕf = ϕjf * ϕdm'
+    for ii in 1:dim
+        ϕjϕn[ii] = ϕjf * ( ϕdm * diagm(normal[:,ii]) )'
+    end
+    τϕjϕnl .*= 0.0
+    for ll in 1:dim, jj in 1:dim
+        ϕjϕnl[ll,jj] = ϕjf * ( ϕdm * diagm(normal[:,ll].*normal[:,jj]) )'
+        for kk in 1:dim, ii in 1:dim
+            τϕjϕnl[ii,kk] += τ[ii,jj,kk,ll] * ϕjϕnl[ll,jj]
+        end
+    end
+
     ## A (second part)
     # -<v_i, σ^h_{ij} n_j>_{∂T^h}
     for ii in 1:dim, jj in 1:dim
       ij = (ii-1)*dim + jj
-      A[(ii-1)*nnodes + nod,(ij-1)*nnodes + nod] -= ϕdm * jcwddm * ( ϕdm * diagm(normal[:,jj]) )'
+      A[(ii-1)*nnodes + nod,(ij-1)*nnodes + nod] -= ϕjϕn[jj]
     end
 
     ## B
     # <v_i, τ_{ijkl} u^h_k * n_l * n_j >_{∂T^h}
-    for ll in 1:dim, kk in 1:dim, jj in 1:dim, ii in 1:dim # column-major ordering
+    for kk in 1:dim, ii in 1:dim # column-major ordering
       B[(ii-1)*nnodes + nod,(kk-1)*nnodes + nod] +=
-        τ[ii,jj,kk,ll] * ϕdm * jcwddm * ( ϕdm * diagm(normal[:,ll].*normal[:,jj]) )'
+        τϕjϕnl[ii,kk]
     end
 
     ## C
+    # do not have to broadcast these variables,
+    #   because \hat{u}^h is different for each face
     # <v_i, τ_{ijkl} \hat{u}^h_k * n_l * n_j >_{∂T^h}
-    for ll in 1:dim, kk in 1:dim, jj in 1:dim, ii in 1:dim # column-major ordering
-      C[(ii-1)*nnodes + nod, (kk-1)*nodfac + faceInd] -=
-          τ[ii,jj,kk,ll] * ϕdm * jcwddm * ( ϕdm * diagm(normal[:,ll] .* normal[:,jj]) )'
+    for kk in 1:dim, ii in 1:dim # column-major ordering
+      C[(ii-1)*nnodes + nod, (kk-1)*nodfac + faceInd] =
+          -τϕjϕnl[ii,kk]
     end
 
     ## J
     # <w_{ij}  , (\hat{u}^h_i*n_j + \hat{u}^h_j*n_i)>_{∂T^h}
     for ii in 1:dim, jj in 1:dim
       ij = (ii-1)*dim + jj
-      J[(ij-1)*nnodes + nod, (ii-1)*nodfac + faceInd] -= 0.5 * ϕdm * jcwddm * ( ϕdm * diagm(normal[:,jj]) )'
-      J[(ij-1)*nnodes + nod, (jj-1)*nodfac + faceInd] -= 0.5 * ϕdm * jcwddm * ( ϕdm * diagm(normal[:,ii]) )'
+      J[(ij-1)*nnodes + nod, (ii-1)*nodfac + faceInd] -= 0.5 * ϕjϕn[jj]
+      J[(ij-1)*nnodes + nod, (jj-1)*nodfac + faceInd] -= 0.5 * ϕjϕn[ii]
     end
 
     indF = abs( mesh.t2f[pp,qq] )
@@ -211,7 +236,7 @@ jcwd = fill( 0.0, size(master.∇ϕ,2), size(master.∇ϕ,2) )
         ## Q
         # (μ_{i} , \hat{u}^h_{i})_{∂Ω_D}
         for ii in 1:dim     #i
-          Q[(ii-1)*nodfac + faceInd,(ii-1)*nodfac + faceInd] = ϕdm * jcwddm * ϕdm'
+          Q[(ii-1)*nodfac + faceInd,(ii-1)*nodfac + faceInd] = ϕjϕf
         end
 
         # BC RHS
@@ -219,32 +244,35 @@ jcwd = fill( 0.0, size(master.∇ϕ,2), size(master.∇ϕ,2) )
         # (μ_{i} , \bar{u}_i)_{∂Ω_D}
         bcout = problem.bcfunc[bNo](pdm)
         for ii in 1:dim     #i
-          G[(ii-1)*nodfac + faceInd, 1] = ϕdm * jcwddm * bcout[:,ii]
+          G[(ii-1)*nodfac + faceInd, 1] = ϕjf * bcout[:,ii]
         end
 
       elseif problem.bctype[bNo] == 2
         # Neumann boundary condition
 
+        # do not have to broadcast these variables,
+        #   because μ is different for each face
+
         ## N
         # <μ_{i} , σ^h_{ij}*n_j>_{∂T^h\∂Ω_D}
         for ii in 1:dim, jj in 1:dim   #j
           ij = (ii-1)*dim + jj
-          N[(ii-1)*nodfac + faceInd, (ij-1)*nnodes + nod] +=
-              ϕdm * jcwddm * ( ϕdm * diagm(normal[:,jj]) )'
+          N[(ii-1)*nodfac + faceInd, (ij-1)*nnodes + nod] =
+              ϕjϕn[jj]
         end
 
         ## P
         # <μ_{i} , -τ_{ijkl} u^h_k n_l n_j ) >_{∂T^h\∂Ω_D}
-        for ll in 1:dim, kk in 1:dim, jj in 1:dim, ii in 1:dim # column-major ordering
-          P[(ii-1)*nodfac + faceInd,(kk-1)*nnodes + nod] -=
-            τ[ii,jj,kk,ll] * ϕdm * jcwddm * ( ϕdm * diagm(normal[:,ll] .* normal[:,jj]) )'
+        for kk in 1:dim, ii in 1:dim # column-major ordering
+          P[(ii-1)*nodfac + faceInd,(kk-1)*nnodes + nod] =
+            -τϕjϕnl[ii,kk]
         end
 
         ## Q
         # <μ_{i} , τ_{ijkl} \hat{u}^h_k n_l n_j ) >_{∂T^h\∂Ω_D}
-        for ll in 1:dim, kk in 1:dim, jj in 1:dim, ii in 1:dim # column-major ordering
-          Q[(ii-1)*nodfac + faceInd,(kk-1)*nodfac + faceInd] +=
-            τ[ii,jj,kk,ll] * ϕdm * jcwddm * ( ϕdm * diagm(normal[:,ll] .* normal[:,jj]) )'
+        for kk in 1:dim, ii in 1:dim # column-major ordering
+          Q[(ii-1)*nodfac + faceInd,(kk-1)*nodfac + faceInd] =
+            τϕjϕnl[ii,kk]
         end
 
         # BC RHS
@@ -255,13 +283,13 @@ jcwd = fill( 0.0, size(master.∇ϕ,2), size(master.∇ϕ,2) )
           bcout = problem.bcfunc[bNo](pdm)
           for ii in 1:dim     #i
             temp = normal[:,ii] .* bcout[:,1]# + tL[:,ii] .* bcout[:,2] # NOTE: No tangential component, because hard to define in 3D
-            G[(ii-1)*nodfac + faceInd, 1] = ϕdm * jcwddm * temp
+            G[(ii-1)*nodfac + faceInd, 1] = ϕjf * temp
           end
         else
           # Boundary conditions are defined in the general coordinate system
           bcout = problem.bcfunc[bNo](pdm)
           for ii in 1:dim     #i
-            G[(ii-1)*nodfac + faceInd, 1] = ϕdm * jcwddm * bcout[:,ii]
+            G[(ii-1)*nodfac + faceInd, 1] = ϕjf * bcout[:,ii]
           end
         end
       else
@@ -271,26 +299,29 @@ jcwd = fill( 0.0, size(master.∇ϕ,2), size(master.∇ϕ,2) )
     else
       # In interior
 
+      # do not have to broadcast these variables,
+      #  because μ is different for each face
+
       ## N
       # <μ_{i} , σ^h_{ij}*n_j>_{∂T^h\∂Ω_D}
       for ii in 1:dim, jj in 1:dim
         ij = (ii-1)*dim + jj
-        N[(ii-1)*nodfac + faceInd, (ij-1)*nnodes + nod] +=
-          ϕdm * jcwddm * ( ϕdm * diagm(normal[:,jj]) )'
+        N[(ii-1)*nodfac + faceInd, (ij-1)*nnodes + nod] =
+          ϕjϕn[jj]
       end
 
       ## P
       # <μ_{i} , -τ_{ijkl} u^h_k n_l n_j ) >_{∂T^h\∂Ω_D}
-      for ll in 1:dim, kk in 1:dim, jj in 1:dim, ii in 1:dim # column-major ordering
-        P[(ii-1)*nodfac + faceInd,(kk-1)*nnodes + nod] -=
-          τ[ii,jj,kk,ll] * ϕdm * jcwddm * ( ϕdm * diagm(normal[:,ll] .* normal[:,jj]) )'
+      for kk in 1:dim, ii in 1:dim # column-major ordering
+        P[(ii-1)*nodfac + faceInd,(kk-1)*nnodes + nod] =
+          -τϕjϕnl[ii,kk]
       end
 
       ## Q
       # <μ_{i} , τ_{ijkl} \hat{u}^h_k n_l n_j ) >_{∂T^h\∂Ω_D}
-      for ll in 1:dim, kk in 1:dim, jj in 1:dim, ii in 1:dim # column-major ordering
-        Q[(ii-1)*nodfac + faceInd,(kk-1)*nodfac + faceInd] +=
-          τ[ii,jj,kk,ll] * ϕdm * jcwddm * ( ϕdm * diagm(normal[:,ll] .* normal[:,jj]) )'
+      for kk in 1:dim, ii in 1:dim # column-major ordering
+        Q[(ii-1)*nodfac + faceInd,(kk-1)*nodfac + faceInd] =
+          τϕjϕnl[ii,kk]
       end
 
     end # boundary if-statement
@@ -358,7 +389,7 @@ uhathTri = fill( 0.0, unkUhat*nfaces, 1 )
 uh       = fill( 0.0, nnodes,         dim,   nelem )
 σh       = fill( 0.0, nnodes,         dim^2, nelem )
 
-for pp in 1:nelem
+@time for pp in 1:nelem
     # ----------- Find uhath corresponding to this element ------------------- #
     indF = abs.( mesh.t2f[pp,1:nfaces] )
     for qq in 1:nfaces

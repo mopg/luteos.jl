@@ -8,6 +8,9 @@ Ns = [9, 17]#, 33] # Range of grid size
 
 dim = 3
 
+κ = 1.0
+c = fill( 0.0, dim )
+
 # Material
 mat = Material( ν=0.33, E=1.0 )
 
@@ -77,7 +80,6 @@ Err_qh2 = fill( 0.0, length(Ps), length(Ns) )
 Err_qh3 = fill( 0.0, length(Ps), length(Ns) )
 Err_J   = fill( 0.0, length(Ps), length(Ns) )
 
-
 #   Loop over polynomial order and grid size
 for ii in 1:length(Ps), jj in 1:length(Ns)
 
@@ -88,9 +90,9 @@ for ii in 1:length(Ps), jj in 1:length(Ns)
   mesh   = Mesh3D( "cube", P, N = N)
   master = Master3D( P )
 
-  prob = Problem( @sprintf("Poisson - Reg %i %i", P.p, N), source, bctype, 0, [funcB, funcB, funcB, funcB, funcB, funcB] )
+  prob = CDR( @sprintf("Poisson - Reg %i %i", P.p, N), κ, c, source, bctype, false, [funcB, funcB, funcB, funcB, funcB, funcB] )
 
-  (uhath, uh, qh, uhathTri) = hdgSolveCD( master, mesh, mat, prob )
+  (uhath, uh, qh) = hdgSolve( master, mesh, prob )
 
   #   Initialize arrays
   err_uh = 0.0

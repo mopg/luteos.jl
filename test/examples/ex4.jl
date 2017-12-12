@@ -5,11 +5,9 @@ using luteos
 P = P1() # Polynomial order of solution
 
 println("Generate mesh")
-@time mesh   = Mesh3D( "cube", P, N = 3)#9)
+@time mesh   = Mesh3D( "cube", P, N = 13)#9)
 println("Generate master")
 @time master = Master3D( P )
-
-mat = Material(E = 1, ν = 0.33)
 
 # source function
 function funcS( p::Array{Float64} )
@@ -29,11 +27,11 @@ function funcU( p::Array{Float64} )
 end
 
 println("Setup problem")
-@time prob = Problem( "Example 3 - Poisson", funcS, [1,1,1,2,1,1], true, [funcB, funcB, funcB, funcB, funcB, funcB] )
+@time prob = Problem( "Example 4 - Poisson", 1.0, [0.0,0.0,0.0], funcS, [1,1,1,2,1,1], true, [funcB, funcB, funcB, funcB, funcB, funcB] )
 
 println("Solve problem")
-@time (uhath, uh, qh, uhathTri ) = hdgSolveCD( master, mesh, mat, prob )
+@time (uhath, uh, qh, uhathTri ) = hdgSolve( master, mesh, prob )
 
 # write solution
 println("Write solution")
-@time writeTecplotCD( "blaCD3D.dat", prob, mesh, uh, qh )
+@time writeTecplot( "blaCD3D.dat", prob, mesh, uh, qh )

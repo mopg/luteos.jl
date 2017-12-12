@@ -18,9 +18,9 @@ function funcB( p::Array{Float64} )
   return fill(0.0, size(p,1), 2)
 end
 
-prob = Problem( "Example 1", funcS,  [1,1,1,1], true, [funcB, funcB, funcB, funcB] )
+prob = Elas( "Example 1", mat, funcS,  [1,1,1,1], true, [funcB, funcB, funcB, funcB] )
 
-(uhath, uh, σh ) = hdgSolveElas( master, mesh, mat, prob )
+(uhath, uh, σh ) = hdgSolve( master, mesh, prob )
 
 # write solution
 # writeTecplot( "bla.dat", prob, mesh, uh, σh )

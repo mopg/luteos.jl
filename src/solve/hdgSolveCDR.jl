@@ -12,12 +12,11 @@
 # ---------------------------------------------------------------------------- #
 
 """
-    hdgSolveCD( master::Master, mesh::Mesh, material::Material,
-                  problem::Problem)
+    hdgSolve( master::Master, mesh::Mesh, problem::CDR )
 
 Solves convection-diffusion equations for n-dimensional problems.
 """
-function hdgSolveCD( master::Master, mesh::Mesh, material::Material, problem::Problem)
+function hdgSolve( master::Master, mesh::Mesh, problem::CDR)
 
 dim     = mesh.dim
 nelem   = size( mesh.nodes, 3 ) # Mumber of elements in mesh
@@ -69,9 +68,8 @@ rr = 1 # iterator for unknowns in sparsity matrix
 
 ∇ϕc = fill(0.0, size(master.∇ϕ))
 
-# NOTE::: TEMP
-κ = 1
-c = fill(0.0,dim)
+κ = problem.κ
+c = problem.c
 
 # preallocate
 jcwd = fill( 0.0, size(master.∇ϕ,2), size(master.∇ϕ,2) )
@@ -281,7 +279,7 @@ uhath = Hfull \ Rfull #IterativeSolvers.gmres( Hfull, Rfull, Pl=fact )
 # ---------------------------------------------------------------------------- #
 
 ## Compute approximate scalar value and flux
-uhathTri = fill( 0.0, unkUhat*nfaces, 1,     nelem )
+uhathTri = fill( 0.0, unkUhat*nfaces, 1 )
 uh       = fill( 0.0, nnodes,         1,     nelem )
 qh       = fill( 0.0, nnodes,         dim,   nelem )
 
@@ -289,12 +287,12 @@ for pp in 1:nelem
     # ----------- Find uhath corresponding to this element ------------------- #
     indF = abs.( mesh.t2f[pp,1:nfaces] )
     for qq in 1:nfaces
-      uhathTri[ 1+(qq-1)*unkUhat:qq*unkUhat, 1, pp ] = uhath[ 1+(indF[qq]-1)*unkUhat:indF[qq]*unkUhat ]
+      uhathTri[ 1+(qq-1)*unkUhat:qq*unkUhat, 1 ] = uhath[ 1+(indF[qq]-1)*unkUhat:indF[qq]*unkUhat ]
     end
     # ------------------------------------------------------------------------ #
     # ----------- Compute approximate displacement value --------------------- #
 
-    rhsTemp = [ zm; F[:,:,pp] ] - CE[:,:,pp] * uhathTri[:,:,pp]
+    rhsTemp = [ zm; F[:,:,pp] ] - CE[:,:,pp] * uhathTri
 
     uTemp   = ABND[:,:,pp] \ rhsTemp
 
@@ -304,6 +302,6 @@ for pp in 1:nelem
     uh[:,1,pp] = uTemp[ 1+dim*nnodes:(dim+1)*nnodes ]
 end
 
-return ( uhath, uh, qh, uhathTri )
+return ( uhath, uh, qh )
 
 end # end hdgSolveCD

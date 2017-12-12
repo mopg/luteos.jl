@@ -110,9 +110,9 @@ for ii in 1:length(Ps), jj in 1:length(Ns)
   mesh   = Mesh2D( "square", P, N = N)
   master = Master2D( P )
 
-  prob = Problem( @sprintf("Reg %i %i", P, N), source, bctype, false, [funcB, funcNE, funcB, funcNW] )
+  prob = Elas( @sprintf("Reg %i %i", P, N), mat, source, bctype, false, [funcB, funcNE, funcB, funcNW] )
 
-  (uhathTri, uh, σh) = hdgSolveElas( master, mesh, mat, prob )
+  (uhathTri, uh, σh) = hdgSolve( master, mesh, prob )
 
   #   Initialize arrays
   err_uh = fill( 0.0, dim )

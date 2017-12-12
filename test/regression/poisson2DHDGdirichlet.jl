@@ -8,8 +8,8 @@ Ns = [9, 17, 33]         # Range of grid size
 
 dim = 2
 
-# Material
-mat = Material( ν=0.33, E=1.0 )
+κ = 1.0
+c = fill( 0.0, dim )
 
 ## Set up problem
 #   Get functions for exact solution
@@ -80,9 +80,10 @@ for ii in 1:length(Ps), jj in 1:length(Ns)
   mesh   = Mesh2D( "square", P, N = N)
   master = Master2D( P )
 
-  prob = Problem( @sprintf("Poisson - Reg %i %i", P.p, N), source, bctype, false, [funcB, funcB, funcB, funcB] )
+  prob = CDR( @sprintf("Poisson - Reg %i %i", P.p, N), κ, c,
+              source, bctype, false, [funcB, funcB, funcB, funcB] )
 
-  (uhath, uh, qh, uhathTri) = hdgSolveCD( master, mesh, mat, prob )
+  (uhath, uh, qh) = hdgSolve( master, mesh, prob )
 
   #   Initialize arrays
   err_uh = 0.0

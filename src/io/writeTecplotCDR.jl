@@ -1,8 +1,8 @@
 # ---------------------------------------------------------------------------- #
 #
-#   writeTecplot.jl
+#   writeTecplotCDR.jl
 #
-#   Several functions to write Tecplot output
+#   Several functions to write Tecplot output for CDR problems
 #
 #   λυτέος
 #   Fall 2017
@@ -12,14 +12,13 @@
 # ---------------------------------------------------------------------------- #
 
 """
-    writeTecplot( flname::String, prob::Problem, mesh::Mesh2D,
-                  uh::Array{Float64,3}, σh::Array{Float64,3};
-                  σmises = Array{Float64,3}(0,0,0) )
+    writeTecplot( flname::String, prob::CDR, mesh::Mesh2D,
+                  uh::Array{Float64,3}, qh::Array{Float64,3} )
 
-Outputs tecplot data file to `flname` for 2D meshes.
+Outputs tecplot data file to `flname` for 3D CDR problems.
 """
-function writeTecplot( flname::String, prob::Problem, mesh::Mesh2D, uh::Array{Float64,3},
-  σh::Array{Float64,3}; σmises = Array{Float64,3}(0,0,0) )
+function writeTecplot( flname::String, prob::CDR, mesh::Mesh2D,
+                       uh::Array{Float64,3}, qh::Array{Float64,3} )
 
   nelem   = size( mesh.nodes, 3 )
   nnodes  = size( mesh.nodes, 1 )
@@ -27,7 +26,7 @@ function writeTecplot( flname::String, prob::Problem, mesh::Mesh2D, uh::Array{Fl
 
   nnodesTot = nnodes * nelem
 
-  nunkTot = mesh.dim + mesh.dim + mesh.dim^2 + ( size(σmises,1) > 0 )
+  nunkTot = mesh.dim + 1 + mesh.dim
 
   # Open file
   fid = open( flname, "w" )
@@ -35,17 +34,9 @@ function writeTecplot( flname::String, prob::Problem, mesh::Mesh2D, uh::Array{Fl
   ### Write header
   @printf( fid, "TITLE = \"%s\"\n", prob.name )
   @printf( fid, "VARIABLES = \"X\", \"Y\"\n" )
+  @printf( fid, ", \"U\"" )
   for jj in 1:mesh.dim
-    @printf( fid, ", \"U<sub>%i</sub>\"",jj )
-  end
-  for ii in 1:mesh.dim, jj in 1:mesh.dim
-    @printf( fid, ", \"<greek>S</greek><sub>%i%i</sub>\"", ii, jj )
-  end
-  # for ii in 1:mesh.dim, jj in 1:mesh.dim
-  #   @printf( fid, ", \"<greek>E</greek><sub>%i%i</sub>\"", ii, jj )
-  # end
-  if size( σmises, 1 ) > 0
-    @printf( fid, ", \"<greek>σ</greek><sub>mises</sub>\"" )
+    @printf( fid, ", \"Q<sub>%i</sub>\"",jj )
   end
   @printf( fid, "\n" )
   @printf( fid, "ZONE, DATAPACKING=POINT, NODES=%i, ELEMENTS=%i, ZONETYPE=FETRIANGLE\n",
@@ -56,11 +47,7 @@ function writeTecplot( flname::String, prob::Problem, mesh::Mesh2D, uh::Array{Fl
 
     wrtval = fill( 0.0, nnodes, nunkTot )
 
-    if size( σmises, 1 ) == 0
-        wrtval = [mesh.nodes[:,:,pp] uh[:,:,pp] σh[:,:,pp] ]
-    else
-        wrtval = [mesh.nodes[:,:,pp] uh[:,:,pp] σh[:,:,pp] σmises[:,:,pp] ]
-    end
+    wrtval = [mesh.nodes[:,:,pp] uh[:,:,pp] qh[:,:,pp] ]
 
     for jj in 1:nnodes
       for ii in 1:nunkTot
@@ -90,14 +77,14 @@ function writeTecplot( flname::String, prob::Problem, mesh::Mesh2D, uh::Array{Fl
 end
 
 """
-    writeTecplot( flname::String, prob::Problem, mesh::Mesh3D,
-                  uh::Array{Float64,3}, σh::Array{Float64,3};
-                  σmises = Array{Float64,3}(0,0,0) )
+    writeTecplot( prob::CDR, flname::String, mesh::Mesh3D,
+                  uh::Array{Float64,3}, σh::Array{Float64,3},
+                  ϵh::Array{Float64,3}; σmises = Array{Float64,3}(0,0,0) )
 
-Outputs tecplot data file to `flname` for 3D meshes.
+Outputs tecplot data file to `flname` for 3D CDR problems.
 """
-function writeTecplot( flname::String, prob::Problem, mesh::Mesh3D, uh::Array{Float64,3},
-  σh::Array{Float64,3}; σmises = Array{Float64,3}(0,0,0) )
+function writeTecplotCD( prob::CDR, flname::String, mesh::Mesh3D, uh::Array{Float64,3},
+  qh::Array{Float64,3} )
 
   nelem   = size( mesh.nodes, 3 )
   nnodes  = size( mesh.nodes, 1 )
@@ -105,7 +92,7 @@ function writeTecplot( flname::String, prob::Problem, mesh::Mesh3D, uh::Array{Fl
 
   nnodesTot = nnodes * nelem
 
-  nunkTot = mesh.dim + mesh.dim + mesh.dim^2 + ( size(σmises,1) > 0 )
+  nunkTot = mesh.dim + 1 + mesh.dim
 
   # Open file
   fid = open( flname, "w" )
@@ -113,17 +100,9 @@ function writeTecplot( flname::String, prob::Problem, mesh::Mesh3D, uh::Array{Fl
   ### Write header
   @printf( fid, "TITLE = \"%s\"\n", prob.name )
   @printf( fid, "VARIABLES = \"X\", \"Y\", \"Z\"" )
+  @printf( fid, ", \"U\"" )
   for jj in 1:mesh.dim
-    @printf( fid, ", \"U<sub>%i</sub>\"",jj )
-  end
-  for ii in 1:mesh.dim, jj in 1:mesh.dim
-    @printf( fid, ", \"<greek>S</greek><sub>%i%i</sub>\"", ii, jj )
-  end
-  # for ii in 1:mesh.dim, jj in 1:mesh.dim
-  #   @printf( fid, ", \"<greek>E</greek><sub>%i%i</sub>\"", ii, jj )
-  # end
-  if size( σmises, 1 ) > 0
-    @printf( fid, ", \"<greek>σ</greek><sub>mises</sub>\"" )
+    @printf( fid, ", \"Q<sub>%i</sub>\"",jj )
   end
   @printf( fid, "\n" )
   @printf( fid, "ZONE, DATAPACKING=POINT, NODES=%i, ELEMENTS=%i, ZONETYPE=FETETRAHEDRON\n",
@@ -134,11 +113,7 @@ function writeTecplot( flname::String, prob::Problem, mesh::Mesh3D, uh::Array{Fl
 
     wrtval = fill( 0.0, nnodes, nunkTot )
 
-    if size( σmises, 1 ) == 0
-        wrtval = [mesh.nodes[:,:,pp] uh[:,:,pp] σh[:,:,pp] ]
-    else
-        wrtval = [mesh.nodes[:,:,pp] uh[:,:,pp] σh[:,:,pp] σmises[:,:,pp] ]
-    end
+    wrtval = [mesh.nodes[:,:,pp] uh[:,:,pp] qh[:,:,pp] ]
 
     for jj in 1:nnodes
       for ii in 1:nunkTot

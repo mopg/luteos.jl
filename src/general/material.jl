@@ -19,7 +19,7 @@ Holds material properties and computes stiffness matrices.
 """
 struct Material
 
-  name::String   # Name of problem
+  name::String   # Name of material
   E::Float64     # Young's modulus
   ν::Float64     # Poisson's ratio
   ρ::Float64     # Material density

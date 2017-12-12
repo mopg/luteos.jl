@@ -12,12 +12,12 @@
 # ---------------------------------------------------------------------------- #
 
 """
-    hdgSolveElas( master::Master, mesh::Mesh, material::Material,
-                  problem::Problem)
+    hdgSolve( master::Master, mesh::Mesh, material::Material,
+              problem::Problem)
 
 Solves the linear elasticity equations for n-dimensional problems.
 """
-function hdgSolveElas( master::Master, mesh::Mesh, material::Material, problem::Problem)
+function hdgSolve( master::Master, mesh::Mesh, problem::Elas)
 
 dim     = mesh.dim
 nelem   = size( mesh.nodes, 3 ) # Mumber of elements in mesh
@@ -28,7 +28,7 @@ unkUhat = nodfac * dim          # Total of uhat unknowns per face
 nfaces  = dim + 1               # Number of faces per element
 
 # Compute the stiffness tensor
-Cstiff = material.Cstiff
+Cstiff = problem.mat.Cstiff
 
 # Stability parameter
 τ = Cstiff

@@ -29,31 +29,38 @@ module luteos
 import IterativeSolvers
 import ILU
 
-export hdgSolveElas, Material, Problem, Master2D, Master3D, Mesh2D, Mesh3D, writeTecplot, writeTecplotCD
+export CDR, Elas, Material
 
-include("general/material.jl")
+# problem setup
 include("general/problem.jl")
 include("general/setup.jl")
 
+# integration
+export Master2D, Master3D
 export PG1, PG2, PG3, PG4, PG5, PG6, PG7, PG8, PG9, PG10, PG11
 include("integration/pgauss.jl")
 export P1, P2, P3, P4
 include("integration/porder.jl")
 
+# mesh
+export Mesh2D, Mesh3D
 include("mesh/mesh.jl")
 include("mesh/master.jl")
 include("mesh/compJacob.jl")
 
+# links to meshers
 include("meshers/mesher.jl")
 
-include("io/writeTecplot.jl")
-include("io/writeTecplotCD.jl")
+# io
+export writeTecplot
+include("io/writeTecplotElas.jl")
+include("io/writeTecplotCDR.jl")
 include("io/readSU2.jl")
 
+# solution methods
+export hdgSolve
 include("solve/hdgSolveElas.jl")
-
-export hdgSolveCD
-include("solve/hdgSolveCD.jl")
+include("solve/hdgSolveCDR.jl")
 
 function __init__()
 

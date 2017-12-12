@@ -150,9 +150,9 @@ for ii in 1:length(Ps), jj in 1:length(Ns)
   mesh   = Mesh3D( "cube", P, N = N)
   master = Master3D( P )
 
-  prob = Problem( @sprintf("Reg %i %i", P.p, N), source, bctype, false, [funcB, funcB, funcB, funcB, funcB, funcB] )
+  prob = Elas( @sprintf("Reg %i %i", P.p, N), mat, source, bctype, false, [funcB, funcB, funcB, funcB, funcB, funcB] )
 
-  (uhath, uh, σh) = hdgSolveElas( master, mesh, mat, prob )
+  (uhath, uh, σh) = hdgSolve( master, mesh, prob )
 
   #   Initialize arrays
   err_uh = fill( 0.0, dim )

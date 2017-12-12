@@ -4,10 +4,8 @@ using luteos
 
 P = P3() # Polynomial order of solution
 
-mesh   = Mesh2D( "square", P, N = 5, M = 3)
+mesh   = Mesh2D( "square", P, N = 30, M = 30)
 master = Master2D( P )
-
-mat = Material(E = 1, ν = 0.0, dim = mesh.dim )
 
 # source function
 function funcS( p::Array{Float64} )
@@ -18,9 +16,9 @@ function funcB( p::Array{Float64} )
   return fill(0.0, size(p,1), 1)
 end
 
-prob = Problem( "Example 3 - Poission", funcS, [1,1,1,1], 1, [funcB, funcB, funcB, funcB] )
+prob = CDR( "Example 3 - Poission", 1.0, [0.0,0.0], funcS, [1,1,1,1], true, [funcB, funcB, funcB, funcB] )
 
-(uhath, uh, qh, uhathTri ) = hdgSolveCD( master, mesh, mat, prob )
+@time (uhath, uh, qh, uhathTri ) = hdgSolve( master, mesh, prob )
 
 # write solution
-writeTecplotCD( "blaCD.dat", prob, mesh, uh, qh )
+writeTecplot( "blaCD.dat", prob, mesh, uh, qh )

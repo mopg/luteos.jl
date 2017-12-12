@@ -77,6 +77,8 @@ c = fill(0.0,dim)
 jcwd = fill( 0.0, size(master.∇ϕ,2), size(master.∇ϕ,2) )
 ∂ξ∂x = fill( 0.0, size(master.∇ϕ,2), dim^2 )
 ∂x∂ξ = fill( 0.0, size(master.∇ϕ,2), dim^2 )
+ϕjϕn = [Array{Float64}(nodfac,nodfac) for idx in 1:dim]
+
 
 for pp in 1:nelem # Loop over all elements
 
@@ -101,17 +103,21 @@ for pp in 1:nelem # Loop over all elements
 
   ∇ϕc = getderbfel( master, ∂ξ∂x )
 
+  # mass matrices
+  ϕj  = master.ϕ * jcwd
+  ϕjϕ = master.ϕ * jcwd * master.ϕ'
+
   # ------------------------- Volume integrals ------------------------------- #
   ## A
   # (v,qₕ)_{Tₕ}
   for ii in 1:dim
-    A[1+(ii-1)*nnodes:ii*nnodes,1+(ii-1)*nnodes:ii*nnodes] = master.ϕ * jcwd * master.ϕ'
+    A[1+(ii-1)*nnodes:ii*nnodes,1+(ii-1)*nnodes:ii*nnodes] = ϕjϕ
   end
 
   ## B
   # (w_{ij}  , ϵ^h_{ij})_{T^h}
   for ii in 1:dim
-    B[1+(ii-1)*nnodes:ii*nnodes,:] = ∇ϕc[:,:,ii] * jcwd * master.ϕ'
+    B[1+(ii-1)*nnodes:ii*nnodes,:] = ∇ϕc[:,:,ii] * ϕj'
   end
 
   ## N
@@ -120,13 +126,13 @@ for pp in 1:nelem # Loop over all elements
   ## D (second part)
   # (w_{ij,j}, u^h_i)_{T^h} + (w_{ij,i}, u^h_j)_{T^h}
   for ii in 1:dim
-    D -= c[ii] * ∇ϕc[:,:,ii] * jcwd * master.ϕ'
+    D -= c[ii] * ∇ϕc[:,:,ii] * ϕj'
   end
 
   ## F
   # (z_{ij}  , σ^h_{ij})_{T^h}
   src       = problem.source(pLoc)
-  F[:,:,pp] = master.ϕ * jcwd * src
+  F[:,:,pp] = ϕj * src
 
   # -------------------------------------------------------------------------- #
 
@@ -144,19 +150,26 @@ for pp in 1:nelem # Loop over all elements
       cn += c[ii] * normal[:,ii]
     end
 
+    # mass matrices
+    ϕjf  = ϕdm * jcwddm
+    ϕjϕf = ϕjf * ϕdm'
+    for ii in 1:dim
+        ϕjϕn[ii] = ϕjf * ( ϕdm * diagm(normal[:,ii]) )'
+    end
+
     ## C
     # -<v_i, σ^h_{ij} n_j>_{∂T^h}
     for ii in 1:dim
-      C[(ii-1)*nnodes + nod,faceInd] -= ( ϕdm * diagm(normal[:,ii]) ) * jcwddm * ϕdm'
+      C[(ii-1)*nnodes + nod,faceInd] -= ϕjϕn[ii]
     end
 
     ## D
     # <v_i, τ_{ijkl} u^h_k * n_l * n_j >_{∂T^h}
-    D[nod,nod] += ϕdm * (τ * jcwddm) * ϕdm'
+    D[nod,nod] += τ * ϕjϕf
 
     ## E
     # <v_i, τ_{ijkl} \hat{u}^h_k * n_l * n_j >_{∂T^h}
-    E[nod,faceInd] = - ϕdm * (τ * jcwddm) * ϕdm' + ϕdm * ( diagm(cn) * jcwddm ) * ϕdm'
+    E[nod,faceInd] = - τ * ϕjϕf + ϕdm * ( diagm(cn) * jcwddm ) * ϕdm'
 
     indF = abs( mesh.t2f[pp,qq] )
 
@@ -170,14 +183,14 @@ for pp in 1:nelem # Loop over all elements
 
         ## M
         # (μ_{i} , \hat{u}^h_{i})_{∂Ω_D}
-        M[faceInd,faceInd] = ϕdm * jcwddm * ϕdm'
+        M[faceInd,faceInd] = ϕjϕf
 
 
         # BC RHS
         ## G
         # (μ_{i} , \bar{u}_i)_{∂Ω_D}
         bcout = problem.bcfunc[bNo](pdm)
-        G[faceInd, 1] = ϕdm * jcwddm * bcout
+        G[faceInd, 1] = ϕjf * bcout
 
       elseif problem.bctype[bNo] == 2
         # Neumann boundary condition
@@ -185,14 +198,14 @@ for pp in 1:nelem # Loop over all elements
         ## K
         # <μ_{i} , q_{ij}*n_j>_{∂Ω_N}
         for ii in 1:dim
-          K[faceInd, (ii-1)*nnodes + nod] = ϕdm * jcwddm * ( ϕdm * diagm(normal[:,ii]) )'
+          K[faceInd, (ii-1)*nnodes + nod] = ϕjϕn[ii]
         end
 
         # BC RHS
         ## G
         # (μ_{i} , \bar{∂u∂x})_{∂Ω_N})
         bcout = problem.bcfunc[bNo](pdm)
-        G[faceInd, 1] = ϕdm * jcwddm * bcout
+        G[faceInd, 1] = ϕjf * bcout
       else
           error("hdgSolveElas:: BC type not recognized. 1 = Dirichlet, 2 = Neumann")
       end
@@ -203,17 +216,17 @@ for pp in 1:nelem # Loop over all elements
       ## K
       # <μ_{i} , σ^h_{ij}*n_j>_{∂T^h\∂Ω_D}
       for ii in 1:dim
-        K[faceInd, (ii-1)*nnodes + nod] = - ϕdm * jcwddm * ( ϕdm * diagm(normal[:,ii]) )'
+        K[faceInd, (ii-1)*nnodes + nod] = - ϕjϕn[ii]
       end
 
       ## L
       # <μ_{i} , -τ_{ijkl} u^h_k n_l n_j ) >_{∂T^h\∂Ω_D}
 
-      L[faceInd,nod] = ϕdm * (τ * jcwddm) * ϕdm'
+      L[faceInd,nod] = τ * ϕjϕf
 
       ## M
       # <μ_{i} , τ_{ijkl} \hat{u}^h_k n_l n_j ) >_{∂T^h\∂Ω_D}
-      M[faceInd,faceInd] = - ϕdm * (τ * jcwddm) * ϕdm' + ϕdm * ( diagm(cn) * jcwddm ) * ϕdm'
+      M[faceInd,faceInd] = - τ * ϕjϕf + ϕdm * ( diagm(cn) * jcwddm ) * ϕdm'
 
     end # boundary if-statement
 

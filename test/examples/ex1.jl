@@ -7,7 +7,7 @@ P = P1() # Polynomial order of solution
 mesh   = Mesh3D( "cube", P, N = 7 )#17)
 master = Master3D( P )
 
-mat = Material(E = 1, ν = 0.0, dim = mesh.dim )
+mat = Material( E = 1, ν = 0.0, dim = mesh.dim )
 
 # source function
 function funcS( p::Array{Float64,2} )

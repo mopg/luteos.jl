@@ -28,6 +28,7 @@ module luteos
 
 import IterativeSolvers
 import ILU
+import Dierckx # this is only used for getPressureFunc.jl, perhaps there is a better solution for that.
 
 export CDR, Elas, Material
 
@@ -61,6 +62,10 @@ include("io/readSU2.jl")
 export hdgSolve
 include("solve/hdgSolveElas.jl")
 include("solve/hdgSolveCDR.jl")
+
+# utilities
+export pressureFunc
+include("util/getPressureFunc.jl")
 
 function __init__()
 

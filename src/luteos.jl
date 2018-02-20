@@ -55,7 +55,7 @@ export readFEFLOA_2D, readFEFLOA_3D, writeMetric
 include("meshers/mesher.jl")
 
 # io
-export writeTecplot, writeTecplotMesh
+export writeTecplot
 include("io/writeTecplotElas.jl")
 include("io/writeTecplotCDR.jl")
 include("io/writeTecplotMesh.jl")

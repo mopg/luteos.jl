@@ -50,12 +50,15 @@ include("mesh/master.jl")
 include("mesh/compJacob.jl")
 
 # links to meshers
+export writeMsh, readBAMG, runMesher, MesherFEFLOA, MesherBAMG, writeMsh
+export readFEFLOA_2D, readFEFLOA_3D, writeMetric
 include("meshers/mesher.jl")
 
 # io
-export writeTecplot
+export writeTecplot, writeTecplotMesh
 include("io/writeTecplotElas.jl")
 include("io/writeTecplotCDR.jl")
+include("io/writeTecplotMesh.jl")
 include("io/readSU2.jl")
 
 # solution methods
@@ -66,6 +69,8 @@ include("solve/hdgSolveCDR.jl")
 # utilities
 export pressureFunc
 include("util/getPressureFunc.jl")
+export compMises2D, compMises3D
+include("util/compMises.jl")
 
 function __init__()
 

@@ -30,7 +30,7 @@ function writeTecplot( flname::String, mesh::Mesh2D )
   fid = open( flname, "w" )
 
   ### Write header
-  @printf( fid, "TITLE = \"%s\"\n", prob.name )
+  @printf( fid, "TITLE = \"%s\"\n", "Mesh" )
   @printf( fid, "VARIABLES = \"X\", \"Y\"\n" )
   @printf( fid, "ZONE, DATAPACKING=POINT, NODES=%i, ELEMENTS=%i, ZONETYPE=FETRIANGLE\n",
     nnodesTot, nelem * ntriang )
@@ -88,7 +88,7 @@ function writeTecplot( flname::String, mesh::Mesh3D )
   fid = open( flname, "w" )
 
   ### Write header
-  @printf( fid, "TITLE = \"%s\"\n", prob.name )
+  @printf( fid, "TITLE = \"%s\"\n", "Mesh" )
   @printf( fid, "VARIABLES = \"X\", \"Y\", \"Z\"" )
   @printf( fid, "\n" )
   @printf( fid, "ZONE, DATAPACKING=POINT, NODES=%i, ELEMENTS=%i, ZONETYPE=FETETRAHEDRON\n",

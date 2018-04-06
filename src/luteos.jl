@@ -69,6 +69,7 @@ include("solve/hdgSolveCDR.jl")
 # utilities
 export pressureFunc
 include("util/getPressureFunc.jl")
+include("util/getPressureFunc2p5D.jl")
 export compMises2D, compMises3D
 include("util/compMises.jl")
 

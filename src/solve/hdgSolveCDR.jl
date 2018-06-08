@@ -16,7 +16,7 @@
 
 Solves convection-diffusion equations for n-dimensional problems.
 """
-function hdgSolve( master::Master, mesh::Mesh, problem::CDR)
+function hdgSolve( master::Master, mesh::Mesh, problem::CDR; method=:LU)
 
 dim     = mesh.dim
 nelem   = size( mesh.nodes, 3 ) # Mumber of elements in mesh
@@ -274,7 +274,12 @@ end # end element loop
 Hfull = sparse( indRow, indCol, indUnk, size(mesh.f,1) * unkUhat, size(mesh.f,1) * unkUhat )
 
 #fact = ILU.crout_ilu( Hfull, τ = 0.1 )
-uhath = Hfull \ Rfull #IterativeSolvers.gmres( Hfull, Rfull, Pl=fact )
+uhath = [0.]
+if method == :LU
+    uhath = Hfull \ Rfull
+elseif method == :GMRES
+    uhath = IterativeSolvers.gmres( Hfull, Rfull, Pl=fact )
+end
 
 # ---------------------------------------------------------------------------- #
 

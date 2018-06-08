@@ -3,13 +3,13 @@ using SymPy
 
 # let # limit scope
 
-Ps = 1:3         # Range of polynomial order
+Ps = [P1(), P2(), P3()] # Range of polynomial order
 Ns = [9, 17, 33] # Range of grid size
 
 dim = 2
 
 # Material
-mat = Material( ν=0.33, E=1.0, dim = 2 )
+mat = Material( ν=0.33, E=1.0, dim = dim )
 
 ## Set up problem
 #   Get functions for exact solution
@@ -106,11 +106,12 @@ Err_σh4 = fill( 0.0, length(Ps), length(Ns) )
 for ii in 1:length(Ps), jj in 1:length(Ns)
 
   P = Ps[ii]; N = Ns[jj]
+  println("P ", P.p)
 
   mesh   = Mesh2D( "square", P, N = N)
   master = Master2D( P )
 
-  prob = Elas( @sprintf("Reg %i %i", P, N), mat, source, bctype, false, [funcB, funcNE, funcB, funcNW] )
+  prob = Elas( @sprintf("Reg %i %i", P.p, N), mat, source, bctype, false, [funcB, funcNE, funcB, funcNW] )
 
   (uhathTri, uh, σh) = hdgSolve( master, mesh, prob )
 
@@ -120,16 +121,14 @@ for ii in 1:length(Ps), jj in 1:length(Ns)
   # err_ϵh = fill( 0.0, dim^2 )
 
   # preallocate
-  jcw  = fill( 0.0, size(master.∇ϕ,2) )
+  jcwd = fill( 0.0, size(master.∇ϕ,2), size(master.∇ϕ,2) )
   ∂ξ∂x = fill( 0.0, size(master.∇ϕ,2), dim^2 )
   ∂x∂ξ = fill( 0.0, size(master.∇ϕ,2), dim^2 )
 
   for kk in 1:size(mesh.t,1)
 
     # Compute Jacobians
-    compJacob!( master, mesh.nodes[:,:,kk], ∂ξ∂x, jcw, ∂x∂ξ )
-
-    jcwd = diagm( jcw )
+    luteos.compJacob!( master, mesh.nodes[:,:,kk], ∂ξ∂x, jcwd, ∂x∂ξ )
 
     # u
     Δuh1       = master.ϕ' * ( uh[:,1,kk] - u1func( mesh.nodes[:,:,kk] ) )
@@ -185,7 +184,7 @@ conv_σh4 = (log.( Err_σh4[:,end-2]) - log.( Err_σh4[:,end] ) ) / (log.( h[end
 @printf("   --------------------------------------------------\n\n")
 @printf( "P   ")
 for jj in 1:size(Ps,1)
-  @printf( " %6i", Ps[jj] )
+  @printf( " %6i", Ps[jj].p )
 end
 @printf( "\n" )
 

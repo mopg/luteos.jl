@@ -43,13 +43,20 @@ function Material( name::String, dim::Int64 )
   if name == "PLA"
     E  = 3.5e9  # Pa
     ν  = 0.36
-    ρ  = 4.43e3 # kg/m^3
+    ρ  = 1.24e3  # kg/m^3
     σt = 50e6   # Pa
     σc = 60e6   # Pa
+  elseif name == "Onyx"
+    E  = 1.4e9  # Pa
+    ν  = 0.36
+    ρ  = 1.18e3  # kg/m^3
+    σt = 36e6   # Pa
+    σc = 45e6   # Pa
   elseif name == "Titanium"
+    # Ti6al4v
     E  = 113.8e9 # Pa
     ν  = 0.33
-    ρ  = 1.24e3  # kg/m^3
+    ρ  = 4.43e3 # kg/m^3
     σt = 880e6   # Pa
     σc = 970e6   # Pa
   elseif name == "Al6061"

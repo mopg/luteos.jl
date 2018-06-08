@@ -4,7 +4,7 @@ using luteos
 
 P = P1() # Polynomial order of solution
 
-mesh   = Mesh3D( "cube", P, N = 7 )#17)
+mesh   = Mesh3D( "cube", P, N = 30 )#17)
 master = Master3D( P )
 
 mat = Material( E = 1, ν = 0.0, dim = mesh.dim )
@@ -25,7 +25,7 @@ end
 #                 name="Example 1", bcnorm=false )
 prob = Elas( "Example 1", mat, funcS,  [1,1,1,1,1,1], false,[funcB, funcB, funcB, funcB, funcB, funcBNH] )
 
-@time (uhath, uh, σh ) = hdgSolve( master, mesh, prob )
+@time (uhath, uh, σh ) = hdgSolve( master, mesh, prob, method = :GMRES )
 
 # write solution
 writeTecplot( "elas3D.dat", prob, mesh, uh, σh )

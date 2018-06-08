@@ -55,10 +55,11 @@ export readFEFLOA_2D, readFEFLOA_3D, writeMetric
 include("meshers/mesher.jl")
 
 # io
-export writeTecplot
+export writeTecplot, writeTecplotP1, convertToNodal
 include("io/writeTecplotElas.jl")
 include("io/writeTecplotCDR.jl")
 include("io/writeTecplotMesh.jl")
+include("io/writeTecplotP1.jl")
 include("io/readSU2.jl")
 
 # solution methods

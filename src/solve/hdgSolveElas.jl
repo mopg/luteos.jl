@@ -380,12 +380,14 @@ end # end element loop
 ### Compute approximate trace
 Hfull = sparse( indRow, indCol, indUnk, size(mesh.f,1) * unkUhat, size(mesh.f,1) * unkUhat )
 
-# @time fact = ILU.crout_ilu( Hfull, τ = 0.1 )
 uhath = [0.]
 if method == :LU
     @time uhath = Hfull \ Rfull
 elseif method == :GMRES
     @time uhath = IterativeSolvers.gmres( Hfull, Rfull )
+elseif method == :GMRESILU
+    @time fact = ILU.crout_ilu( Hfull, τ = 0.1 )
+    @time uhath = IterativeSolvers.gmres( Hfull, Rfull, Pl=fact )
 end
 # ---------------------------------------------------------------------------- #
 
